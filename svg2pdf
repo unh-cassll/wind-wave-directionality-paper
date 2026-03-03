@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Set default directory as current directory if no argument provided
+DIR=${1:-.}
+
+# Check if Inkscape is installed
+if ! [ -x "$(command -v inkscape)" ]; then
+  echo 'Error: Inkscape is not installed.' >&2
+  exit 1
+fi
+
+for file in $DIR/*.svg; do
+    # Check if the file exists
+    if [[ -f "$file" ]]; then
+        # Convert SVG to PDF using Inkscape
+        inkscape --without-gui --export-pdf="${file%.svg}.pdf" "$file" > /dev/null 2>&1
+        echo "Converted $file to ${file%.svg}.pdf"
+    else
+        echo "$file does not exist."
+    fi
+done
