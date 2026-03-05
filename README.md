@@ -15,19 +15,23 @@ Clone the repository:
 git clone https://github.com/unh-cassll/wind-wave-directionality-paper.git
 cd E-PSS_paper
 ```
+Start MATLAB in your terminal:
+```
+matlab -nodisplay -nosplash
+```
 
-In MATLAB, call the data-grabbing routine (will run without input):
+Call the data-grabbing routine (will run without input):
 ```
 aa_step00_grab_data
 ```
-In MATLAB, call the figure-production function.
+Call the figure-production function.
 This will run without arguments, but it takes two Boolean inputs:
 
 1. skip intro figures?
 2. print figures to file?
 
 ```
-aa_step01_figure_generation_script
+aa_step01_figure_generation_script(false,true) % e.g.
 ```
 If you printed the figures to file (and you have access to a Linux CLI), you can convert the .svg files to .pdf by calling the bash script _svg2pdf_ from the terminal with the _figs/_ directory as an input:
 ```

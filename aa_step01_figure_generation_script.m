@@ -19,6 +19,9 @@ figure_style(fsize)
 
 full_pos = [50 100 1100 1000];
 
+raster_dpi = 150;
+raster_dpi_string = ['-r' num2str(raster_dpi)];
+
 if length(varargin) < 1
     skip_intro_figs = true;
 else
@@ -56,7 +59,11 @@ if ~skip_intro_figs
 
     if print_flag
 
-        figure(fignum);pause(0.5);print([fig_folder 'wind_wave_schematic_topdown.svg'],'-dsvg')
+        figure(fignum)
+        pause(0.5)
+        print([fig_folder 'wind_wave_schematic_topdown.svg'],'-dsvg')
+        pause(0.5)
+        print([fig_folder 'wind_wave_schematic_topdown.png'],'-dpng',raster_dpi_string)
 
     end
 
@@ -76,7 +83,11 @@ if ~skip_intro_figs
 
     if print_flag
 
-        figure(fignum);pause(0.5);print([fig_folder 'CapeCod_MV_ASIT_bathy.svg'],'-dsvg')
+        figure(fignum)
+        pause(0.5)
+        print([fig_folder 'CapeCod_MV_ASIT_bathy.svg'],'-dsvg')
+        pause(0.5)
+        print([fig_folder 'CapeCod_MV_ASIT_bathy.png'],'-dpng',raster_dpi_string)
 
     end
 
@@ -94,7 +105,11 @@ if ~skip_intro_figs
 
     if print_flag
 
-        figure(fignum);pause(0.5);print([fig_folder 'ASIT_Winter2019-2020_windrose.svg'],'-dsvg')
+        figure(fignum)
+        pause(0.5)
+        print([fig_folder 'ASIT_Winter2019-2020_windrose.svg'],'-dsvg')
+        pause(0.5)
+        print([fig_folder 'ASIT_Winter2019-2020_windrose.png'],'-dpng',raster_dpi_string)
 
     end
 
@@ -111,7 +126,11 @@ stacked_timeseries(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'stacked_timeseries_histograms.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'stacked_timeseries_histograms.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'stacked_timeseries_histograms.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -126,7 +145,11 @@ wavenumber_directional_and_omni_spect(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'wavenumber_directional_and_omni_spect.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'wavenumber_directional_and_omni_spect.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'wavenumber_directional_and_omni_spect.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -141,7 +164,11 @@ binned_omnispect(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'frequency_wavenumber_omnispect.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'frequency_wavenumber_omnispect.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'frequency_wavenumber_omnispect.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -156,7 +183,11 @@ frequency_wavenumber_spectral_subranges(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'frequency_wavenumber_spectral_subranges.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'frequency_wavenumber_spectral_subranges.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'frequency_wavenumber_spectral_subranges.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -171,7 +202,11 @@ normalized_transition_wavenumber(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'normalized_transition_wavenumber.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'normalized_transition_wavenumber.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'normalized_transition_wavenumber.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -187,7 +222,11 @@ scaled_spectra_and_transition_wavenumbers(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'scaled_spectra_and_transition_wavenumbers.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'scaled_spectra_and_transition_wavenumbers.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'scaled_spectra_and_transition_wavenumbers.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -202,7 +241,11 @@ directional_spectra_spreading_delta(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'directional_spectra_spreading_delta.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'directional_spectra_spreading_delta.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'directional_spectra_spreading_delta.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -217,7 +260,11 @@ lambda_S_ds_example(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'lambda_S_ds_example.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'lambda_S_ds_example.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'lambda_S_ds_example.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -232,7 +279,11 @@ spectra_S_ds_contours_example(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'spectra_S_ds_contours_example.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'spectra_S_ds_contours_example.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'spectra_S_ds_contours_example.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -247,7 +298,11 @@ S_ds_theta_all(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'S_ds_theta_all.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'S_ds_theta_all.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'S_ds_theta_all.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -262,7 +317,11 @@ breaking_wave_momentum_and_energy_flux(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'breaking_direction_rel_wind_by_wave_age.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'breaking_direction_rel_wind_by_wave_age.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'breaking_direction_rel_wind_by_wave_age.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -277,7 +336,11 @@ wind_wave_subrange_directions(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'wind_wave_subrange_directions.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'wind_wave_subrange_directions.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'wind_wave_subrange_directions.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -295,8 +358,17 @@ wave_age_binned_directional_spreading(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'frequency_wavenumber_directional_spreading_binned.svg'],'-dsvg')
-    figure(fignum+1);print([fig_folder 'normalized_directional_spreading_binned.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'frequency_wavenumber_directional_spreading_binned.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'frequency_wavenumber_directional_spreading_binned.png'],'-dpng',raster_dpi_string)
+    
+    figure(fignum+1)
+    pause(0.5)
+    print([fig_folder 'normalized_directional_spreading_binned.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'normalized_directional_spreading_binned.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -311,7 +383,11 @@ all_wind_speed_stress_profiles(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'all_wind_speed_stress_profiles.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'all_wind_speed_stress_profiles.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'all_wind_speed_stress_profiles.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -328,7 +404,11 @@ freq_spect_integral_moments(example_run_ind,fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'freq_spect_integral_moments.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'freq_spect_integral_moments.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'freq_spect_integral_moments.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -343,7 +423,11 @@ directional_spectra_spreading_revisit(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'directional_spectra_spreading_revisit.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'directional_spectra_spreading_revisit.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'directional_spectra_spreading_revisit.png'],'-dpng',raster_dpi_string)
 
 end
 
@@ -358,7 +442,11 @@ spectral_subrange_slope_extraction_example(fignum,fsize)
 
 if print_flag
 
-    figure(fignum);pause(0.5);print([fig_folder 'spectral_subrange_slope_extraction_example.svg'],'-dsvg')
+    figure(fignum)
+    pause(0.5)
+    print([fig_folder 'spectral_subrange_slope_extraction_example.svg'],'-dsvg')
+    pause(0.5)
+    print([fig_folder 'spectral_subrange_slope_extraction_example.png'],'-dpng',raster_dpi_string)
 
 end
 

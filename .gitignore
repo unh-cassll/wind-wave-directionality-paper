@@ -1,0 +1,20 @@
+# Ignore the entire codes/m_map/ folder
+codes/m_map/
+
+# Ignore specific file types in the figs/ folder
+figs/*.svg
+figs/*.pdf
+figs/*.png
+
+# Ignore specific .nc files in the data/ folder
+data/ASIT2019_EPSS_directional_spectra.nc
+data/ASIT2019_supporting_environmental_observations.nc
+data/ASIT2019_supporting_data_compilation.nc
+data/ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc
+
+# Ignore specific .mat files in the data/ folder
+data/global_figure_settings.mat
+data/ASIT2019_combined_frequency_slope_spectra.mat
+data/ASIT2019_combined_wavenumber_elevation_spectra.mat
+data/integrated_wave_breaking_quantities.mat
+data/wave_age_binned_breaking_quantities.mat
