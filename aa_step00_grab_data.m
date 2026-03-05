@@ -38,5 +38,6 @@ else
     websave('m_map.zip',remote_name);
     unzip('m_map.zip','codes/');
     delete('m_map.zip');
+    copyfile('data/gshhs_f.b','codes/m_map/data/gshhs_f.b')
 
 end

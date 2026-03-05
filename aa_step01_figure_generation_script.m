@@ -14,7 +14,7 @@ addpath codes/
 addpath codes/m_map/
 addpath data/
 
-fsize = 16;
+fsize = 18;
 figure_style(fsize)
 
 full_pos = [50 100 1100 1000];

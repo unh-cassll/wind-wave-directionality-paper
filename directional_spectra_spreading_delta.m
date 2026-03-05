@@ -166,7 +166,7 @@ end
 
 cbar_spect.Ticks = [-2 -1 0];
 cbar_spect.TickLabels = {'1%','10%','100%'};
-cbar_spect.Position = [0.12 0.86 0.235 0.0258];
+% cbar_spect.Position = [0.12 0.86 0.235 0.0258];
 set(get(cbar_spect,'label'),'String','$B^*(X,\theta)$','Interpreter','latex')
 
 cbar_spread.Ticks = [0.25 0.5 0.75];

@@ -105,6 +105,7 @@ k_hat_norm_lims = [5e-2 1e2];
 Delta_lims = [-1 1]*1;
 
 dir_ticks = 180*(-1:0.25:1);
+Delta_ticks = -1:0.5:1;
 
 delta_k(k_rad_m_Pyxis<klow,:) = NaN;
 delta_f(f_Hz_Pyxis<flow,:) = NaN;
@@ -166,8 +167,8 @@ for n = 1:length(wave_age_centers)
 
     k_sg_norm_n_s_binned(1,n) = k_sg/mean(k_eq_end_disp(inds_consider),'omitnan');
     k_sg_norm_n_s_binned(2,n) = k_sg/mean(k_sat_end(inds_consider),'omitnan');
-    
-    k_gc_norm_n_s_binned(1,n) = k_gc/mean(k_eq_end_disp(inds_consider),'omitnan');    
+
+    k_gc_norm_n_s_binned(1,n) = k_gc/mean(k_eq_end_disp(inds_consider),'omitnan');
     k_gc_norm_n_s_binned(2,n) = k_gc/mean(k_sat_end(inds_consider),'omitnan');
 
     diff_k_n = abs(k_n_hat_binned(n)-k_hat_binned);
@@ -352,8 +353,10 @@ a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 
 for n = 1:4
-    if ~mod(n,2)
-    ax_struc(n).ax.XTick = dir_ticks;
+    if mod(n,2)
+        ax_struc(n).ax.XTick = dir_ticks;
+    else
+        ax_struc(n).ax.XTick = Delta_ticks;
     end
     ax_struc(n).ax.YScale = 'log';
 end
@@ -483,8 +486,10 @@ a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 
 for n = 1:4
-    if ~mod(n,2)
-    ax_struc(n).ax.XTick = dir_ticks;
+    if mod(n,2)
+        ax_struc(n).ax.XTick = dir_ticks;
+    else
+        ax_struc(n).ax.XTick = Delta_ticks;
     end
     ax_struc(n).ax.YScale = 'log';
 end
