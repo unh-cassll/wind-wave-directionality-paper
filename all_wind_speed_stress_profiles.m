@@ -94,7 +94,9 @@ for n = 1:length(N)
     textborder(U_profile(n,end),23.5,num2str(N(n)), cmap(n,:), [0 0 0],'HorizontalAlignment','center','FontSize',12)
 end
 
-dim = [0.532 0.29 0.16 0.08];
+xpos = 0.52;
+
+dim = [xpos 0.29 0.16 0.08];
 str = 'mast';
 a = annotation('textbox',dim,'String',str);
 a.Rotation = 90;
@@ -102,7 +104,7 @@ a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 a.FontSize = fsize;
 
-dim = [0.532 0.74 0.06 0.08];
+dim = [xpos 0.74 0.06 0.08];
 str = 'tower';
 a = annotation('textbox',dim,'String',str);
 a.Rotation = 90;
