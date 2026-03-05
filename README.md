@@ -4,7 +4,7 @@ Codes and some data required to produce figures for a paper on wind wave directi
 Manuscript currently in preparation for the *Journal of Physical Oceanography* (*JPO*):
 
 "The directionality of wind waves from equilibrium to gravity-capillary scales"
-Nathan J. M. Laxague, Z. Göksu Duvarci, Jan-Victor Bj\"orkqvist, Junzhe Liu, Lindsay Hogan, Alejandro Cifuentes-Lorenzen, and Christopher J. Zappa
+Nathan J. M. Laxague, Z. Göksu Duvarci, Jan-Victor Björkqvist, Junzhe Liu, Lindsay Hogan, Alejandro Cifuentes-Lorenzen, and Christopher J. Zappa
 
 My own MATLAB scripts/functions are licensed under [CC-BY](LICENSE).
 
