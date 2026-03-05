@@ -13,7 +13,7 @@ My own MATLAB scripts/functions are licensed under [CC-BY](LICENSE).
 Clone the repository:
 ```
 git clone https://github.com/unh-cassll/wind-wave-directionality-paper.git
-cd E-PSS_paper
+cd wind-wave-directionality-paper
 ```
 Start MATLAB in your terminal:
 ```
