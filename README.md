@@ -35,5 +35,5 @@ aa_step01_figure_generation_script(false,true) % e.g.
 ```
 If you printed the figures to file (and you have access to a Linux CLI), you can convert the .svg files to .pdf by calling the bash script _svg2pdf_ from the terminal with the _figs/_ directory as an input:
 ```
-svg2pdf figs/
+./svg2pdf figs/
 ```
