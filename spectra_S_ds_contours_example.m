@@ -183,7 +183,7 @@ f.FaceAlpha = 0.5;
 pcolor(bigtheta_rad*180/pi,k_interp,log10(big_B_k_particular));colormap(viridis)
 for n = 1:length(S_ds_levels)
     [contour_c,contour_h] = contour(bigtheta_deg + 0.5,k_disp,log10(big_S_ds_contours),[S_ds_levels(n) 10],'-','Color',contour_color(n,:),'linewidth',2);
-    clabel(contour_c,contour_h,'FontSize',fsize,'Color',contour_color(n,:),'FontName','Liberation Serif')
+    clabel(contour_c,contour_h,'FontSize',fsize*0.75,'Color',contour_color(n,:),'FontName','Liberation Serif')
 end
 plot([0 0],[1e-10 1e10],'--','Color',0.5*[1 1 1],'linewidth',2)
 hold off

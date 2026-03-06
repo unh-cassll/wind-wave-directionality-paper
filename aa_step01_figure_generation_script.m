@@ -14,7 +14,7 @@ addpath codes/
 addpath codes/m_map/
 addpath data/
 
-fsize = 18;
+fsize = 20;
 figure_style(fsize)
 
 full_pos = [50 100 1100 1000];
@@ -344,9 +344,9 @@ if print_flag
 
 end
 
-%% Figure 17-18 - directional spreading, binned by wave age and plotted against normalized wavenumber
+%% Figure 16-17 - directional spreading, binned by wave age and plotted against normalized wavenumber
 
-fignum = 17;
+fignum = 16;
 
 figure(fignum);clf
 set(fignum,'Position',full_pos.*[1 1 1 1])
