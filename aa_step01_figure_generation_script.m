@@ -44,7 +44,8 @@ nu_high = 4;
 U_low = 1;
 U_high = 13;
 dU = 2;
-save('data/global_figure_settings.mat','example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU')
+wave_age_lims = [10 60];
+save('data/global_figure_settings.mat','example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU','wave_age_lims')
 
 %% Figure 01 - cartoon of wind-wave interaction
 

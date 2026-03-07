@@ -1,3 +1,6 @@
+# Ignore autosave files
+*.asv
+
 # Ignore the entire codes/m_map/ folder
 codes/m_map/
 

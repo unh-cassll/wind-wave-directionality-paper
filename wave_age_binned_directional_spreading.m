@@ -56,7 +56,8 @@ for n = 1:length(U_sfc_mag_m_s)
 
 end
 
-wave_age_lims = [10 70];
+s = load('data/global_figure_settings.mat');
+wave_age_lims = s.wave_age_lims;
 d_wave_age = 10;
 wave_age_centers = wave_age_lims(1):d_wave_age:wave_age_lims(2);
 

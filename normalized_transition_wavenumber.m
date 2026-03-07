@@ -1,5 +1,5 @@
 %
-function normalized_transition_wavenumber(fignum,fsize)
+% function normalized_transition_wavenumber(fignum,fsize)
 
 in_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 
@@ -131,7 +131,7 @@ scatter(ko_HW_full./k_p_disp,k_eq_end_disp./k_p_disp,0.8*msize^2,(wave_age_full)
 hold off
 box on
 cbar = colorbar;
-clim(10.^[1 2])
+clim([10 100])
 colormap(cmap)
 set(get(cbar,'Title'),'String','c_E/u_*')
 ax_struc(2).ax = gca;
@@ -166,5 +166,4 @@ ko_HW_full = ko_HW_full(:);
 k_eq_end_disp = k_eq_end_disp(:);
 
 inds_keep = ~isnan(ko_HW_full) & ~isnan(k_eq_end_disp);
-lm = fitlm(ko_HW_full(inds_keep),k_eq_end_disp(inds_keep));
-r2 = lm.Rsquared.Ordinary
+[r2,rmse] = rsquare(ko_HW_full(inds_keep),k_eq_end_disp(inds_keep))

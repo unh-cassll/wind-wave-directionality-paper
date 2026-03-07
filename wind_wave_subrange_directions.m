@@ -15,6 +15,9 @@ integrated_wave_breaking_quantities = load('data/integrated_wave_breaking_quanti
 
 wind_driven_current_data = load('ASIT2019_skin_Doppler_subsurface_velocities.mat');
 
+s = load('data/global_figure_settings.mat');
+wave_age_lims = s.wave_age_lims;
+
 current_Winddir = wind_driven_current_data.depth_01cm_Winddir;
 current_U_dir = wind_driven_current_data.depth_01cm_Udir;
 current_Wavedir = wind_driven_current_data.depth_01cm_Wavedir;
@@ -227,8 +230,6 @@ msize = 6;
 lw = 0.5;
 
 fA = 0.2;
-
-wave_age_lims = [10 70];
 
 figure(fignum);clf
 tlayout = tiledlayout(3,2);
