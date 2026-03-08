@@ -1,5 +1,5 @@
 %
-% function normalized_transition_wavenumber(fignum,fsize)
+function normalized_transition_wavenumber(fignum,fsize)
 
 in_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 
@@ -69,9 +69,13 @@ beta = 2*E*g^0.5./EC_ustar_m_s;
 
 %
 
-our_color = [104 71 141]/255;
-RM_color = [0 124 124]/255;
-% RM_color = [1 1 1]*0.65;
+cmap = viridis(7);
+cerulean = cmap(3,:);
+
+our_color = cerulean;
+RM_color = [1 1 1]*0.6;
+% our_color = [104 71 141]/255;
+% RM_color = [0 124 124]/255;
 
 msize = 7;
 lw_thin = 0.5;

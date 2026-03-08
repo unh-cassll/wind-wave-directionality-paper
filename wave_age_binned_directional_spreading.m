@@ -91,6 +91,9 @@ end
 D_k_50th_halfwidth = 180/pi*squeeze(D_k_limits_block(:,2,:) - D_k_limits_block(:,1,:))/2;
 D_f_50th_halfwidth = 180/pi*squeeze(D_f_limits_block(:,2,:) - D_f_limits_block(:,1,:))/2;
 
+ind_k_high = find(k_rad_m_Pyxis>371,1,'first');
+D_k_50th_halfwidth(ind_k_high:end,:) = NaN;
+
 s = load('data/global_figure_settings.mat');
 klow = s.k_low;
 
@@ -200,6 +203,7 @@ for n = 1:length(wave_age_centers)
 
     ind_max_theta_halfwidth_f(n) = find(D_f_50th_binned(:,n)==nanmax(D_f_50th_binned(:,n)),1,'first');
     ind_min_Delta_f(n) = find(delta_f_binned(:,n)==nanmin(delta_f_binned(:,n)),1,'first');
+    ind_min_Delta_k(n) = find(delta_k_binned(:,n)==nanmin(delta_k_binned(:,n)),1,'first');
 
 end
 
@@ -305,9 +309,9 @@ nexttile(4)
 hold on
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot([delta_k_binned(ind_match_s(n),n) -0.5],k_s_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',3)
-    plot([delta_k_binned(ind_match_s(n),n) -0.5],0.96*k_s_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot([delta_k_binned(ind_match_s(n),n) -0.5],1.04*k_s_hat_binned(n)*[1 1],'k','linewidth',0.5)
+    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],k_s_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',3)
+    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],0.96*k_s_hat_binned(n)*[1 1],'k','linewidth',0.5)
+    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],1.04*k_s_hat_binned(n)*[1 1],'k','linewidth',0.5)
     plot(-0.5,k_s_hat_binned(n),'s','markersize',7,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',0.5)
 end
 plot([0 0],k_hat_lims,'--','Color',0.5*[1 1 1],'linewidth',2)
@@ -337,7 +341,7 @@ cbar.Layout.TileSpan = [2 2];
 cbar.Ticks = clims(1):d_wave_age:clims(end);
 set(get(cbar,'Title'),'String','c_E/u_*')
 
-boxdims = [0.42 0.593 0.185 0.10];
+boxdims = [0.41 0.585 0.185 0.10];
 str = 'upper limit of equilibrium range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -345,7 +349,7 @@ a.FontSize = fsize*1;
 a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 
-boxdims = [0.42 0.215 0.185 0.10];
+boxdims = [0.41 0.21 0.185 0.10];
 str = {'upper limit of','saturation range'};
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -470,7 +474,7 @@ set(get(cbar,'Title'),'String','c_E/u_*')
 tile_cleaner(ax_struc,tlayout)
 tlayout.TileSpacing = 'tight';
 
-boxdims = [0.43 0.68 0.16 0.06];
+boxdims = [0.42 0.68 0.16 0.06];
 str = 'upper limit of equilibrium range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -478,7 +482,7 @@ a.FontSize = fsize*1;
 a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 
-boxdims = [0.44 0.28 0.15 0.06];
+boxdims = [0.43 0.28 0.15 0.06];
 str = 'upper limit of saturation range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';

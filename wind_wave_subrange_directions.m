@@ -92,7 +92,7 @@ theta_sat = theta_eq;
 theta_sg = theta_eq;
 theta_gc = theta_eq;
 
-inds_gc = k_rad_m > 117;
+inds_gc = k_rad_m > 117 & k_rad_m < 371;
 
 for n = 1:length(f_eq_start)
 

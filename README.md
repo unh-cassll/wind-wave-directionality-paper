@@ -25,13 +25,13 @@ Call the data-grabbing routine (will run without input):
 aa_step00_grab_data
 ```
 Call the figure-production function.
-This will run without arguments, but it takes two Boolean inputs:
+This will run without arguments, but it takes two inputs:
 
-1. skip intro figures?
-2. print figures to file?
+1. list of figure numbers (array of integers, e.g., [1 3 5 7 9])
+2. print figures to file? (Boolean, e.g. _true_ or _false_)
 
 ```
-aa_step01_figure_generation_script(false,true) % e.g.
+aa_step01_figure_generation_script([13 14],true) % e.g.
 ```
 If you printed the figures to file (and you have access to a Linux CLI), you can convert the .svg files to .pdf by calling the bash script _svg2pdf_ from the terminal with the _figs/_ directory as an input:
 ```

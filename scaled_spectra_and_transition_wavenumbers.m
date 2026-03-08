@@ -19,6 +19,9 @@ load('data/wavenumber_spect_range_limits.mat')
 
 load('data/LenainMelville2017_kn.mat')
 
+cmap = viridis(7);
+cerulean = cmap(3,:);
+
 f_p = f_E;
 
 f_p = f_p(:);
@@ -79,9 +82,11 @@ for n = 1:length(ustar_norm_centers)
 
 end
 
+our_color = cerulean;
+LM_color = [1 1 1]*0.4;
 % our_color = [0.6 0 0];
-our_color = [104 71 141]/255;
-LM_color = [0 124 124]/255;
+% our_color = [104 71 141]/255;
+% LM_color = [0 124 124]/255;
 msize = 7;
 scat_size = 0.8*msize^2;
 
@@ -118,7 +123,8 @@ ax.YScale = 'log';
 
 nexttile(2)
 hold on
-h_LM2017 = scatter(LM2017_ustar_norm,LM2017_kn,scat_size,LM_color,'filled');
+% h_LM2017 = scatter(LM2017_ustar_norm,LM2017_kn,scat_size,LM_color,'filled');
+h_LM2017 = plot(LM2017_ustar_norm,LM2017_kn,'o','markersize',msize,'markerfacecolor','w','markeredgecolor',LM_color,'linewidth',2);
 h_ours_all = scatter(ustar_norm,k_eq_end_disp,scat_size,our_color,'filled');
 for i = 1:length(k_n_binned)
     plot(ustar_norm_centers(i)*[1 1],k_n_binned(i)+[-1 1]*k_n_std_e(i)*1.96,'-','Color',our_color,'linewidth',2)
