@@ -45,14 +45,16 @@ end
 
 cmap = magma(length(wind_speed_centers));
 
+msize = 20;
+
 figure(fignum);clf
 set(gcf,'Position',[50 50 1100 550])
 tlayout = tiledlayout(1,2);
 
 nexttile(1)
 hold on
-plot(U_profile',z_profile','k.-','linewidth',3.5)
-plot(U_profile',z_profile','.-','linewidth',2)
+plot(U_profile',z_profile','k.-','markersize',msize,'linewidth',3.5)
+plot(U_profile',z_profile','.-','markersize',msize*0.8,'linewidth',2)
 hold off
 box on
 xlim([0 20])
@@ -64,8 +66,8 @@ ax_struc(1).ax = gca;
 
 nexttile(2)
 hold on
-plot(tau_profile',z_profile','k.-','linewidth',3.5)
-plot(tau_profile',z_profile','.-','linewidth',2)
+plot(tau_profile',z_profile','k.-','markersize',msize,'linewidth',3.5)
+plot(tau_profile',z_profile','.-','markersize',msize*0.8,'linewidth',2)
 hold off
 box on
 xlim([5e-3 1e0])
@@ -87,11 +89,9 @@ ax_struc(2).ax.XScale = 'log';
 tile_cleaner(ax_struc,tlayout)
 
 nexttile(1)
+text(1.0,23.5,'N  = ','Color','k','HorizontalAlignment','center','FontSize',16)
 for n = 1:length(N)
-    textborder(U_profile(n,end),23.5,num2str(N(n)), cmap(n,:), [0 0 0],'HorizontalAlignment','center','FontSize',12)
-end
-for n = 1:length(N)
-    textborder(U_profile(n,end),23.5,num2str(N(n)), cmap(n,:), [0 0 0],'HorizontalAlignment','center','FontSize',12)
+    text(U_profile(n,end),23.5,num2str(N(n)),'Color','k','HorizontalAlignment','center','FontSize',16)
 end
 
 xpos = 0.52;

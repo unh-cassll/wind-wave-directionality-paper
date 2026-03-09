@@ -22,7 +22,7 @@ full_pos = [50 100 1100 1000];
 raster_dpi = 300;
 raster_dpi_string = ['-r' num2str(raster_dpi)];
 
-num_figs = 20;
+num_figs = 21;
 
 if length(varargin) < 1
     fig_list = 1:num_figs;
@@ -399,7 +399,7 @@ for fignum = fig_list
 
             %% Figure B1
 
-            fignum = 102;
+        case 19
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 0.5 0.6])
@@ -420,7 +420,7 @@ for fignum = fig_list
 
             %% Figure B2
 
-        case 19
+        case 20
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 0.5 0.5 1.25])
@@ -439,7 +439,7 @@ for fignum = fig_list
 
             %% Figure C1
 
-        case 20
+        case 21
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 0.5 0.5 1])

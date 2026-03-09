@@ -341,7 +341,7 @@ cbar.Layout.TileSpan = [2 2];
 cbar.Ticks = clims(1):d_wave_age:clims(end);
 set(get(cbar,'Title'),'String','c_E/u_*')
 
-boxdims = [0.41 0.585 0.185 0.10];
+boxdims = [0.42 0.593 0.185 0.10];
 str = 'upper limit of equilibrium range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -349,7 +349,7 @@ a.FontSize = fsize*1;
 a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 
-boxdims = [0.41 0.21 0.185 0.10];
+boxdims = [0.42 0.22 0.185 0.10];
 str = {'upper limit of','saturation range'};
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -474,7 +474,7 @@ set(get(cbar,'Title'),'String','c_E/u_*')
 tile_cleaner(ax_struc,tlayout)
 tlayout.TileSpacing = 'tight';
 
-boxdims = [0.42 0.68 0.16 0.06];
+boxdims = [0.43 0.68 0.16 0.06];
 str = 'upper limit of equilibrium range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -482,7 +482,7 @@ a.FontSize = fsize*1;
 a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 
-boxdims = [0.43 0.28 0.15 0.06];
+boxdims = [0.44 0.28 0.15 0.06];
 str = 'upper limit of saturation range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
