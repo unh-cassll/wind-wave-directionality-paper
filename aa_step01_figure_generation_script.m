@@ -80,7 +80,7 @@ for fignum = fig_list
         case 2
 
             figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 1 0.45])
+            set(fignum,'Position',full_pos.*[1 1 1 0.55])
 
             generate_MV_ASIT_map(fignum,fsize)
 
