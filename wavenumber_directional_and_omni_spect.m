@@ -133,7 +133,7 @@ xlabel('k [rad m^{-1}]')
 ylabel('B(k) [rad]')
 H = [h_omni h_down h_cross h_up];
 L = {'omni','downwind','crosswind','upwind'};
-legend(H,L,'Location','southeast')
+legend(H,L,'Location','south')
 text(text_x,text_y,'(b)','FontSize',fsize,'Units','normalized')
 
 text(0.25,0.92,'E-PSS','FontSize',fsize,'Units','normalized','HorizontalAlignment','center')

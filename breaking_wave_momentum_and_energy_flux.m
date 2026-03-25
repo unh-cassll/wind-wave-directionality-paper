@@ -82,7 +82,7 @@ end
 
 binned_viscous_stress = interp1(U10i,viscosity_dynamic*shear_fit_toskin_5_8_12(:,2),binned_u10,'pchip');
 
-msize = 8;
+msize = 10;
 
 figure(fignum);clf
 tlayout = tiledlayout(2,1);
@@ -92,7 +92,7 @@ nexttile()
 hold on
 plot([0 100],[0 0],'--','linewidth',2,'Color',0.5*[1 1 1])
 plot(wave_age,off_wind_theta_br,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize,'linewidth',0.5)
-scatter(wave_age,off_wind_theta_br,0.8*msize^2,off_wind_theta_E,'filled')
+scatter(wave_age,off_wind_theta_br,0.65*msize^2,off_wind_theta_E,'filled')
 plot(binned_wave_age,binned_theta_wave_minus_theta_wind,'o-','color','k','markerfacecolor','k','markeredgecolor','k','markersize',msize*2.25,'linewidth',2)
 for i = 1:length(binned_binsize)
     text(binned_wave_age(i),binned_theta_wave_minus_theta_wind(i),num2str(binned_binsize(i)),'Color','w','FontSize',fsize,'FontWeight','bold','HorizontalAlignment','center')
@@ -118,7 +118,7 @@ nexttile()
 hold on
 plot([0 100],[0 0],'--','linewidth',2,'Color',0.5*[1 1 1])
 plot(wave_age,Momentum_flux_br,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize,'linewidth',0.5)
-scatter(wave_age,Momentum_flux_br,0.8*msize^2,off_wind_theta_E,'filled')
+scatter(wave_age,Momentum_flux_br,0.65*msize^2,off_wind_theta_E,'filled')
 plot(binned_wave_age,binned_momentum_flux,'o-','color','k','markerfacecolor','k','markeredgecolor','k','markersize',msize*1.25,'linewidth',2)
 plot(binned_wave_age,rho_a*binned_ustar.^2,'s:','color','k','markerfacecolor','none','markeredgecolor','k','markersize',msize*1.75,'linewidth',2.5)
 plot(binned_wave_age,binned_viscous_stress,'d--','color','k','markerfacecolor','none','markeredgecolor','k','markersize',msize*1.75,'linewidth',2.5)

@@ -190,8 +190,8 @@ for n = [3 6]
     hold off
 end
 
-text_x = 0.07;
-text_y = 0.95;
+text_x = 0.08;
+text_y = 0.94;
 labels = {'(a)','(b)','(c)','(d)','(e)','(f)'};
 
 fill_vals = [1 1 0 1 1 0];

@@ -17,6 +17,7 @@ Options.legendfontsize = fsize*3/4;
 Options.TitleString = '';
 Options.legendvariable = 'U_{10}';
 Options.lablegend = [];
+Options.legendposition = 'southeast';
 % Options.NSpeeds = 7;
 
 U_high = 13;

@@ -165,8 +165,8 @@ nexttile(1)
 hold on
 loglog(f_Hz_combined,F_f_binned,'k-','linewidth',3)
 loglog(f_Hz_combined,F_f_binned,'linewidth',2)
-plot(f_eq,1e-2*f_eq.^-4,'k--','linewidth',2)
-plot(f_sat,5e-3*f_sat.^-5,'k:','linewidth',2)
+plot(f_eq,1e-2*f_eq.^-4,'k--','linewidth',2.5)
+plot(f_sat,5e-3*f_sat.^-5,'k:','linewidth',3)
 hold off
 colororder(cmap_binned)
 colormap(cmap_binned)
@@ -181,8 +181,8 @@ nexttile(2)
 hold on
 loglog(k_rad_m_combined,F_k_binned,'k-','linewidth',3)
 loglog(k_rad_m_combined,F_k_binned,'linewidth',2)
-plot(k_eq,4e-2*k_eq.^-2.5,'k--','linewidth',2)
-plot(k_sat,4e-2*k_sat.^-3,'k:','linewidth',2)
+plot(k_eq,4e-2*k_eq.^-2.5,'k--','linewidth',2.5)
+plot(k_sat,4e-2*k_sat.^-3,'k:','linewidth',3)
 hold off
 colororder(cmap_binned)
 xlim([1e-2 1e3])
@@ -195,8 +195,8 @@ nexttile(3)
 hold on
 loglog(f_Hz_combined,k_rad_m_disp.^2.*f_Hz_combined.*F_f_binned,'k-','linewidth',3)
 loglog(f_Hz_combined,k_rad_m_disp.^2.*f_Hz_combined.*F_f_binned,'linewidth',2)
-plot(f_eq,1.2*3e-2*f_eq.^1,'k--','linewidth',2)
-plot(f_sat,1.2*1.5e-2*f_sat.^0,'k:','linewidth',2)
+plot(f_eq,1.2*3e-2*f_eq.^1,'k--','linewidth',2.5)
+plot(f_sat,1.2*1.5e-2*f_sat.^0,'k:','linewidth',3)
 hold off
 colororder(cmap_binned)
 xlim([1e-2 2e1])
@@ -209,8 +209,8 @@ nexttile(4)
 hold on
 loglog(k_rad_m_combined,k_rad_m_combined.^3.*F_k_binned,'k-','linewidth',3)
 loglog(k_rad_m_combined,k_rad_m_combined.^3.*F_k_binned,'linewidth',2)
-plot(k_eq,1.8e-2*k_eq.^0.5,'k--','linewidth',2)
-plot(k_sat,1.7e-2*k_sat.^0,'k:','linewidth',2)
+plot(k_eq,1.8e-2*k_eq.^0.5,'k--','linewidth',2.5)
+plot(k_sat,1.7e-2*k_sat.^0,'k:','linewidth',3)
 hold off
 colororder(cmap_binned)
 xlim([1e-2 1e3])

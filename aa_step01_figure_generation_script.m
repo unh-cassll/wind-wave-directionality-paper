@@ -14,7 +14,7 @@ addpath codes/
 addpath codes/m_map/
 addpath data/
 
-fsize = 20;
+fsize = 24;
 figure_style(fsize)
 
 full_pos = [50 100 1100 1000];
@@ -233,7 +233,7 @@ for fignum = fig_list
         case 10
 
             figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 1 2/3])
+            set(fignum,'Position',full_pos.*[1 1 1 0.75])
 
             directional_spectra_spreading_delta(fignum,fsize)
 

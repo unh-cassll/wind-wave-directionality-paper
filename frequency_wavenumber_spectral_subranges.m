@@ -29,7 +29,9 @@ text_x = 0.05;
 text_y = 0.95;
 labels = {'(a)','(b)','(c)','(d)'};
 
-scat_size = 49;
+scat_size = 64;
+lw_thick = 3;
+lw_thin = 2;
 
 fit_U10 = (1:0.1:14)';
 
@@ -85,15 +87,24 @@ h_sat_end = scatter(EC_U10_m_s,f_sat_end,scat_size,crimson,'filled');
 h_eq_start_binned = scatter(U10_mean,f_block(:,1),2*scat_size,violet,'filled');
 h_eq_end_binned = scatter(U10_mean,f_block(:,2),2*scat_size,teal,'filled');
 h_sat_end_binned = scatter(U10_mean,f_block(:,3),2*scat_size,crimson,'filled');
-plot(fit_U10,f_eq_start_predict,'-','Color',violet,'linewidth',1.5)
-plot(fit_U10,f_eq_start_ci(:,1),'--','Color',violet,'linewidth',1.5)
-plot(fit_U10,f_eq_start_ci(:,2),'--','Color',violet,'linewidth',1.5)
-plot(fit_U10,f_eq_end_predict,'-','Color',teal,'linewidth',1.5)
-plot(fit_U10,f_eq_end_ci(:,1),'--','Color',teal,'linewidth',1.5)
-plot(fit_U10,f_eq_end_ci(:,2),'--','Color',teal,'linewidth',1.5)
-plot(fit_U10,f_sat_end_predict,'-','Color',crimson,'linewidth',1.5)
-plot(fit_U10,f_sat_end_ci(:,1),'--','Color',crimson,'linewidth',1.5)
-plot(fit_U10,f_sat_end_ci(:,2),'--','Color',crimson,'linewidth',1.5)
+plot(fit_U10,f_eq_start_predict,'-','Color',violet,'linewidth',lw_thin)
+% plot(fit_U10,f_eq_start_ci(:,1),'--','Color',violet,'linewidth',lw_thin)
+% plot(fit_U10,f_eq_start_ci(:,2),'--','Color',violet,'linewidth',lw_thin)
+f_shaded = fill([fit_U10; flipud(fit_U10)],[f_eq_start_ci(:,1); flipud(f_eq_start_ci(:,2))],violet);
+f_shaded.FaceAlpha = fA;
+f_shaded.LineStyle = 'none';
+plot(fit_U10,f_eq_end_predict,'-','Color',teal,'linewidth',lw_thin)
+% plot(fit_U10,f_eq_end_ci(:,1),'--','Color',teal,'linewidth',lw_thin)
+% plot(fit_U10,f_eq_end_ci(:,2),'--','Color',teal,'linewidth',lw_thin)
+f_shaded = fill([fit_U10; flipud(fit_U10)],[f_eq_end_ci(:,1); flipud(f_eq_end_ci(:,2))],teal);
+f_shaded.FaceAlpha = fA;
+f_shaded.LineStyle = 'none';
+plot(fit_U10,f_sat_end_predict,'-','Color',crimson,'linewidth',lw_thin)
+% plot(fit_U10,f_sat_end_ci(:,1),'--','Color',crimson,'linewidth',lw_thin)
+% plot(fit_U10,f_sat_end_ci(:,2),'--','Color',crimson,'linewidth',lw_thin)
+f_shaded = fill([fit_U10; flipud(fit_U10)],[f_sat_end_ci(:,1); flipud(f_sat_end_ci(:,2))],crimson);
+f_shaded.FaceAlpha = fA;
+f_shaded.LineStyle = 'none';
 hold off
 box on
 xlim(U_lims)
@@ -141,16 +152,25 @@ h_sat_end = scatter(EC_U10_m_s,f_sat_end./f_p(:),scat_size,crimson,'filled');
 h_eq_start_binned = scatter(U10_mean,f_norm_block(:,1),2*scat_size,violet,'filled');
 h_eq_end_binned = scatter(U10_mean,f_norm_block(:,2),2*scat_size,teal,'filled');
 h_sat_end_binned = scatter(U10_mean,f_norm_block(:,3),2*scat_size,crimson,'filled');
-plot(fit_U10,f_eq_start_predict,'-','Color',violet,'linewidth',1.5)
-plot(fit_U10,f_eq_start_ci(:,1),'--','Color',violet,'linewidth',1.5)
-plot(fit_U10,f_eq_start_ci(:,2),'--','Color',violet,'linewidth',1.5)
-plot(fit_U10,f_eq_end_predict,'-','Color',teal,'linewidth',1.5)
-plot(fit_U10,f_eq_end_ci(:,1),'--','Color',teal,'linewidth',1.5)
-plot(fit_U10,f_eq_end_ci(:,2),'--','Color',teal,'linewidth',1.5)
-plot(fit_U10,f_sat_end_predict,'-','Color',crimson,'linewidth',1.5)
-plot(fit_U10,f_sat_end_ci(:,1),'--','Color',crimson,'linewidth',1.5)
-plot(fit_U10,f_sat_end_ci(:,2),'--','Color',crimson,'linewidth',1.5)
-plot(U_lims,2*[1 1],'-.','Color',violet,'linewidth',2)
+plot(fit_U10,f_eq_start_predict,'-','Color',violet,'linewidth',lw_thin)
+% plot(fit_U10,f_eq_start_ci(:,1),'--','Color',violet,'linewidth',lw_thin)
+% plot(fit_U10,f_eq_start_ci(:,2),'--','Color',violet,'linewidth',lw_thin)
+f_shaded = fill([fit_U10; flipud(fit_U10)],[f_eq_start_ci(:,1); flipud(f_eq_start_ci(:,2))],violet);
+f_shaded.FaceAlpha = fA;
+f_shaded.LineStyle = 'none';
+plot(fit_U10,f_eq_end_predict,'-','Color',teal,'linewidth',lw_thin)
+% plot(fit_U10,f_eq_end_ci(:,1),'--','Color',teal,'linewidth',lw_thin)
+% plot(fit_U10,f_eq_end_ci(:,2),'--','Color',teal,'linewidth',lw_thin)
+f_shaded = fill([fit_U10; flipud(fit_U10)],[f_eq_end_ci(:,1); flipud(f_eq_end_ci(:,2))],teal);
+f_shaded.FaceAlpha = fA;
+f_shaded.LineStyle = 'none';
+plot(fit_U10,f_sat_end_predict,'-','Color',crimson,'linewidth',lw_thin)
+% plot(fit_U10,f_sat_end_ci(:,1),'--','Color',crimson,'linewidth',lw_thin)
+% plot(fit_U10,f_sat_end_ci(:,2),'--','Color',crimson,'linewidth',lw_thin)
+f_shaded = fill([fit_U10; flipud(fit_U10)],[f_sat_end_ci(:,1); flipud(f_sat_end_ci(:,2))],crimson);
+f_shaded.FaceAlpha = fA;
+f_shaded.LineStyle = 'none';
+plot(U_lims,2*[1 1],'-.','Color',violet,'linewidth',lw_thick)
 hold off
 box on
 xlim(U_lims)
@@ -235,9 +255,6 @@ for n = 1:length(U_sfc_mag_m_s)
 
 end
 
-
-scat_size = 49;
-
 fit_U10 = (1:0.1:14)';
 
 s = load('data/global_figure_settings.mat');
@@ -294,12 +311,15 @@ h_eq_start_binned = scatter(U10_mean,k_block_disp(:,1),2*scat_size,violet);
 h_eq_end_binned = scatter(U10_mean,k_block_disp(:,2),2*scat_size,teal);
 h_sat_end_binned = scatter(U10_mean,k_block_disp(:,3),2*scat_size,crimson);
 h_sat_end_true_binned = scatter(U10_mean,k_block,2*scat_size,crimson,'filled');
-plot(fit_U10,k_eq_start_predict,':','Color',violet,'linewidth',2)
-plot(fit_U10,k_eq_end_predict,':','Color',teal,'linewidth',2)
-plot(fit_U10,k_sat_end_predict,':','Color',crimson,'linewidth',2)
-plot(fit_U10,k_sat_end_true_predict,'-','Color',crimson,'linewidth',1.5)
-plot(fit_U10,k_sat_end_true_ci(:,1),'--','Color',crimson,'linewidth',1.5)
-plot(fit_U10,k_sat_end_true_ci(:,2),'--','Color',crimson,'linewidth',1.5)
+plot(fit_U10,k_eq_start_predict,':','Color',violet,'linewidth',lw_thick)
+plot(fit_U10,k_eq_end_predict,':','Color',teal,'linewidth',lw_thick)
+plot(fit_U10,k_sat_end_predict,':','Color',crimson,'linewidth',lw_thick)
+plot(fit_U10,k_sat_end_true_predict,'-','Color',crimson,'linewidth',lw_thin)
+% plot(fit_U10,k_sat_end_true_ci(:,1),'--','Color',crimson,'linewidth',lw_thin)
+% plot(fit_U10,k_sat_end_true_ci(:,2),'--','Color',crimson,'linewidth',lw_thin)
+f_shaded = fill([fit_U10; flipud(fit_U10)],[k_sat_end_true_ci(:,1); flipud(k_sat_end_true_ci(:,2))],crimson);
+f_shaded.FaceAlpha = fA;
+f_shaded.LineStyle = 'none';
 hold off
 box on
 xlim(U_lims)
@@ -313,9 +333,9 @@ h_eq_start_binned.Marker = 's';
 h_eq_end_binned.Marker = 's';
 h_sat_end_binned.Marker = 's';
 h_sat_end_true_binned.Marker = 's';
-h_eq_start_binned.LineWidth = 1.5;
-h_eq_end_binned.LineWidth = 1.5;
-h_sat_end_binned.LineWidth = 1.5;
+h_eq_start_binned.LineWidth = lw_thin;
+h_eq_end_binned.LineWidth = lw_thin;
+h_sat_end_binned.LineWidth = lw_thin;
 
 ax_struc(2).ax = gca;
 ax_struc(2).ax.YScale = 'log';
@@ -346,12 +366,15 @@ h_eq_start_binned = scatter(U10_mean,k_norm_block_disp(:,1),2*scat_size,violet);
 h_eq_end_binned = scatter(U10_mean,k_norm_block_disp(:,2),2*scat_size,teal);
 h_sat_end_binned = scatter(U10_mean,k_norm_block_disp(:,3),2*scat_size,crimson);
 h_sat_end_true_binned = scatter(U10_mean,k_norm_block,2*scat_size,crimson,'filled');
-plot(fit_U10,k_eq_start_predict,':','Color',violet,'linewidth',2)
-plot(fit_U10,k_eq_end_predict,':','Color',teal,'linewidth',2)
-plot(fit_U10,k_sat_end_predict,':','Color',crimson,'linewidth',2)
-plot(fit_U10,k_sat_end_true_predict,'-','Color',crimson,'linewidth',1.5)
-plot(fit_U10,k_sat_end_true_ci(:,1),'--','Color',crimson,'linewidth',1.5)
-plot(fit_U10,k_sat_end_true_ci(:,2),'--','Color',crimson,'linewidth',1.5)
+plot(fit_U10,k_eq_start_predict,':','Color',violet,'linewidth',lw_thick)
+plot(fit_U10,k_eq_end_predict,':','Color',teal,'linewidth',lw_thick)
+plot(fit_U10,k_sat_end_predict,':','Color',crimson,'linewidth',lw_thick)
+plot(fit_U10,k_sat_end_true_predict,'-','Color',crimson,'linewidth',lw_thin)
+% plot(fit_U10,k_sat_end_true_ci(:,1),'--','Color',crimson,'linewidth',lw_thin)
+% plot(fit_U10,k_sat_end_true_ci(:,2),'--','Color',crimson,'linewidth',lw_thin)
+f_shaded = fill([fit_U10; flipud(fit_U10)],[k_sat_end_true_ci(:,1); flipud(k_sat_end_true_ci(:,2))],crimson);
+f_shaded.FaceAlpha = fA;
+f_shaded.LineStyle = 'none';
 hold off
 box on
 xlim(U_lims)
@@ -365,9 +388,9 @@ h_eq_start_binned.Marker = 's';
 h_eq_end_binned.Marker = 's';
 h_sat_end_binned.Marker = 's';
 h_sat_end_true_binned.Marker = 's';
-h_eq_start_binned.LineWidth = 1.5;
-h_eq_end_binned.LineWidth = 1.5;
-h_sat_end_binned.LineWidth = 1.5;
+h_eq_start_binned.LineWidth = lw_thin;
+h_eq_end_binned.LineWidth = lw_thin;
+h_sat_end_binned.LineWidth = lw_thin;
 
 ax_struc(4).ax = gca;
 ax_struc(4).ax.YScale = 'log';

@@ -183,7 +183,7 @@ f.FaceAlpha = 0.5;
 pcolor(bigtheta_rad*180/pi,k_interp,log10(big_B_k_particular));colormap(viridis)
 for n = 1:length(S_ds_levels)
     [contour_c,contour_h] = contour(bigtheta_deg + 0.5,k_disp,log10(big_S_ds_contours),[S_ds_levels(n) 10],'-','Color',contour_color(n,:),'linewidth',2);
-    clabel(contour_c,contour_h,'FontSize',fsize*0.75,'Color',contour_color(n,:),'FontName','Liberation Serif')
+    clabel(contour_c,contour_h,'FontSize',fsize*0.6,'Color',contour_color(n,:),'FontName','Liberation Serif')
 end
 plot([0 0],[1e-10 1e10],'--','Color',0.5*[1 1 1],'linewidth',2)
 hold off
@@ -192,7 +192,7 @@ shading('flat')
 cbar = colorbar;
 cbar.Location = 'northoutside';
 set(get(cbar,'Label'),'String','$\mathrm{log_{10}}\{B(k,\theta)\}$','Interpreter','LaTeX')
-text(-170,0.7,'$\mathrm{log_{10}}\{k^4S_{ds}(k,\theta)\}$','Interpreter','LaTeX','FontSize',fsize,'Color','w','HorizontalAlignment','left')
+text(-175,0.65,'$\mathrm{log_{10}}\{k^4S_{ds}(k,\theta)\}$','Interpreter','LaTeX','FontSize',fsize,'Color','w','HorizontalAlignment','left')
 ax_struc(1).ax.YScale = 'log';
 shading('flat')
 clim([-4 -2.5])
@@ -200,13 +200,18 @@ xlim([-180 180])
 ylim([5e-1 1e2])
 ylabel('$k$ [rad m$^{-1}$]','Interpreter','LaTeX')
 
+S_in_Plant = -trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)');
+
 nexttile(2)
 hold on
 plot([-180 180],[0 0],'--','Color',0.5*[1 1 1],'linewidth',2)
 plot([0 0],[-180 180],'--','Color',0.5*[1 1 1],'linewidth',2)
-h_in = plot(bigtheta_deg,-trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)'),'-','Color',cerulean,'linewidth',2);
-plot(bigtheta_deg,-trapz(k_disp(inds_consider),1.5*big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)'),':','Color',cerulean,'linewidth',2)
-plot(bigtheta_deg,-trapz(k_disp(inds_consider),0.5*big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)'),':','Color',cerulean,'linewidth',2)
+% plot(bigtheta_deg,1.5*S_in_Plant,':','Color',cerulean,'linewidth',2)
+% plot(bigtheta_deg,0.5*S_in_Plant,':','Color',cerulean,'linewidth',2)
+f_in = fill([bigtheta_deg fliplr(bigtheta_deg)],[1.5*S_in_Plant fliplr(0.5*S_in_Plant)],cerulean);
+h_in = plot(bigtheta_deg,S_in_Plant,'-','Color',cerulean,'linewidth',2);
+f_in.FaceAlpha = 0.25;
+f_in.LineStyle = 'none';
 h_ds = plot(bigtheta_deg,trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)'),'-','Color',crimson,'linewidth',2);
 hold off
 box on
@@ -219,13 +224,19 @@ H = [h_in h_ds];
 L = {'\tau_{w}','\tau_{br}'};
 legend(H,L,'Location','southeast')
 
+residual_upper = -1.5*trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)');
+residual_lower = -0.5*trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)');
+
 nexttile(3)
 hold on
 plot([-180 180],[0 0],'--','Color',0.5*[1 1 1],'linewidth',2)
 plot([0 0],[-180 180],'--','Color',0.5*[1 1 1],'linewidth',2)
+% plot(bigtheta_deg,residual_upper,'k:','linewidth',2)
+% plot(bigtheta_deg,residual_lower,'k:','linewidth',2)
+f_residual = fill([bigtheta_deg fliplr(bigtheta_deg)],[residual_upper fliplr(residual_lower)],'k');
+f_residual.FaceAlpha = 0.25;
+f_residual.LineStyle = 'none';
 plot(bigtheta_deg,-trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)'),'k-','linewidth',2)
-plot(bigtheta_deg,-1.5*trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)'),'k:','linewidth',2)
-plot(bigtheta_deg,-0.5*trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)'),'k:','linewidth',2)
 hold off
 xlim([-180 180])
 ylim([YTicks(1) YTicks(end)])
