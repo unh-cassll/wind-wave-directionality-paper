@@ -113,7 +113,7 @@ F_k_block(F_k_block==0) = NaN;
 
 k_rad_m_disp = 2*pi*f_Hz_combined./c_m_s_disp;
 
-save('data/ASIT2019_combined_frequency_slope_spectra.mat','S_f_block','f_Hz_combined','-v7.3')
+save('data/ASIT2019_combined_frequency_slope_spectra.mat','F_f_block','S_f_block','f_Hz_combined','-v7.3')
 save('data/ASIT2019_combined_wavenumber_elevation_spectra.mat','F_k_block','k_rad_m_combined','-v7.3')
 
 %% FIGURES
@@ -122,15 +122,18 @@ text_x = 0.05;
 text_y = 0.95;
 labels = {'(a)','(b)','(c)','(d)','(e)','(f)'};
 
-s = load('data/global_figure_settings.mat');
+f_p = sum(f_Hz_combined.*F_f_block.^4,1,'omitnan')./sum(F_f_block.^4,1,'omitnan');
+[c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
 
-dU = s.dU;
-U10_centers = s.U_low+dU/2:dU:s.U_high-dU/2;
-nU = length(U10_centers);
+waveage = c_p./EC_ustar_m_s(:);
 
-Ulims = [U10_centers(1) U10_centers(end)] + [-1 1]*dU/2;
+d_waveage_norm = 10;
+waveage_centers = 15:d_waveage_norm:55;
+nU = length(waveage_centers);
 
-cmap_binned = magma(nU);
+Ulims = [waveage_centers(1) waveage_centers(end)] + [-1 1]*d_waveage_norm/2;
+
+cmap_binned = (magma(nU));
 
 F_f_binned = NaN*ones(size(F_f_combined,1),nU);
 S_f_binned = F_f_binned;
@@ -138,12 +141,15 @@ F_k_binned = NaN*ones(size(F_k_combined,1),nU);
 
 for n = 1:nU
 
-    inds_consider = EC_U10_m_s >= U10_centers(n)-dU/2 & EC_U10_m_s < U10_centers(n)+dU/2;
+    inds_consider = waveage >= waveage_centers(n)-d_waveage_norm/2 & waveage < waveage_centers(n)+d_waveage_norm/2;
     F_f_binned(:,n) = mean(F_f_block(:,inds_consider),2,'omitnan');
     S_f_binned(:,n) = mean(S_f_block(:,inds_consider),2,'omitnan');
     F_k_binned(:,n) = mean(F_k_block(:,inds_consider),2,'omitnan');
 
 end
+
+F_f_binned = fliplr(F_f_binned);
+F_k_binned = fliplr(F_k_binned);
 
 f_ind_cut = ind_cut;
 k_ind_cut = 1024;
@@ -200,11 +206,12 @@ plot(f_sat,1.2*1.5e-2*f_sat.^0,'k:','linewidth',3)
 hold off
 colororder(cmap_binned)
 xlim([1e-2 2e1])
-ylim([1e-6 1e-2]*5)
+ylim([1e-4 5e-2])
 xlabel('f [Hz]')
 ylabel('(2\pif)^5/g^2F(f) [rad]')
 text(mean(f_eq),1.3*10.^mean(log10(3e-2*f_eq.^1))*1.5,'f^{1}','FontSize',fsize,'HorizontalAlignment','center')
 text(mean(f_sat),1.3*10.^mean(log10(1.5e-2*f_sat.^0))*1.5,'f^{0}','FontSize',fsize,'HorizontalAlignment','center')
+
 nexttile(4)
 hold on
 loglog(k_rad_m_combined,k_rad_m_combined.^3.*F_k_binned,'k-','linewidth',3)
@@ -214,7 +221,7 @@ plot(k_sat,1.7e-2*k_sat.^0,'k:','linewidth',3)
 hold off
 colororder(cmap_binned)
 xlim([1e-2 1e3])
-ylim([1e-6 1e-2]*5)
+ylim([1e-4 5e-2])
 xlabel('k [rad m^{-1}]')
 ylabel('k^3F(k) [rad]')
 text(10^mean(log10(k_eq)),1.1*10.^mean(log10(1.8e-2*k_eq.^0.5))*1.5,'k^{0.5}','FontSize',fsize,'HorizontalAlignment','center')
@@ -248,5 +255,7 @@ cbar = colorbar(ax_struc(2).ax);
 
 cbar.Layout.Tile = 'north';
 cbar.Layout.TileSpan = [2 2];
-cbar.Ticks = s.U_low:dU:s.U_high;
-set(get(cbar,'Label'),'String','U_{10} [m s^{-1}]')
+cbar.Ticks = Ulims(1):d_waveage_norm:Ulims(2);
+cbar.TickLabels = flipud(cbar.TickLabels);
+cbar.Direction = 'reverse';
+set(get(cbar,'Label'),'String','c_p/u_*')

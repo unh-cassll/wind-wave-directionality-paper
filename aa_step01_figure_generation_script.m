@@ -175,7 +175,7 @@ for fignum = fig_list
         case 7
 
             figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 1 1])
+            set(fignum,'Position',full_pos.*[1 1 0.44 1])
 
             frequency_wavenumber_spectral_subranges(fignum,fsize)
 
