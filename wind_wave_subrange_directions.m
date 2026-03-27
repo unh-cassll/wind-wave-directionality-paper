@@ -73,12 +73,14 @@ f_Hz_combined = [f_Hz_EPSS; f_Hz_Pyxis];
 
 theta_rad = theta_rad_EPSS_big(inds_keep_EPSS);
 
-T_E = squeeze(sum(f_Hz_combined.^-1.*FFTHETA_combined,[1 2],'omitnan'))./squeeze(sum(FFTHETA_combined,[1 2],'omitnan'));
-f_E = T_E.^-1;
+frequency_spect = load('data/ASIT2019_combined_frequency_slope_spectra.mat');
 
-[c_E,~] = lindisp_with_current(2*pi*f_E,water_depth_m,0);
+f_p = sum(frequency_spect.f_Hz_combined.*frequency_spect.F_f_block.^4,1,'omitnan')./sum(frequency_spect.F_f_block.^4,1,'omitnan');
+f_p = f_p(:);
 
-wave_age = c_E./EC_ustar_m_s;
+[c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
+
+wave_age = c_p./EC_ustar_m_s;
 
 Sm = squeeze(mean(sin(theta_rad(:)').*f_Hz_combined.^-1.*FFTHETA_combined,[1 2],'omitnan'));
 Cm = squeeze(mean(cos(theta_rad(:)').*f_Hz_combined.^-1.*FFTHETA_combined,[1 2],'omitnan'));
@@ -208,7 +210,7 @@ D_particular_breakers = dir_diff_wind_D_ds;
 
 holder_struc(n+1).D_ref = D_ref_breakers;
 holder_struc(n+1).D_particular = D_particular_breakers;
-holder_struc(n+1).wave_age = integrated_wave_breaking_quantities.c_E_m_s./integrated_wave_breaking_quantities.ustar_m_s;
+holder_struc(n+1).wave_age = integrated_wave_breaking_quantities.c_p_m_s./integrated_wave_breaking_quantities.ustar_m_s;
 
 D_ref_current = compute_relative_angle(current_Wavedir,current_Winddir);
 D_particular_current = compute_relative_angle(current_U_dir,current_Winddir);
@@ -305,7 +307,7 @@ end
 tlayout.TileSpacing = 'tight';
 
 cbar.Layout.Tile = 'north';
-set(get(cbar,'Label'),'String','c_E/u_*')
+set(get(cbar,'Label'),'String','c_p/u_*')
 
 stats_table = struct2table(stats_holder);
 stats_table.Properties.VariableNames = {'Line_Slope', 'Line_Intercept', 'Line_Slope_pValue', 'Line_Intercept_pValue', 'R2'};

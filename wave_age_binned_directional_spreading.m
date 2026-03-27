@@ -25,7 +25,11 @@ U_sfc_mag_m_s = ncread(supporting_nc_name,'U_sfc_mag_m_s');
 g = 9.81;
 water_depth_m = 15;
 
+frequency_spect = load('data/ASIT2019_combined_frequency_slope_spectra.mat');
+
+f_p = sum(frequency_spect.f_Hz_combined.*frequency_spect.F_f_block.^4,1,'omitnan')./sum(frequency_spect.F_f_block.^4,1,'omitnan');
 f_p = f_p(:);
+
 f_eq_start = freq_spect_range_limits.f_eq_start(:);
 f_eq_end = freq_spect_range_limits.f_eq_end(:);
 f_sat_end = freq_spect_range_limits.f_sat_end(:);
@@ -59,7 +63,7 @@ end
 s = load('data/global_figure_settings.mat');
 wave_age_lims = s.wave_age_lims;
 d_wave_age = 10;
-wave_age_centers = wave_age_lims(1):d_wave_age:wave_age_lims(2);
+wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
 
 clims = [wave_age_centers(1) wave_age_centers(end)] + d_wave_age/2*[-1 1];
 
@@ -76,6 +80,7 @@ D_f_limits_block = NaN*ones(size(D_spread_holder_struc(1).D_f_limits,1),size(D_s
 k_disp_block = NaN*ones(length(f_Hz_Pyxis),190);
 
 for n = 1:length(D_spread_holder_struc)
+
     D_k_limits_block(:,:,n) = D_spread_holder_struc(n).D_k_limits;
     D_f_limits_block(:,:,n) = D_spread_holder_struc(n).D_f_limits;
 
@@ -339,7 +344,7 @@ cbar = colorbar(ax_struc(3).ax);
 cbar.Layout.Tile = 'east';
 cbar.Layout.TileSpan = [2 2];
 cbar.Ticks = clims(1):d_wave_age:clims(end);
-set(get(cbar,'Title'),'String','c_E/u_*')
+set(get(cbar,'Title'),'String','c_p/u_*')
 
 boxdims = [0.42 0.593 0.185 0.10];
 str = 'upper limit of equilibrium range';
@@ -469,7 +474,7 @@ cbar = colorbar(ax_struc(3).ax);
 cbar.Layout.Tile = 'east';
 cbar.Layout.TileSpan = [2 2];
 cbar.Ticks = clims(1):d_wave_age:clims(end);
-set(get(cbar,'Title'),'String','c_E/u_*')
+set(get(cbar,'Title'),'String','c_p/u_*')
 
 tile_cleaner(ax_struc,tlayout)
 tlayout.TileSpacing = 'tight';

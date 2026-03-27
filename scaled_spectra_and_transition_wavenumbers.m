@@ -14,6 +14,11 @@ U_sfc_mag_m_s = ncread(in_nc_name,'U_sfc_mag_m_s');
 
 load('data/ASIT2019_combined_wavenumber_elevation_spectra.mat')
 
+load('data/ASIT2019_combined_frequency_slope_spectra.mat')
+
+f_p = sum(f_Hz_combined.*F_f_block.^4,1,'omitnan')./sum(F_f_block.^4,1,'omitnan');
+f_p = f_p(:);
+
 load('data/frequency_spect_range_limits.mat')
 load('data/wavenumber_spect_range_limits.mat')
 
@@ -22,9 +27,6 @@ load('data/LenainMelville2017_kn.mat')
 cmap = viridis(7);
 cerulean = cmap(3,:);
 
-f_p = f_E;
-
-f_p = f_p(:);
 f_eq_end = f_eq_end(:);
 
 k_eq_end_disp = NaN*f_p;

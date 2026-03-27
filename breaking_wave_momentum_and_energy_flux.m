@@ -13,7 +13,7 @@ labels = {'(a)','(b)','(c)','(d)'};
 U10_br = integrated_wave_breaking_quantities.U10_m_s;
 ustar_br = integrated_wave_breaking_quantities.ustar_m_s;
 theta_E_br = integrated_wave_breaking_quantities.D_E_deg;
-c_E_br = integrated_wave_breaking_quantities.c_E_m_s;
+c_p_br = integrated_wave_breaking_quantities.c_p_m_s;
 Momentum_flux_br = integrated_wave_breaking_quantities.Momentum_flux_ds_int;
 theta_br = integrated_wave_breaking_quantities.theta_br;
 Wdir_br = integrated_wave_breaking_quantities.wdir_deg;
@@ -37,7 +37,7 @@ U10i = struc_VisStress.U10i  ;
 
 wave_age_lims = [10 60];
 d_wave_age = 10;
-wave_age_centers = wave_age_lims(1):d_wave_age:wave_age_lims(2);
+wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
 
 off_wind_theta_br(isnan(off_wind_theta_E)) = NaN;
 Momentum_flux_br(isnan(off_wind_theta_E)) = NaN;
@@ -50,7 +50,7 @@ binned_binsize = binned_theta_E_minus_theta_wind;
 binned_ustar = binned_theta_E_minus_theta_wind;
 binned_u10 = binned_theta_E_minus_theta_wind;
 
-wave_age = c_E_br./ustar_br;
+wave_age = c_p_br./ustar_br;
 
 x = Momentum_flux_br(:);
 y = off_wind_theta_br(:);
@@ -111,7 +111,7 @@ ax_struc(1).ax.YDir = 'reverse';
 cbar.Ticks = -90:30:90;
 set(get(cbar,'Label'),'String','\theta_E-\theta_{wind} [\circ]')
 
-xlabel('c_E/u_*')
+xlabel('c_p/u_*')
 ylabel('$\theta_{\mathrm{br}}-\theta_{\mathrm{wind}}$ [$^\circ$]','Interpreter','latex')
 
 nexttile()
@@ -126,14 +126,14 @@ hold off
 box on
 ylim([1e-3 1e1])
 
-text(binned_wave_age(end)+3,binned_momentum_flux(end),'$\tau_{\mathrm{br}}$','FontSize',fsize*1.25,'Interpreter','latex')
-text(binned_wave_age(end)+3,binned_viscous_stress(end),'$\tau_{\nu}$','FontSize',fsize*1.25,'Interpreter','latex')
-text(binned_wave_age(end)+3,1.25*rho_a*binned_ustar(end).^2,'$\tau_{\mathrm{total}}$','FontSize',fsize*1.25,'Interpreter','latex')
+% text(binned_wave_age(end)+3,binned_momentum_flux(end),'$\tau_{\mathrm{br}}$','FontSize',fsize*1.25,'Interpreter','latex')
+% text(binned_wave_age(end)+3,binned_viscous_stress(end),'$\tau_{\nu}$','FontSize',fsize*1.25,'Interpreter','latex')
+% text(binned_wave_age(end)+3,1.25*rho_a*binned_ustar(end).^2,'$\tau_{\mathrm{total}}$','FontSize',fsize*1.25,'Interpreter','latex')
 
 ax_struc(2).ax = gca;
 ax_struc(2).ax.YScale = 'log';
 
-xlabel('c_E/u_*')
+xlabel('c_p/u_*')
 ylabel('$\tau$ [N m$^{-2}$]','Interpreter','latex')
 
 for n = 1:2

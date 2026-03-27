@@ -45,8 +45,9 @@ F_f_m2_Hz = ncread(supporting_data_nc_name,'Omni_F_f');
 
 inds_keep = f_Hz > 5e-2 & f_Hz < 1;
 
-T_E = trapz(f_Hz(inds_keep),f_Hz(inds_keep).^-1.*F_f_m2_Hz(inds_keep,:))'./trapz(f_Hz(inds_keep),F_f_m2_Hz(inds_keep,:))';
-f_E = T_E.^-1;
+F_f_m2_Hz(isnan(F_f_m2_Hz)) = 0;
+f_p = trapz(f_Hz(inds_keep),f_Hz(inds_keep).*F_f_m2_Hz(inds_keep,:).^4)'./trapz(f_Hz(inds_keep),F_f_m2_Hz(inds_keep,:).^4)';
+f_p = f_p(:);
 
 f_Hz_ADCP = ncread(supporting_data_nc_name,'frequency_dir')';
 theta_rad_ADCP = ncread(supporting_data_nc_name,'direction')';
@@ -59,9 +60,9 @@ Vm = atan2(Sm, Cm);
 
 D_E = 180/pi*Vm;
 
-[c_E,~] = lindisp_with_current(2*pi*f_E,water_depth_m,0);
+[c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
 
-c_E = interp1(DTime,medfilt1(c_E,5,'includenan'),DTime,'pchip');
+c_p = interp1(DTime,medfilt1(c_p,5,'includenan'),DTime,'pchip');
 EC_ustar_m_s_filt = interp1(DTime,medfilt1(EC_ustar_m_s,5,'includenan'),DTime,'pchip');
 EC_U10_m_s_filt = interp1(DTime,medfilt1(EC_U10_m_s,5,'includenan'),DTime,'pchip');
 
@@ -96,7 +97,7 @@ tau_theta = NaN*ones(N,length(theta_br));
 ustar_m_s = k_ds;
 stress_ang_deg = k_ds;
 U10_m_s = k_ds;
-c_E_m_s = k_ds;
+c_p_m_s = k_ds;
 wdir_deg = k_ds;
 D_E_deg = k_ds;
 Energy_flux_ds_int = k_ds;
@@ -122,7 +123,7 @@ for IPX_ind = 1:N
         EC_U10_m_s_particular = EC_U10_m_s_filt(waves_and_wind_ind);
         EC_stress_angle_deg_particular = EC_stress_angle_deg(waves_and_wind_ind);
 
-        c_E_particular = c_E(waves_and_wind_ind);
+        c_p_particular = c_p(waves_and_wind_ind);
         D_E_particular = D_E(waves_and_wind_ind);
 
         Lambda_C_theta_particular = squeeze(Lambda_c_theta_02(inds_retain,:,IPX_ind))*180/pi;
@@ -144,7 +145,7 @@ for IPX_ind = 1:N
             % Updated values of A and B for this field campaign from Hogan et al. [2025]
             A = 2.027e-3;
             B = -2.166e-5;
-            b = A+B*(c_E_particular/EC_ustar_m_s_particular);
+            b = A+B*(c_p_particular/EC_ustar_m_s_particular);
 
             Momentum_flux_ds_int(IPX_ind) = rho_w/g*b*sum(c_phase(:).^5.*dc_vec(:).*Lambda_C_theta_particular,'all','omitnan')*dtheta_deg;
             Energy_flux_ds_int(IPX_ind) = rho_w/g*b*sum(c_phase(:).^6.*dc_vec(:).*Lambda_C_theta_particular,'all','omitnan')*dtheta_deg;
@@ -183,7 +184,7 @@ for IPX_ind = 1:N
 
             ustar_m_s(IPX_ind) = EC_ustar_m_s_particular;
             U10_m_s(IPX_ind) = EC_U10_m_s_particular;
-            c_E_m_s(IPX_ind) = c_E_particular;
+            c_p_m_s(IPX_ind) = c_p_particular;
             wdir_deg(IPX_ind) = wdir_deg_particular;
             D_E_deg(IPX_ind) = D_E_particular;
             stress_ang_deg(IPX_ind) = EC_stress_angle_deg_particular;
@@ -205,7 +206,7 @@ theta_br(theta_br-wdir_deg>180) = theta_br(theta_br-wdir_deg>180) - 360;
 theta_br(theta_br-wdir_deg>120) = theta_br(theta_br-wdir_deg>120) - 180;
 theta_br(wdir_deg-theta_br>120) = theta_br(wdir_deg-theta_br>120) + 180;
 
-save('data/integrated_wave_breaking_quantities.mat','theta_br','Energy_flux_ds_int','Momentum_flux_ds_int','k_ds','ustar_m_s','U10_m_s','c_E_m_s','wdir_deg','D_E_deg','stress_ang_deg')
+save('data/integrated_wave_breaking_quantities.mat','theta_br','Energy_flux_ds_int','Momentum_flux_ds_int','k_ds','ustar_m_s','U10_m_s','c_p_m_s','wdir_deg','D_E_deg','stress_ang_deg')
 
 text_x = 0.05;
 text_y = 0.95;
@@ -214,9 +215,9 @@ labels = {'(a)','(b)'};
 s = load('data/global_figure_settings.mat');
 wave_age_lims = s.wave_age_lims;
 d_wave_age = 10;
-wave_age_centers = wave_age_lims(1):d_wave_age:wave_age_lims(2);
+wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
 
-wave_age = c_E_m_s./ustar_m_s;
+wave_age = c_p_m_s./ustar_m_s;
 
 U10_centers = 2:2:12;
 dU10 = median(diff(U10_centers));
@@ -236,8 +237,8 @@ for n = 1:length(wave_age_centers)
     wave_age_high = wave_age_centers(n) + d_wave_age/2;
     inds_consider = wave_age >= wave_age_low & wave_age < wave_age_high;
 
-    tau_br_theta_binned_by_wave_age(:,n) = mean(tau_theta(inds_consider,:),1,'omitnan');
-    k_ds_quantiles_binned_by_wave_age(:,n) = mean(k_ds_quantiles(inds_consider,:),1,'omitnan');
+    tau_br_theta_binned_by_wave_age(:,n) = median(tau_theta(inds_consider,:),1,'omitnan');
+    k_ds_quantiles_binned_by_wave_age(:,n) = median(k_ds_quantiles(inds_consider,:),1,'omitnan');
 
     ustar_binned(n) = mean(ustar_m_s(inds_consider),'all','omitnan');
 
@@ -249,7 +250,7 @@ for n = 1:length(U10_centers)
     U_high = U10_centers(n) + dU10/2;
     inds_consider = U10_m_s >= U_low & U10_m_s < U_high;
 
-    tau_theta_binned_by_U10(:,n) = mean(tau_theta(inds_consider,:),1,'omitnan');
+    tau_theta_binned_by_U10(:,n) = median(tau_theta(inds_consider,:),1,'omitnan');
 
 end
 
@@ -298,12 +299,12 @@ switch option
         set(get(cbar,'Label'),'String','U_{10} [m s^{-1}]')
         clim(clims)
     case 'waveage'
-        set(get(cbar,'Label'),'String','c_E/u_*')
+        set(get(cbar,'Label'),'String','c_p/u_*')
         cbar.Ticks = clims(1):d_wave_age:clims(end);
         clim(clims)
 end
 box on
-ylim(-[1.5e-2 0])
+ylim(-[1.0e-2 0])
 xlim([-1 1]*180)
 xlabel('\theta-\theta_{br} [rad]')
 ylabel('$\tau_{\mathrm{br}}(\theta)=\frac{\rho_wg}{c}S_{ds}(\theta)$ [N m$^{-2}$rad$^{-1}$]','Interpreter','LaTeX')

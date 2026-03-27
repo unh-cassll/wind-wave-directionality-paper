@@ -22,7 +22,7 @@ full_pos = [50 100 1100 1000];
 raster_dpi = 300;
 raster_dpi_string = ['-r' num2str(raster_dpi)];
 
-num_figs = 21;
+num_figs = 20;
 
 if length(varargin) < 1
     fig_list = 1:num_figs;
@@ -175,7 +175,7 @@ for fignum = fig_list
         case 7
 
             figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 0.44 1])
+            set(fignum,'Position',full_pos.*[1 1 0.5 1.33])
 
             frequency_wavenumber_spectral_subranges(fignum,fsize)
 
@@ -189,29 +189,9 @@ for fignum = fig_list
 
             end
 
-            %% Figure 08 - normalized transition wavenumber
+            %% Figure 08 - scaled wavenumber spectra and transition wavenumbers
 
         case 8
-
-            figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 1 0.55])
-
-            normalized_transition_wavenumber(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'normalized_transition_wavenumber.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'normalized_transition_wavenumber.png'],'-dpng',raster_dpi_string)
-
-            end
-
-
-            %% Figure 09 - scaled wavenumber spectra and transition wavenumbers
-
-        case 9
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 0.5 1])
@@ -225,6 +205,25 @@ for fignum = fig_list
                 print([fig_folder 'scaled_spectra_and_transition_wavenumbers.svg'],'-dsvg')
                 pause(0.5)
                 print([fig_folder 'scaled_spectra_and_transition_wavenumbers.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 09 - normalized transition wavenumber
+
+        case 9
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 1 0.55])
+
+            normalized_transition_wavenumber(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'normalized_transition_wavenumber.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'normalized_transition_wavenumber.png'],'-dpng',raster_dpi_string)
 
             end
 
@@ -402,27 +401,6 @@ for fignum = fig_list
         case 19
 
             figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 0.5 0.6])
-
-            example_run_ind = 134;
-
-            freq_spect_integral_moments(example_run_ind,fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'freq_spect_integral_moments.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'freq_spect_integral_moments.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure B2
-
-        case 20
-
-            figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 0.5 0.5 1.25])
 
             directional_spectra_spreading_revisit(fignum,fsize)
@@ -439,7 +417,7 @@ for fignum = fig_list
 
             %% Figure C1
 
-        case 21
+        case 20
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 0.5 0.5 1])

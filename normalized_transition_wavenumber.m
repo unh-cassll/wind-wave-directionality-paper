@@ -16,9 +16,11 @@ load('data/ASIT2019_combined_wavenumber_elevation_spectra.mat')
 load('data/frequency_spect_range_limits.mat')
 load('data/wavenumber_spect_range_limits.mat')
 
-f_p = f_E;
+load('data/ASIT2019_combined_frequency_slope_spectra.mat')
 
+f_p = sum(f_Hz_combined.*F_f_block.^4,1,'omitnan')./sum(F_f_block.^4,1,'omitnan');
 f_p = f_p(:);
+
 f_eq_start = f_eq_start(:);
 f_eq_end = f_eq_end(:);
 
@@ -93,7 +95,7 @@ ko_HW_full = (2*B./beta).^2*g./EC_ustar_m_s(:).^2;
 
 %%
 
-wave_age_bins = 10:10:100;
+wave_age_bins = 10:10:60;
 cmap = flipud(magma(length(wave_age_bins)-1));
 
 figure(fignum);clf
@@ -118,8 +120,8 @@ ax_struc(1).ax.XScale = 'log';
 ax_struc(1).ax.YScale = 'log';
 xlim([10 100])
 ylim([1 100])
-xlabel('c_E/u_*')
-ylabel('k_n/k_E, obs.')
+xlabel('c_p/u_*')
+ylabel('k_n/k_p, obs.')
 
 H = [h_ours h_RM2010_fit];
 L = {'present study','Romero & Melville [2010]'};
@@ -135,16 +137,17 @@ scatter(ko_HW_full./k_p_disp,k_eq_end_disp./k_p_disp,0.8*msize^2,(wave_age_full)
 hold off
 box on
 cbar = colorbar;
-clim([10 100])
+clim([10 60])
 colormap(cmap)
-set(get(cbar,'Title'),'String','c_E/u_*')
+set(get(cbar,'Title'),'String','c_p/u_*')
+cbar.Ticks = 10:10:60;
 ax_struc(2).ax = gca;
 ax_struc(2).ax.XScale = 'log';
 ax_struc(2).ax.YScale = 'log';
 xlim([1 100])
 ylim([1 100])
-xlabel('k_n/k_E, Hwang & Wang [2001]')
-ylabel('k_n/k_E, obs.')
+xlabel('k_n/k_p, Hwang & Wang [2001]')
+ylabel('k_n/k_p, obs.')
 
 ax_struc(1).ax.XTick = 10.^[1 2];
 ax_struc(1).ax.XTickLabel = {'10','100'};
