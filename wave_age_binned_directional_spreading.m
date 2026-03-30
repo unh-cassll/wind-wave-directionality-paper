@@ -69,6 +69,11 @@ clims = [wave_age_centers(1) wave_age_centers(end)] + d_wave_age/2*[-1 1];
 
 wave_age = C_p./EC_ustar_m_s;
 
+lw_thick = 4.5;
+lw_thin = 3.0;
+
+lw_outer = 0.75;
+
 text_x = 0.05;
 text_y = 0.95;
 
@@ -228,17 +233,17 @@ nexttile(1)
 hold on
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot([3*pi/4 D_f_50th_binned(ind_max_theta_halfwidth_f(n),n)]*180/pi,k_n_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',3)
-    plot([D_f_50th_binned(ind_max_theta_halfwidth_f(n),n) 3*pi/4]*180/pi,0.96*k_n_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot([D_f_50th_binned(ind_max_theta_halfwidth_f(n),n) 3*pi/4]*180/pi,1.04*k_n_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot(3*pi/4*180/pi,k_n_hat_binned(n),'o','markersize',6,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',0.75)
+    plot([3*pi/4 D_f_50th_binned(ind_max_theta_halfwidth_f(n),n)]*180/pi,k_n_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',lw_thick)
+    plot([D_f_50th_binned(ind_max_theta_halfwidth_f(n),n) 3*pi/4]*180/pi,0.94*k_n_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
+    plot([D_f_50th_binned(ind_max_theta_halfwidth_f(n),n) 3*pi/4]*180/pi,1.06*k_n_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
+    plot(3*pi/4*180/pi,k_n_hat_binned(n),'o','markersize',8,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
     S_ds_fill = fill(S_ds_id_range(i)+[-1 -1 1 1]*2.5,[k_ds_hat(1,i) k_ds_hat(5,i) k_ds_hat(5,i) k_ds_hat(1,i)],cmap_binned(i,:));
     S_ds_fill.FaceAlpha = 0.5;
 end
-plot(D_f_50th_binned*180/pi,k_hat_disp_binned,'k-','linewidth',3)
+plot(D_f_50th_binned*180/pi,k_hat_disp_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(D_f_50th_binned(:,n)*180/pi,k_hat_binned,'Color',cmap_binned(n,:),'linewidth',2)
+    plot(D_f_50th_binned(:,n)*180/pi,k_hat_binned,'Color',cmap_binned(n,:),'linewidth',lw_thin)
 end
 hold off
 colororder(cmap_binned)
@@ -252,11 +257,11 @@ ax_struc(1).ax = gca;
 nexttile(2)
 hold on
 for i = 1:length(wave_age_centers)
-    n = length(wave_age_centers)-i+1;
-    plot([-0.5 delta_f_binned(ind_min_Delta_f(n),n)],k_n_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',3)
-    plot([delta_f_binned(ind_min_Delta_f(n),n) -0.5],0.96*k_n_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot([delta_f_binned(ind_min_Delta_f(n),n) -0.5],1.04*k_n_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot(-0.5,k_n_hat_binned(n),'o','markersize',6,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',0.75)
+    n = length(wave_age_centers)-i+1;    
+    plot([-0.5 delta_f_binned(ind_min_Delta_f(n),n)],k_n_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',lw_thick)
+    plot([delta_f_binned(ind_min_Delta_f(n),n) -0.5],0.94*k_n_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
+    plot([delta_f_binned(ind_min_Delta_f(n),n) -0.5],1.06*k_n_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
+    plot(-0.5,k_n_hat_binned(n),'o','markersize',8,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
 end
 
 cmap_LM2017 = flipud(magma(255));
@@ -267,12 +272,12 @@ for i = 1:length(LM2017_Cp_ustar)
     LM2017_r_fill.FaceAlpha = 0.5;
     LM2017_r_fill.LineStyle = 'none';
 end
-text(0.75,6e-3,{'L&M 2017'},'HorizontalAlignment','center','FontSize',fsize,'Color',0.35*[1 1 1])
-plot([0 0],k_hat_lims,'--','Color',0.5*[1 1 1],'linewidth',2)
-plot(delta_f_binned,k_hat_disp_binned,'k-','linewidth',3)
+text(0.73,6e-3,{'L&M 2017'},'HorizontalAlignment','center','FontSize',fsize,'Color',0.35*[1 1 1])
+plot([0 0],k_hat_lims,'--','Color',0.5*[1 1 1],'linewidth',lw_thin)
+plot(delta_f_binned,k_hat_disp_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(delta_f_binned(:,n),k_hat_binned,'Color',cmap_binned(n,:),'linewidth',2)
+    plot(delta_f_binned(:,n),k_hat_binned,'Color',cmap_binned(n,:),'linewidth',lw_thin)
 end
 hold off
 box on
@@ -288,17 +293,17 @@ nexttile(3)
 hold on
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot([D_k_50th_binned(ind_match_s(n),n) 3*pi/4]*180/pi,k_s_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',3)
-    plot([D_k_50th_binned(ind_match_s(n),n) 3*pi/4]*180/pi,0.96*k_s_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot([D_k_50th_binned(ind_match_s(n),n) 3*pi/4]*180/pi,1.04*k_s_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot(3*pi/4*180/pi,k_s_hat_binned(n),'s','markersize',7,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',0.5)
+    plot([D_k_50th_binned(ind_match_s(n),n) 3*pi/4]*180/pi,k_s_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',lw_thick)
+    plot([D_k_50th_binned(ind_match_s(n),n) 3*pi/4]*180/pi,0.94*k_s_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
+    plot([D_k_50th_binned(ind_match_s(n),n) 3*pi/4]*180/pi,1.06*k_s_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
+    plot(3*pi/4*180/pi,k_s_hat_binned(n),'s','markersize',9,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
     S_ds_fill = fill(S_ds_id_range(i)+[-1 -1 1 1]*2.5,[k_ds_hat(1,i) k_ds_hat(5,i) k_ds_hat(5,i) k_ds_hat(1,i)],cmap_binned(i,:));
     S_ds_fill.FaceAlpha = 0.5;
 end
-plot(D_k_50th_binned*180/pi,k_hat_binned,'k-','linewidth',3)
+plot(D_k_50th_binned*180/pi,k_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(D_k_50th_binned(:,n)*180/pi,k_hat_binned,'Color',cmap_binned(n,:),'linewidth',2)
+    plot(D_k_50th_binned(:,n)*180/pi,k_hat_binned,'Color',cmap_binned(n,:),'linewidth',lw_thin)
 end
 hold off
 colororder(cmap_binned)
@@ -314,16 +319,16 @@ nexttile(4)
 hold on
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],k_s_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',3)
-    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],0.96*k_s_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],1.04*k_s_hat_binned(n)*[1 1],'k','linewidth',0.5)
-    plot(-0.5,k_s_hat_binned(n),'s','markersize',7,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',0.5)
+    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],k_s_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',lw_thick)
+    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],0.94*k_s_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
+    plot([delta_k_binned(ind_min_Delta_k(n),n) -0.5],1.06*k_s_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
+    plot(-0.5,k_s_hat_binned(n),'s','markersize',9,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
 end
-plot([0 0],k_hat_lims,'--','Color',0.5*[1 1 1],'linewidth',2)
-plot(delta_k_binned,k_hat_binned,'k-','linewidth',3)
+plot([0 0],k_hat_lims,'--','Color',0.5*[1 1 1],'linewidth',lw_thin)
+plot(delta_k_binned,k_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(delta_k_binned(:,n),k_hat_binned,'Color',cmap_binned(n,:),'linewidth',2)
+    plot(delta_k_binned(:,n),k_hat_binned,'Color',cmap_binned(n,:),'linewidth',lw_thin)
 end
 hold off
 colororder(cmap_binned)
@@ -382,18 +387,18 @@ ax_struc = struct();
 
 nexttile(1)
 hold on
-plot([-180 180],[1 1],'k:','linewidth',2)
-plot(D_f_50th_binned*180/pi,k_hat_disp_binned./k_n_hat_binned,'k-','linewidth',3)
+plot([-180 180],[1 1],'k:','linewidth',lw_thin)
+plot(D_f_50th_binned*180/pi,k_hat_disp_binned./k_n_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(D_f_50th_binned(:,n)*180/pi,k_hat_binned./k_n_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',2)
+    plot(D_f_50th_binned(:,n)*180/pi,k_hat_binned./k_n_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
     S_ds_fill = fill(S_ds_id_range(n)+[-1 -1 1 1]*2.5,[k_ds_hat(1,n) k_ds_hat(5,n) k_ds_hat(5,n) k_ds_hat(1,n)]/k_n_hat_binned(n),cmap_binned(n,:));
     S_ds_fill.FaceAlpha = 0.5;
     sg_norm_fill =  fill([100 100 125 125],[0.95 1.05 1.05 0.95]*k_sg_norm_n_s_binned(1,n),cmap_binned(n,:));
     sg_norm_fill.FaceAlpha = 0.5;
     sg_norm_fill.LineStyle = '-';
 end
-text(152,4.5e1,{'short gravity'},'HorizontalAlignment','center','VerticalAlignment','middle','FontSize',fsize,'Color',0.35*[1 1 1])
+text(152,5e1,{'short gravity'},'HorizontalAlignment','center','VerticalAlignment','middle','FontSize',fsize,'Color',0.35*[1 1 1])
 hold off
 colororder(cmap_binned)
 box on
@@ -405,12 +410,12 @@ ax_struc(1).ax = gca;
 
 nexttile(2)
 hold on
-plot([-10 10],[1 1],'k:','linewidth',2)
-plot([0 0],[1e-1 1e3],'--','Color',0.5*[1 1 1],'linewidth',2)
-plot(delta_f_binned,k_hat_disp_binned./k_n_hat_binned,'k-','linewidth',3)
+plot([-10 10],[1 1],'k:','linewidth',lw_thin)
+plot([0 0],[1e-1 1e3],'--','Color',0.5*[1 1 1],'linewidth',lw_thin)
+plot(delta_f_binned,k_hat_disp_binned./k_n_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(delta_f_binned(:,n),k_hat_binned./k_n_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',2)
+    plot(delta_f_binned(:,n),k_hat_binned./k_n_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
 end
 hold off
 box on
@@ -424,18 +429,18 @@ colormap(cmap_binned)
 
 nexttile(3)
 hold on
-plot([-180 180],[1 1],'k:','linewidth',2)
-plot(D_k_50th_binned*180/pi,k_hat_binned./k_s_hat_binned,'k-','linewidth',3)
+plot([-180 180],[1 1],'k:','linewidth',lw_thin)
+plot(D_k_50th_binned*180/pi,k_hat_binned./k_s_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers*180/pi)
     n = length(wave_age_centers)-i+1;
-    plot(D_k_50th_binned(:,n)*180/pi,k_hat_binned./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',2)
+    plot(D_k_50th_binned(:,n)*180/pi,k_hat_binned./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
     S_ds_fill = fill(S_ds_id_range(n)+[-1 -1 1 1]*2.5,[k_ds_hat(1,n) k_ds_hat(5,n) k_ds_hat(5,n) k_ds_hat(1,n)]/k_s_hat_binned(n),cmap_binned(n,:));
     S_ds_fill.FaceAlpha = 0.5;
     sg_norm_fill =  fill([100 100 125 125],[0.95 1.05 1.05 0.95]*k_sg_norm_n_s_binned(2,n),cmap_binned(n,:));
     sg_norm_fill.FaceAlpha = 0.5;
     sg_norm_fill.LineStyle = '-';
 end
-text(152,1e1,{'short gravity'},'HorizontalAlignment','center','VerticalAlignment','middle','FontSize',fsize,'Color',0.35*[1 1 1])
+text(152,1.2e1,{'short gravity'},'HorizontalAlignment','center','VerticalAlignment','middle','FontSize',fsize,'Color',0.35*[1 1 1])
 hold off
 colororder(cmap_binned)
 box on
@@ -449,12 +454,12 @@ ax_struc(3).ax = gca;
 
 nexttile(4)
 hold on
-plot([-10 10],[1 1],'k:','linewidth',2)
-plot([0 0],[1e-2 1e3],'--','Color',0.5*[1 1 1],'linewidth',2)
-plot(delta_k_binned,k_hat_binned./k_s_hat_binned,'k-','linewidth',3)
+plot([-10 10],[1 1],'k:','linewidth',lw_thin)
+plot([0 0],[1e-2 1e3],'--','Color',0.5*[1 1 1],'linewidth',lw_thin)
+plot(delta_k_binned,k_hat_binned./k_s_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(delta_k_binned(:,n),k_hat_binned./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',2)
+    plot(delta_k_binned(:,n),k_hat_binned./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
     gc_norm_fill =  fill([0.05 0.05 0.4 0.4],[0.95 1.05 1.05 0.95]*k_gc_norm_n_s_binned(2,n),cmap_binned(n,:));
     gc_norm_fill.FaceAlpha = 0.5;
     gc_norm_fill.LineStyle = '-';

@@ -120,6 +120,7 @@ xlabel('$ku_*^2/g$','Interpreter','LaTeX')
 ylabel('$B(k)\ \mathrm{[rad]}$','Interpreter','LaTeX')
 ax = gca;
 ax.XTick = 10.^(-5:1:2);
+ax.YTick = 10.^(-6:1:-1);
 ax.XScale = 'log';
 ax.YScale = 'log';
 

@@ -228,7 +228,7 @@ holder_struc(n+2).wave_age = wave_age;
 % breakers
 % current
 
-msize = 6;
+msize = 8;
 lw = 0.5;
 
 fA = 0.2;
@@ -267,8 +267,8 @@ for n = 1:6
     stats_holder(n).line_intercept_pValue = D_fit_object.Coefficients.pValue(1);
     stats_holder(n).R2 = D_fit_object.Rsquared.Adjusted;
 
-    plot(x,y,'o','markerfacecolor','w','markeredgecolor','k','markersize',msize,'linewidth',lw)
-    scatter(x,y,0.8*msize^2,c,'filled')
+    plot(x,y,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize,'linewidth',lw)
+    scatter(x,y,0.6*msize^2,c,'filled')
     colormap(flipud(magma))
     clim(wave_age_lims)
 
