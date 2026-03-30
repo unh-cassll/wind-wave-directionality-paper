@@ -34,7 +34,7 @@ D_k_theta = smoothdata2(k_rad_m_Pyxis.*S_k_theta,'movmedian',{3,3},'omitnan')./m
 
 s = load('data/global_figure_settings.mat');
 khigh = s.k_high;
-klow = s.k_low;
+klow = 6.48;
 
 diff_k = khigh/5;
 k_ticks = 0:diff_k:khigh;
