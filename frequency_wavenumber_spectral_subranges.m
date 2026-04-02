@@ -122,7 +122,7 @@ hold off
 box on
 xlim(wave_age_lims)
 ylim([0 3])
-xlabel('$c_p/u_*$','Interpreter','LaTeX')
+xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 ylabel('$\mathrm{f\ [Hz]}$','Interpreter','LaTeX')
 H = [h_eq_start_binned h_eq_end_binned h_sat_end_binned];
 L = {'start of eq. range','eq. \rightarrow sat.','end of sat. range'};
@@ -154,7 +154,7 @@ hold off
 box on
 xlim(wave_age_lims)
 ylim([0 10])
-xlabel('$c_p/u_*$','Interpreter','LaTeX')
+xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 ylabel('$\mathrm{\hat{\omega}\equiv\omega U_{10}/g}$','Interpreter','LaTeX')
 
 h_eq_start_binned.Marker = 's';
@@ -184,7 +184,7 @@ hold off
 box on
 xlim(wave_age_lims)
 ylim([1e-4 1e-1]*3)
-xlabel('$c_p/u_*$','Interpreter','LaTeX')
+xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 ylabel('$\mathrm{\hat{k}\equiv k u_*^2/g}$','Interpreter','LaTeX')
 text(50,0.15,'direct','Color',crimson,'FontWeight','bold','FontSize',fsize,'HorizontalAlignment','center')
 
