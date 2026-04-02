@@ -82,14 +82,14 @@ f_p = f_p(:);
 
 wave_age = c_p./EC_ustar_m_s;
 
-Sm = squeeze(mean(sin(theta_rad(:)').*f_Hz_combined.^-1.*FFTHETA_combined,[1 2],'omitnan'));
-Cm = squeeze(mean(cos(theta_rad(:)').*f_Hz_combined.^-1.*FFTHETA_combined,[1 2],'omitnan'));
+Sm = squeeze(mean(sin(theta_rad(:)').*FFTHETA_combined,[1 2],'omitnan'));
+Cm = squeeze(mean(cos(theta_rad(:)').*FFTHETA_combined,[1 2],'omitnan'));
 
 Vm = atan2(Sm,Cm);
 
-theta_E = 180/pi*Vm;
+theta_m = 180/pi*Vm;
 
-theta_eq = NaN*theta_E;
+theta_eq = NaN*theta_m;
 theta_sat = theta_eq;
 theta_sg = theta_eq;
 theta_gc = theta_eq;
@@ -102,8 +102,8 @@ for n = 1:length(f_eq_start)
 
     inds_eq = f_Hz_combined >= f_eq_start(n) & f_Hz_combined <= f_eq_end(n);
 
-    Sm = mean(sin(theta_rad(:)').*f_Hz_combined(inds_eq).^-1.*Fftheta_slice(inds_eq,:),'all','omitnan');
-    Cm = mean(cos(theta_rad(:)').*f_Hz_combined(inds_eq).^-1.*Fftheta_slice(inds_eq,:),'all','omitnan');
+    Sm = mean(sin(theta_rad(:)').*Fftheta_slice(inds_eq,:),'all','omitnan');
+    Cm = mean(cos(theta_rad(:)').*Fftheta_slice(inds_eq,:),'all','omitnan');
     Vm = atan2(Sm,Cm);
     theta_eq(n) = 180/pi*Vm;
 
@@ -111,15 +111,15 @@ for n = 1:length(f_eq_start)
 
     inds_sat = k_rad_m <= k_sat_end(n);
 
-    Sm = mean(sin(theta_rad_Pyxis(:)').*k_rad_m(inds_sat).^-2.5.*Sktheta_slice(inds_sat,:),'all','omitnan');
-    Cm = mean(cos(theta_rad_Pyxis(:)').*k_rad_m(inds_sat).^-2.5.*Sktheta_slice(inds_sat,:),'all','omitnan');
+    Sm = mean(sin(theta_rad_Pyxis(:)').*k_rad_m(inds_sat).^-2.*Sktheta_slice(inds_sat,:),'all','omitnan');
+    Cm = mean(cos(theta_rad_Pyxis(:)').*k_rad_m(inds_sat).^-2.*Sktheta_slice(inds_sat,:),'all','omitnan');
     Vm = atan2(Sm,Cm);
     theta_sat(n) = 180/pi*Vm;
 
     inds_sg = k_rad_m > k_sat_end(n) & k_rad_m < 117;
 
-    Sm = mean(sin(theta_rad_Pyxis(:)').*k_rad_m(inds_sg).^-2.5.*Sktheta_slice(inds_sg,:),'all','omitnan');
-    Cm = mean(cos(theta_rad_Pyxis(:)').*k_rad_m(inds_sg).^-2.5.*Sktheta_slice(inds_sg,:),'all','omitnan');
+    Sm = mean(sin(theta_rad_Pyxis(:)').*k_rad_m(inds_sg).^-2.*Sktheta_slice(inds_sg,:),'all','omitnan');
+    Cm = mean(cos(theta_rad_Pyxis(:)').*k_rad_m(inds_sg).^-2.*Sktheta_slice(inds_sg,:),'all','omitnan');
     Vm = atan2(Sm,Cm);
     theta_sg(n) = 180/pi*Vm;
 
@@ -128,17 +128,17 @@ for n = 1:length(f_eq_start)
     mask = NaN*Sktheta_big;
     mask(:,theta_rad_big>=-pi/2&theta_rad_big<pi/2) = 1;
 
-    Sm = mean(mask(inds_gc,:).*sin(theta_rad_big(:)').*k_rad_m(inds_gc).^-2.5.*Sktheta_big(inds_gc,:),'all','omitnan');
-    Cm = mean(mask(inds_gc,:).*cos(theta_rad_big(:)').*k_rad_m(inds_gc).^-2.5.*Sktheta_big(inds_gc,:),'all','omitnan');
+    Sm = mean(mask(inds_gc,:).*sin(theta_rad_big(:)').*k_rad_m(inds_gc).^-2.*Sktheta_big(inds_gc,:),'all','omitnan');
+    Cm = mean(mask(inds_gc,:).*cos(theta_rad_big(:)').*k_rad_m(inds_gc).^-2.*Sktheta_big(inds_gc,:),'all','omitnan');
     Vm = atan2(Sm,Cm);
     theta_gc(n) = 180/pi*Vm + theta_sg(n);
 
 end
 
 % Remove duplicate points
-theta_E(136:141) = NaN;
+theta_m(136:141) = NaN;
 
-theta_E = mod(theta_E+360,360);
+theta_m = mod(theta_m+360,360);
 theta_eq = mod(theta_eq+360,360);
 theta_sat = mod(theta_sat+360,360);
 theta_sg = mod(theta_sg+360,360);
@@ -157,7 +157,7 @@ integrated_wave_breaking_quantities.wdir_deg(bad_winddir_inds) = NaN;
 % Remove runs for which breaking crests are moving offshore (+/-90 degrees)
 integrated_wave_breaking_quantities.theta_br(integrated_wave_breaking_quantities.theta_br<270 & integrated_wave_breaking_quantities.theta_br > 90) = NaN;
 
-dir_diff_wind_De = compute_relative_angle(theta_E,wind_dir_deg_going_to);
+dir_diff_wind_De = compute_relative_angle(theta_m,wind_dir_deg_going_to);
 dir_diff_wind_Dslope_eq = compute_relative_angle(theta_eq,wind_dir_deg_going_to);
 dir_diff_wind_Dslope_sat = compute_relative_angle(theta_sat,wind_dir_deg_going_to);
 dir_diff_wind_Dslope_sg = compute_relative_angle(theta_sg,wind_dir_deg_going_to);
@@ -166,7 +166,7 @@ dir_diff_wind_Dslope_gc = compute_relative_angle(theta_gc,wind_dir_deg_going_to)
 dir_diff_wind_D_ds = compute_relative_angle(integrated_wave_breaking_quantities.theta_br,integrated_wave_breaking_quantities.wdir_deg);
 
 t = table(dir_diff_wind_De(:),dir_diff_wind_Dslope_eq(:),dir_diff_wind_Dslope_sat(:),dir_diff_wind_Dslope_sg(:),dir_diff_wind_Dslope_gc(:));
-t.Properties.VariableNames = {'\theta_{E}-\theta_{wind} [\circ]','\theta_{eq.}-\theta_{wind} [\circ]','\theta_{sat.}-\theta_{wind} [\circ]','\theta_{s.g.}-\theta_{wind} [\circ]','\theta_{g-c}-\theta_{wind} [\circ]'};
+t.Properties.VariableNames = {'\theta_{m}-\theta_{wind} [\circ]','\theta_{eq.}-\theta_{wind} [\circ]','\theta_{sat.}-\theta_{wind} [\circ]','\theta_{s.g.}-\theta_{wind} [\circ]','\theta_{g-c}-\theta_{wind} [\circ]'};
 
 inds_remove = isnan(t.(1));
 for n = 1:size(t,2)
@@ -204,8 +204,8 @@ for n = 1:size(t,2)
 
 end
 
-dir_diff_wind_De_breakers = compute_relative_angle(integrated_wave_breaking_quantities.D_E_deg,integrated_wave_breaking_quantities.wdir_deg);
-D_ref_breakers = dir_diff_wind_De_breakers;
+dir_diff_wind_Dp_breakers = compute_relative_angle(integrated_wave_breaking_quantities.D_m_deg,integrated_wave_breaking_quantities.wdir_deg);
+D_ref_breakers = dir_diff_wind_Dp_breakers;
 D_particular_breakers = dir_diff_wind_D_ds;
 
 holder_struc(n+1).D_ref = D_ref_breakers;
@@ -291,8 +291,8 @@ for n = 1:6
     ax_struc(n).ax.XTick = -360:45:360;
     ax_struc(n).ax.YDir = 'reverse';
 
-    xlabel('\theta_E-\theta_{wind} [\circ]')
-    ylabel('\theta_{particular}-\theta_{wind} [\circ]')
+    xlabel('$\mathrm{\theta_m-\theta_{wind}\ [^\circ]}$','Interpreter','latex')
+    ylabel('$\mathrm{\theta_{particular}-\theta_{wind}\ [^\circ]}$','Interpreter','latex')
 
 end
 
@@ -307,7 +307,7 @@ end
 tlayout.TileSpacing = 'tight';
 
 cbar.Layout.Tile = 'north';
-set(get(cbar,'Label'),'String','c_p/u_*')
+set(get(cbar,'Label'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 
 stats_table = struct2table(stats_holder);
 stats_table.Properties.VariableNames = {'Line_Slope', 'Line_Intercept', 'Line_Slope_pValue', 'Line_Intercept_pValue', 'R2'};

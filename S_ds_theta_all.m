@@ -53,12 +53,12 @@ f_Hz_ADCP = ncread(supporting_data_nc_name,'frequency_dir')';
 theta_rad_ADCP = ncread(supporting_data_nc_name,'direction')';
 F_f_theta_m2_Hz_rad_ADCP = ncread(supporting_data_nc_name,'Dir_F_f_theta');
 
-Sm = squeeze(mean(sin(theta_rad_ADCP(:)').*f_Hz_ADCP(:).^-1.*F_f_theta_m2_Hz_rad_ADCP,[1 2],'omitnan'));
-Cm = squeeze(mean(cos(theta_rad_ADCP(:)').*f_Hz_ADCP(:).^-1.*F_f_theta_m2_Hz_rad_ADCP,[1 2],'omitnan'));
+Sm = squeeze(mean(sin(theta_rad_ADCP(:)').*F_f_theta_m2_Hz_rad_ADCP,[1 2],'omitnan'));
+Cm = squeeze(mean(cos(theta_rad_ADCP(:)').*F_f_theta_m2_Hz_rad_ADCP,[1 2],'omitnan'));
 
 Vm = atan2(Sm, Cm);
 
-D_E = 180/pi*Vm;
+D_m = 180/pi*Vm;
 
 [c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
 
@@ -99,7 +99,7 @@ stress_ang_deg = k_ds;
 U10_m_s = k_ds;
 c_p_m_s = k_ds;
 wdir_deg = k_ds;
-D_E_deg = k_ds;
+D_m_deg = k_ds;
 Energy_flux_ds_int = k_ds;
 Momentum_flux_ds_int = k_ds;
 
@@ -124,7 +124,7 @@ for IPX_ind = 1:N
         EC_stress_angle_deg_particular = EC_stress_angle_deg(waves_and_wind_ind);
 
         c_p_particular = c_p(waves_and_wind_ind);
-        D_E_particular = D_E(waves_and_wind_ind);
+        D_m_particular = D_m(waves_and_wind_ind);
 
         Lambda_C_theta_particular = squeeze(Lambda_c_theta_02(inds_retain,:,IPX_ind))*180/pi;
         Lambda_C_theta_plot = smoothdata2(Lambda_C_theta_particular,'movmedian',{5,15});      
@@ -186,7 +186,7 @@ for IPX_ind = 1:N
             U10_m_s(IPX_ind) = EC_U10_m_s_particular;
             c_p_m_s(IPX_ind) = c_p_particular;
             wdir_deg(IPX_ind) = wdir_deg_particular;
-            D_E_deg(IPX_ind) = D_E_particular;
+            D_m_deg(IPX_ind) = D_m_particular;
             stress_ang_deg(IPX_ind) = EC_stress_angle_deg_particular;
 
         end
@@ -206,7 +206,7 @@ theta_br(theta_br-wdir_deg>180) = theta_br(theta_br-wdir_deg>180) - 360;
 theta_br(theta_br-wdir_deg>120) = theta_br(theta_br-wdir_deg>120) - 180;
 theta_br(wdir_deg-theta_br>120) = theta_br(wdir_deg-theta_br>120) + 180;
 
-save('data/integrated_wave_breaking_quantities.mat','theta_br','Energy_flux_ds_int','Momentum_flux_ds_int','k_ds','ustar_m_s','U10_m_s','c_p_m_s','wdir_deg','D_E_deg','stress_ang_deg')
+save('data/integrated_wave_breaking_quantities.mat','theta_br','Energy_flux_ds_int','Momentum_flux_ds_int','k_ds','ustar_m_s','U10_m_s','c_p_m_s','wdir_deg','D_m_deg','stress_ang_deg')
 
 text_x = 0.05;
 text_y = 0.95;
@@ -296,18 +296,18 @@ cbar.Layout.Tile = 'north';
 colormap(cmap_binned)
 switch option
     case 'U10'
-        set(get(cbar,'Label'),'String','U_{10} [m s^{-1}]')
+        set(get(cbar,'Label'),'String','$\mathrm{U_{10}\ [m\ s^{-1}]}$','Interpreter','LaTeX')
         clim(clims)
     case 'waveage'
-        set(get(cbar,'Label'),'String','c_p/u_*')
+        set(get(cbar,'Label'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
         cbar.Ticks = clims(1):d_wave_age:clims(end);
         clim(clims)
 end
 box on
 ylim(-[1.0e-2 0])
 xlim([-1 1]*180)
-xlabel('\theta-\theta_{br} [rad]')
-ylabel('$\tau_{\mathrm{br}}(\theta)=\frac{\rho_wg}{c}S_{ds}(\theta)$ [N m$^{-2}$rad$^{-1}$]','Interpreter','LaTeX')
+xlabel('$\mathrm{\theta-\theta_{br}\ [rad]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{\tau_{br}(\theta)\ [N\ m^{-2}rad^{-1}]}$','Interpreter','LaTeX')
 ax_struc(1).ax = gca;
 
 tau_br_norm = tau_br_theta_binned./min(tau_br_theta_binned);
@@ -354,7 +354,7 @@ hold off
 box on
 ylim([-1.2 0])
 xlim([-1 1]*180)
-xlabel('\theta-\theta_{br} [\circ]')
+xlabel('$\mathrm{\theta-\theta_{br}\ [rad]}$','Interpreter','LaTeX')
 ylabel('$\tau_{\mathrm{br}}(\theta)$, norm.','Interpreter','latex')
 ax_struc(2).ax = gca;
 

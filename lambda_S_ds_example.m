@@ -121,14 +121,14 @@ box on
 f.FaceAlpha = fA;
 f.LineStyle = 'none';
 cbar = colorbar;
-set(get(cbar,'Label'),'String','$\mathrm{log_{10}}\{\Lambda(c,\theta)\}\ \mathrm{[s^2 m^{-1} rad^{-1}]}$','Interpreter','LaTeX')
+set(get(cbar,'Label'),'String','$\mathrm{log_{10}\{\Lambda(c,\theta)\}\ [s^2 m^{-1} rad^{-1}]}$','Interpreter','LaTeX')
 cbar.Location = 'north';
 xlim([-180 180])
 ylim([0 6])
 clim([Lambda_contour_levels(2) Lambda_contour_levels(end)]+[-1 1]*median(diff(Lambda_contour_levels)))
 ax_struc(1).ax = gca;
-xlabel('\theta [\circ]')
-ylabel('c [m s^{-1}]')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{c\ [m\ s^{-1}]}$','Interpreter','LaTeX')
 cbar.Ticks = Lambda_contour_levels(2:end);
 
 nexttile(2)
@@ -144,11 +144,11 @@ f.LineStyle = 'none';
 xlim([-180 180])
 ylim([1e-1 1e2])
 clim([S_ds_contour_levels(2) S_ds_contour_levels(end)]+[-1 1]*median(diff(S_ds_contour_levels)))
-xlabel('\theta [\circ]')
-ylabel('k [rad m^{-1}]')
-text(80,3e-1,['$\bar{\theta}_{br}$ = ' sprintf('%0.2f',theta_mean_br) ' $^\circ$'],'HorizontalAlignment','Center','FontSize',fsize,'Interpreter','LaTeX')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
+text(80,3e-1,['$\mathrm{\bar{\theta}_{br}}$ = ' sprintf('%0.2f',theta_mean_br) '$^\circ$'],'HorizontalAlignment','Center','FontSize',fsize,'Interpreter','LaTeX')
 cbar = colorbar;
-set(get(cbar,'Label'),'String','$\mathrm{log_{10}}\{S_{ds}(k,\theta)\}\ \mathrm{[m^4 rad^{-1} s^{-1}]}$','Interpreter','LaTeX')
+set(get(cbar,'Label'),'String','$\mathrm{log_{10}\{S_{ds}(k,\theta)\}\ [m^4 rad^{-1} s^{-1}]}$','Interpreter','LaTeX')
 cbar.Ticks = S_ds_contour_levels(2:end);
 cbar.Location = 'north';
 ax_struc(2).ax = gca;

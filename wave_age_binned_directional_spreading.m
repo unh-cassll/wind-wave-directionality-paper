@@ -250,7 +250,7 @@ colororder(cmap_binned)
 box on
 ylim(k_hat_lims)
 xlim(halfwidth_lims)
-xlabel('\theta_{halfwidth} [\circ]')
+xlabel('$\mathrm{\theta_{halfwidth}\ [^\circ]}$','Interpreter','latex')
 ylabel('$\mathrm{\hat{k}_{disp}\equiv k_{disp}u_*^2/g}$','Interpreter','LaTeX')
 ax_struc(1).ax = gca;
 
@@ -283,7 +283,7 @@ hold off
 box on
 ylim(k_hat_lims)
 xlim(Delta_lims)
-xlabel('\Delta [rad]')
+xlabel('$\mathrm{\Delta\ [rad]}$','Interpreter','latex')
 ylabel('$\mathrm{\hat{k}_{disp}\equiv\omega^2u_*^2/g^2}$','Interpreter','LaTeX')
 ax_struc(2).ax = gca;
 clim(clims)
@@ -311,7 +311,7 @@ clim(clims)
 box on
 ylim(k_hat_lims)
 xlim(halfwidth_lims)
-xlabel('\theta_{halfwidth} [\circ]')
+xlabel('$\mathrm{\theta_{halfwidth}\ [^\circ]}$','Interpreter','latex')
 ylabel('$\mathrm{\hat{k}\equiv k u_*^2/g}$','Interpreter','LaTeX')
 ax_struc(3).ax = gca;
 
@@ -335,7 +335,7 @@ colororder(cmap_binned)
 box on
 ylim(k_hat_lims)
 xlim(Delta_lims)
-xlabel('\Delta [rad]')
+xlabel('$\mathrm{\Delta\ [rad]}$','Interpreter','latex')
 ylabel('$\mathrm{\hat{k}\equiv k u_*^2/g}$','Interpreter','LaTeX')
 ax_struc(4).ax = gca;
 clim(clims)
@@ -349,7 +349,7 @@ cbar = colorbar(ax_struc(3).ax);
 cbar.Layout.Tile = 'east';
 cbar.Layout.TileSpan = [2 2];
 cbar.Ticks = clims(1):d_wave_age:clims(end);
-set(get(cbar,'Title'),'String','c_p/u_*')
+set(get(cbar,'Title'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 
 boxdims = [0.42 0.593 0.185 0.10];
 str = 'upper limit of equilibrium range';
@@ -404,7 +404,7 @@ colororder(cmap_binned)
 box on
 ylim([1e-1 1e2])
 xlim(halfwidth_lims)
-xlabel('\theta_{halfwidth} [\circ]')
+xlabel('$\mathrm{\theta_{halfwidth}\ [^\circ]}$','Interpreter','latex')
 ylabel('$\mathrm{\hat{k}_{disp}/\hat{k}_n}$','Interpreter','LaTeX')
 ax_struc(1).ax = gca;
 
@@ -421,7 +421,7 @@ hold off
 box on
 ylim([1e-1 1e2])
 xlim(Delta_lims)
-xlabel('\Delta')
+xlabel('$\mathrm{\Delta\ [rad]}$','Interpreter','latex')
 ylabel('$\mathrm{\hat{k}_{disp}/\hat{k}_n}$','Interpreter','LaTeX')
 ax_struc(2).ax = gca;
 clim(clims)
@@ -446,7 +446,7 @@ colororder(cmap_binned)
 box on
 ylim(k_hat_norm_lims)
 xlim(halfwidth_lims)
-xlabel('\theta_{halfwidth} [\circ]')
+xlabel('$\mathrm{\theta_{halfwidth}\ [^\circ]}$','Interpreter','latex')
 ylabel('$\mathrm{\hat{k}/\hat{k}_s}$','Interpreter','LaTeX')
 clim(clims)
 colormap(cmap_binned)
@@ -470,7 +470,7 @@ colororder(cmap_binned)
 box on
 ylim(k_hat_norm_lims)
 xlim(Delta_lims)
-xlabel('\Delta')
+xlabel('$\mathrm{\Delta\ [rad]}$','Interpreter','latex')
 ylabel('$\mathrm{\hat{k}/\hat{k}_s}$','Interpreter','LaTeX')
 ax_struc(4).ax = gca;
 
@@ -479,7 +479,7 @@ cbar = colorbar(ax_struc(3).ax);
 cbar.Layout.Tile = 'east';
 cbar.Layout.TileSpan = [2 2];
 cbar.Ticks = clims(1):d_wave_age:clims(end);
-set(get(cbar,'Title'),'String','c_p/u_*')
+set(get(cbar,'Title'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 
 tile_cleaner(ax_struc,tlayout)
 tlayout.TileSpacing = 'tight';

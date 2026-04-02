@@ -191,14 +191,14 @@ box on
 shading('flat')
 cbar = colorbar;
 cbar.Location = 'northoutside';
-set(get(cbar,'Label'),'String','$\mathrm{log_{10}}\{B(k,\theta)\}$','Interpreter','LaTeX')
-text(-175,0.65,'$\mathrm{log_{10}}\{k^4S_{ds}(k,\theta)\}$','Interpreter','LaTeX','FontSize',fsize,'Color','w','HorizontalAlignment','left')
+set(get(cbar,'Label'),'String','$\mathrm{log_{10}\{B(k,\theta)\}}$','Interpreter','LaTeX')
+text(-175,0.65,'$\mathrm{log_{10}\{k^4S_{ds}(k,\theta)\}}$','Interpreter','LaTeX','FontSize',fsize,'Color','w','HorizontalAlignment','left')
 ax_struc(1).ax.YScale = 'log';
 shading('flat')
 clim([-4 -2.5])
 xlim([-180 180])
 ylim([5e-1 1e2])
-ylabel('$k$ [rad m$^{-1}$]','Interpreter','LaTeX')
+ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
 
 S_in_Plant = -trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)');
 
@@ -219,10 +219,10 @@ xlim([-180 180])
 ylim([YTicks(1) YTicks(end)])
 ax_struc(2).ax=gca;
 ax_struc(2).ax.YTick = YTicks;
-ylabel('$\tau(\theta)$ [N m$^{-2}$rad$^{-1}$]','Interpreter','LaTeX')
+ylabel('$\mathrm{\tau(\theta)\ [N\ m^{-2} rad^{-1}]}$','Interpreter','LaTeX')
 H = [h_in h_ds];
-L = {'\tau_{w}','\tau_{br}'};
-legend(H,L,'Location','southeast')
+L = {'$\mathrm{\tau_{w}}$','$\mathrm{\tau_{br}}$'};
+legend(H,L,'Location','southeast','Interpreter','LaTeX')
 
 residual_upper = -1.5*trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)');
 residual_lower = -0.5*trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)');
@@ -243,12 +243,12 @@ ylim([YTicks(1) YTicks(end)])
 ax_struc(3).ax=gca;
 ax_struc(3).ax.YTick = YTicks;
 ax_struc(3).ax.YColor = 'k';
-ylabel('$\tau_{w}(\theta)-\tau_{br}(\theta)$ [N m$^{-2}$ rad$^{-1}$]','Interpreter','LaTeX')
+ylabel('$\mathrm{\tau_{w}(\theta)-\tau_{br}(\theta)\ [N\ m^{-2}\ rad^{-1}]}$','Interpreter','LaTeX')
 box on
 
 for n = 1:3
     nexttile(n)
-    xlabel('$\theta$ [$^\circ$]','Interpreter','LaTeX')
+    xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
     ax_struc(n).ax.XTick = dir_ticks;
     if n == 1
         labelcolor = 'w';

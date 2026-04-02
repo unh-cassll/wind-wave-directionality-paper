@@ -120,8 +120,8 @@ ax_struc(1).ax.XScale = 'log';
 ax_struc(1).ax.YScale = 'log';
 xlim([10 100])
 ylim([1 100])
-xlabel('c_p/u_*')
-ylabel('k_n/k_p, obs.')
+xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
+ylabel('$\mathrm{k_n/k_p,\ obs.}$','Interpreter','LaTeX')
 
 H = [h_ours h_RM2010_fit];
 L = {'present study','Romero & Melville [2010]'};
@@ -139,15 +139,15 @@ box on
 cbar = colorbar;
 clim([10 60])
 colormap(cmap)
-set(get(cbar,'Title'),'String','c_p/u_*')
+set(get(cbar,'Title'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 cbar.Ticks = 10:10:60;
 ax_struc(2).ax = gca;
 ax_struc(2).ax.XScale = 'log';
 ax_struc(2).ax.YScale = 'log';
 xlim([1 100])
 ylim([1 100])
-xlabel('k_n/k_p, Hwang & Wang [2001]')
-ylabel('k_n/k_p, obs.')
+xlabel('$\mathrm{k_n/k_p,\ Hwang\ \&\ Wang\ [2001]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{k_n/k_p,\ obs.}$','Interpreter','LaTeX')
 
 ax_struc(1).ax.XTick = 10.^[1 2];
 ax_struc(1).ax.XTickLabel = {'10','100'};

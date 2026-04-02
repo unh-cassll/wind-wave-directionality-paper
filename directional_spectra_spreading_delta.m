@@ -98,8 +98,8 @@ pcolor((theta_rad-dtheta/2)*180/pi,k_rad_m_Pyxis,log10(BKTHETA))
 cbar_spect = colorbar;
 cbar_spect.Location = 'northoutside';
 shading('flat')
-xlabel('\theta [\circ]')
-ylabel('k [rad m^{-1}]')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
 
 ax_struc(2).ax = nexttile(2);
 hold on
@@ -111,19 +111,19 @@ box on
 cbar_spread = colorbar;
 cbar_spread.Location = 'northoutside';
 shading('flat')
-xlabel('\theta [\circ]')
-ylabel('k [rad m^{-1}]')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
 
 ax_struc(3).ax = nexttile(3);
 plot(Delta_k,k_rad_m_Pyxis,'linewidth',3,'Color',crimson)
-xlabel('\Delta(k) [rad]')
-ylabel('k [rad m^{-1}]')
+xlabel('$\mathrm{\Delta(k)\ [rad]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
 
 ax_struc(4).ax = nexttile(4);
 pcolor((theta_rad-dtheta/2)*180/pi,f_Hz_Pyxis,log10(BFTHETA))
 shading('flat')
-xlabel('\theta [\circ]')
-ylabel('f [Hz]')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{f\ [Hz]}$','Interpreter','LaTeX')
 
 ax_struc(5).ax = nexttile(5);
 hold on
@@ -133,13 +133,13 @@ plot(180/pi*Df50_right,f_Hz_Pyxis,':','Color','k','linewidth',2)
 hold off
 box on
 shading('flat')
-xlabel('\theta [\circ]')
-ylabel('f [Hz]')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{f\ [Hz]}$','Interpreter','LaTeX')
 
 ax_struc(6).ax = nexttile(6);
 plot(Delta_f,f_Hz_Pyxis,'linewidth',3,'Color',crimson)
-xlabel('\Delta [rad]')
-ylabel('f [Hz]')
+xlabel('$\mathrm{\Delta(k)\ [rad]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{f\ [Hz]}$','Interpreter','LaTeX')
 
 for n = 1:3
     nexttile(n)
@@ -167,11 +167,11 @@ end
 cbar_spect.Ticks = [-2 -1 0];
 cbar_spect.TickLabels = {'1%','10%','100%'};
 % cbar_spect.Position = [0.12 0.86 0.235 0.0258];
-set(get(cbar_spect,'label'),'String','$B^*(X,\theta)$','Interpreter','latex')
+set(get(cbar_spect,'label'),'String','$\mathrm{B^*(X,\theta)}$','Interpreter','latex')
 
 cbar_spread.Ticks = [0.25 0.5 0.75];
 cbar_spread.TickLabels = {'25%','50%','75%'};
-set(get(cbar_spread,'label'),'String','$D(X,\theta)$','Interpreter','LaTeX')
+set(get(cbar_spread,'label'),'String','$\mathrm{D(X,\theta)}$','Interpreter','LaTeX')
 
 for n = [1 2 4 5]
     nexttile(n)

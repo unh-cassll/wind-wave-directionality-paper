@@ -87,7 +87,7 @@ hold off
 box on
 shading('flat')
 cbar = colorbar;
-set(get(cbar,'Label'),'String','$\mathrm{log_{10}}\{B(k,\theta)\}$\ ','Interpreter','LaTeX')
+set(get(cbar,'Label'),'String','$\mathrm{log_{10}\{B(k,\theta)\}}$\ ','Interpreter','LaTeX')
 cbar.Location = 'northoutside';
 ylim(theta_lims)
 xlim(klims)
@@ -97,8 +97,8 @@ ax_struc(1).ax.YDir = 'reverse';
 ax_struc(1).ax.XScale = 'log';
 ax_struc(1).ax.XTick = k_ticks;
 ax_struc(1).ax.YTick = dir_ticks;
-ylabel('\theta [\circ]')
-xlabel('k [rad m^{-1}]')
+ylabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
+xlabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
 text(text_x,text_y,'(a)','Color','w','FontSize',fsize,'Units','normalized')
 
 nexttile(2)
@@ -129,8 +129,8 @@ ax_struc(2).ax.XTick = k_ticks;
 ax_struc(2).ax.YTick = 10.^(-6:1:0);
 ax_struc(2).ax.XScale = 'log';
 ax_struc(2).ax.YScale = 'log';
-xlabel('k [rad m^{-1}]')
-ylabel('B(k) [rad]')
+xlabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
+ylabel('$\mathrm{B(k)\ [rad]}$','Interpreter','latex')
 H = [h_omni h_down h_cross h_up];
 L = {'omni','downwind','crosswind','upwind'};
 legend(H,L,'Location','south')

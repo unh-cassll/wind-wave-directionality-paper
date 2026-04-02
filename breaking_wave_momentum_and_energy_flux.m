@@ -12,7 +12,7 @@ labels = {'(a)','(b)','(c)','(d)'};
 
 U10_br = integrated_wave_breaking_quantities.U10_m_s;
 ustar_br = integrated_wave_breaking_quantities.ustar_m_s;
-theta_E_br = integrated_wave_breaking_quantities.D_E_deg;
+theta_m_br = integrated_wave_breaking_quantities.D_m_deg;
 c_p_br = integrated_wave_breaking_quantities.c_p_m_s;
 Momentum_flux_br = integrated_wave_breaking_quantities.Momentum_flux_ds_int;
 theta_br = integrated_wave_breaking_quantities.theta_br;
@@ -25,7 +25,7 @@ U10_br(U10_br<0) = NaN;
 Momentum_flux_br(Momentum_flux_br>0.5) = NaN;
 
 off_wind_theta_br = compute_relative_angle(theta_br,Wdir_br);
-off_wind_theta_E = compute_relative_angle(theta_E_br,Wdir_br);
+off_wind_theta_m = compute_relative_angle(theta_m_br,Wdir_br);
 
 % stress
 
@@ -39,16 +39,16 @@ wave_age_lims = [10 60];
 d_wave_age = 10;
 wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
 
-off_wind_theta_br(isnan(off_wind_theta_E)) = NaN;
-Momentum_flux_br(isnan(off_wind_theta_E)) = NaN;
+off_wind_theta_br(isnan(off_wind_theta_m)) = NaN;
+Momentum_flux_br(isnan(off_wind_theta_m)) = NaN;
 
-binned_theta_E_minus_theta_wind = NaN*ones(length(wave_age_centers),1);
-binned_theta_wave_minus_theta_wind = binned_theta_E_minus_theta_wind;
-binned_momentum_flux = binned_theta_E_minus_theta_wind;
-binned_wave_age = binned_theta_E_minus_theta_wind;
-binned_binsize = binned_theta_E_minus_theta_wind;
-binned_ustar = binned_theta_E_minus_theta_wind;
-binned_u10 = binned_theta_E_minus_theta_wind;
+binned_theta_m_minus_theta_wind = NaN*ones(length(wave_age_centers),1);
+binned_theta_wave_minus_theta_wind = binned_theta_m_minus_theta_wind;
+binned_momentum_flux = binned_theta_m_minus_theta_wind;
+binned_wave_age = binned_theta_m_minus_theta_wind;
+binned_binsize = binned_theta_m_minus_theta_wind;
+binned_ustar = binned_theta_m_minus_theta_wind;
+binned_u10 = binned_theta_m_minus_theta_wind;
 
 wave_age = c_p_br./ustar_br;
 
@@ -92,7 +92,7 @@ nexttile()
 hold on
 plot([0 100],[0 0],'--','linewidth',2,'Color',0.5*[1 1 1])
 plot(wave_age,off_wind_theta_br,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize,'linewidth',0.5)
-scatter(wave_age,off_wind_theta_br,0.65*msize^2,off_wind_theta_E,'filled')
+scatter(wave_age,off_wind_theta_br,0.65*msize^2,off_wind_theta_m,'filled')
 plot(binned_wave_age,binned_theta_wave_minus_theta_wind,'o-','color','k','markerfacecolor','k','markeredgecolor','k','markersize',msize*2.25,'linewidth',2)
 for i = 1:length(binned_binsize)
     text(binned_wave_age(i),binned_theta_wave_minus_theta_wind(i),num2str(binned_binsize(i)),'Color','w','FontSize',fsize,'FontWeight','bold','HorizontalAlignment','center')
@@ -109,16 +109,16 @@ ax_struc(1).ax.YTick = -45:15:45;
 ax_struc(1).ax.YDir = 'reverse';
 
 cbar.Ticks = -90:30:90;
-set(get(cbar,'Label'),'String','\theta_E-\theta_{wind} [\circ]')
+set(get(cbar,'Label'),'String','$\mathrm{\theta_m-\theta_{wind}\ [^\circ]}$','Interpreter','LaTeX')
 
-xlabel('c_p/u_*')
-ylabel('$\theta_{\mathrm{br}}-\theta_{\mathrm{wind}}$ [$^\circ$]','Interpreter','latex')
+xlabel('$\mathrm{c_p/u_*}$','Interpreter','latex')
+ylabel('$\mathrm{\theta_{br}-\theta_{wind}\ [^\circ]}$','Interpreter','latex')
 
 nexttile()
 hold on
 plot([0 100],[0 0],'--','linewidth',2,'Color',0.5*[1 1 1])
 plot(wave_age,Momentum_flux_br,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize,'linewidth',0.5)
-scatter(wave_age,Momentum_flux_br,0.65*msize^2,off_wind_theta_E,'filled')
+scatter(wave_age,Momentum_flux_br,0.65*msize^2,off_wind_theta_m,'filled')
 plot(binned_wave_age,binned_momentum_flux,'o-','color','k','markerfacecolor','k','markeredgecolor','k','markersize',msize*1.25,'linewidth',2)
 plot(binned_wave_age,rho_a*binned_ustar.^2,'s:','color','k','markerfacecolor','none','markeredgecolor','k','markersize',msize*1.75,'linewidth',2.5)
 plot(binned_wave_age,binned_viscous_stress,'d--','color','k','markerfacecolor','none','markeredgecolor','k','markersize',msize*1.75,'linewidth',2.5)
@@ -133,8 +133,8 @@ ylim([1e-3 1e1])
 ax_struc(2).ax = gca;
 ax_struc(2).ax.YScale = 'log';
 
-xlabel('c_p/u_*')
-ylabel('$\tau$ [N m$^{-2}$]','Interpreter','latex')
+xlabel('$\mathrm{c_p/u_*}$','Interpreter','latex')
+ylabel('$\mathrm{\tau\ [N\ m^{-2}]}$','Interpreter','latex')
 
 for n = 1:2
     nexttile(n)

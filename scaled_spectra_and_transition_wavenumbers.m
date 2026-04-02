@@ -111,13 +111,13 @@ box on
 colormap(cmap)
 cbar = colorbar;
 cbar.Location = 'northoutside';
-set(get(cbar,'Label'),'String','$u_*/\sqrt{gH_s}$','Interpreter','LaTeX')
+set(get(cbar,'Label'),'String','$\mathrm{u_*/\sqrt{gH_s}}$','Interpreter','LaTeX')
 cbar.Ticks = [ustar_norm_centers(1)-d_ustar_norm_centers/2 ustar_norm_centers+d_ustar_norm_centers/2];
 clim([ustar_norm_centers(1) ustar_norm_centers(end)] + [-1 1]*d_ustar_norm_centers/2)
 xlim([0.999e-5 1e1])
 ylim([1e-6 1e-1])
-xlabel('$ku_*^2/g$','Interpreter','LaTeX')
-ylabel('$B(k)\ \mathrm{[rad]}$','Interpreter','LaTeX')
+xlabel('$\mathrm{\hat{k}\equiv ku_*^2/g}$','Interpreter','LaTeX')
+ylabel('$\mathrm{B(k)\ [rad]}$','Interpreter','LaTeX')
 ax = gca;
 ax.XTick = 10.^(-5:1:2);
 ax.YTick = 10.^(-6:1:-1);
@@ -137,8 +137,8 @@ hold off
 box on
 xlim([0 0.2])
 ylim([0 10])
-xlabel('$u_*/\sqrt{gH_s}$','Interpreter','LaTeX')
-ylabel('$k_n\ \mathrm{[rad}\ \mathrm{m}^{-1}]$','Interpreter','LaTeX')
+xlabel('$\mathrm{u_*/\sqrt{gH_s}}$','Interpreter','LaTeX')
+ylabel('$\mathrm{k_n\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
 
 h_ours_all.MarkerFaceAlpha = fA;
 

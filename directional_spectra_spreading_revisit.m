@@ -60,8 +60,8 @@ ax.YScale = 'log';
 cbar_spect = colorbar;
 cbar_spect.Location = 'eastoutside';
 shading('flat')
-xlabel('\theta [\circ]')
-ylabel('k [rad m^{-1}]')
+ylabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
+ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
 
 ax_struc(2).ax = nexttile(2);
 hold on
@@ -74,8 +74,8 @@ box on
 ax = gca;
 ax.YScale = 'log';
 shading('flat')
-xlabel('\theta [\circ]')
-ylabel('k [rad m^{-1}]')
+ylabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
+ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
 
 ax_struc(3).ax = nexttile(3);
 hold on
@@ -87,8 +87,8 @@ hold off
 box on
 cbar_spread = colorbar;
 shading('flat')
-xlabel('\theta [\circ]')
-ylabel('k [rad m^{-1}]')
+ylabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
+ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
 
 khigh = s.k_high;
 
