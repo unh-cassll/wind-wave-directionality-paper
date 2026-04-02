@@ -60,7 +60,7 @@ ax.YScale = 'log';
 cbar_spect = colorbar;
 cbar_spect.Location = 'eastoutside';
 shading('flat')
-ylabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
 ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
 
 ax_struc(2).ax = nexttile(2);
@@ -74,7 +74,7 @@ box on
 ax = gca;
 ax.YScale = 'log';
 shading('flat')
-ylabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
 ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
 
 ax_struc(3).ax = nexttile(3);
@@ -87,7 +87,7 @@ hold off
 box on
 cbar_spread = colorbar;
 shading('flat')
-ylabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
+xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
 ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
 
 khigh = s.k_high;
@@ -118,11 +118,11 @@ end
 
 cbar_spect.Ticks = [-2 -1 0];
 cbar_spect.TickLabels = {'1%','10%','100%'};
-set(get(cbar_spect,'label'),'String','$B^*(X,\theta)$','Interpreter','latex')
+set(get(cbar_spect,'label'),'String','$\mathrm{B^*(X,\theta)}$','Interpreter','latex')
 
 cbar_spread.Ticks = [0.01 0.25 0.5 0.75 1];
 cbar_spread.TickLabels = {'1%','25%','50%','75%','100%'};
-set(get(cbar_spread,'label'),'String','$D(X,\theta)$','Interpreter','LaTeX')
+set(get(cbar_spread,'label'),'String','$\mathrm{D(X,\theta)}$','Interpreter','LaTeX')
 
 for n = 1:3
     nexttile(n)

@@ -56,7 +56,7 @@ plot(DTime,COARE_U10,'Color',bluish,'linewidth',lw)
 xlim(DT_lim)
 ylim(U10_lims)
 ax_struc((1-1)*num_wide+1).ax = gca;
-ylabel('U_{10} [m s^{-1}]')
+ylabel('$\mathrm{U_{10}\ [m\ s^{-1}]}$','Interpreter','LaTeX')
 text(text_x_left,text_y,'(a)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
 nexttile((2-1)*num_wide+1,[1 num_wide-1])
@@ -71,7 +71,7 @@ ax_struc((2-1)*num_wide+1).ax = gca;
 ax_struc((2-1)*num_wide+1).ax.YScale='log';
 ax_struc((2-1)*num_wide+1).ax.YTick = 10.^(-2:1:0);
 ax_struc((2-1)*num_wide+1).ax.YTickLabel = {'0.01','0.1','1'};
-ylabel('u_* [m s^{-1}]')
+ylabel('$\mathrm{u_{*}\ [m\ s^{-1}]}$','Interpreter','LaTeX')
 
 text(text_x_left,text_y,'(b)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
@@ -80,7 +80,7 @@ plot(DTime,Hm0,'-','Color',crimson,'markersize',3,'linewidth',lw)
 xlim(DT_lim)
 ylim(Hs_lims)
 ax_struc((3-1)*num_wide+1).ax = gca;
-ylabel('H_s [m]')
+ylabel('$\mathrm{H_s\ [m]}$','Interpreter','LaTeX')
 text(text_x_left,text_y,'(c)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
 nexttile((4-1)*num_wide+1,[1 num_wide-1])
@@ -92,7 +92,7 @@ box on
 xlim(DT_lim)
 ylim(T_lims)
 ax_struc((4-1)*num_wide+1).ax = gca;
-ylabel('T [s]')
+ylabel('$\mathrm{T\ [s]}$','Interpreter','LaTeX')
 
 text(text_x_left,text_y,'(d)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
@@ -105,7 +105,6 @@ plot(P_U10,centers_U10,'-','Color',bluish,'LineWidth',lw*1.5)
 xlim(Plims)
 ylim(U10_lims)
 ax_struc(1*num_wide).ax = gca;
-xlabel('P(U_{10})')
 text(text_x_right,text_y,'(e)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
 ustar_m_s_EC = EC_ustar_m_s;
@@ -126,7 +125,6 @@ xlim(Plims)
 ylim(ustar_lims)
 ax_struc(2*num_wide).ax = gca;
 ax_struc(2*num_wide).ax.YScale='log';
-xlabel('P(u_*)')
 
 text(0.9,0.4,'EC','Color',violet,'FontSize',fsize,'HorizontalAlignment','center')
 text(0.85,0.015,'COARE 3.5','Color',teal,'FontSize',fsize,'HorizontalAlignment','center')
@@ -140,7 +138,6 @@ plot(P_Hs,centers_Hs,'-','Color',crimson,'LineWidth',lw*1.5)
 xlim(Plims)
 ylim(Hs_lims)
 ax_struc(3*num_wide).ax = gca;
-xlabel('P(H_s)')
 text(text_x_right,text_y,'(g)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
 [counts_Tpeak,centers_Tpeak] = hist(Tpeak,nbins);
@@ -157,10 +154,10 @@ box on
 xlim(Plims)
 ylim(T_lims)
 ax_struc(4*num_wide).ax = gca;
-xlabel('P(X) [normalized]')
+xlabel('$\mathrm{P(X)\ [normalized]}$','Interpreter','latex')
 
-text(0.75,11.5,'T_p','Color',goldenrod,'FontSize',fsize,'HorizontalAlignment','center')
-text(1.1,2,'T_m','Color',greenish,'FontSize',fsize,'HorizontalAlignment','center')
+text(0.75,11.5,'$\mathrm{T_p}$','Color',goldenrod,'FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
+text(1.1,2,'$\mathrm{T_m}$','Color',greenish,'FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 text(text_x_right,text_y,'(h)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
 tile_cleaner(ax_struc,tlayout)

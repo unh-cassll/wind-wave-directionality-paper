@@ -179,9 +179,9 @@ colormap(cmap_binned)
 clim(Ulims)
 xlim([1e-2 2e1])
 ylim([1e-10 1e2])
-ylabel('F(f) [m^2Hz^{-1}]')
-text(mean(f_eq),10.^mean(log10(1e-2*f_eq.^-4))*7,'f^{-4}','FontSize',fsize,'HorizontalAlignment','center')
-text(mean(f_sat),10.^mean(log10(5e-3*f_sat.^-5))*7,'f^{-5}','FontSize',fsize,'HorizontalAlignment','center')
+ylabel('$\mathrm{F(f)\ [m^2Hz^{-1}]}$','Interpreter','latex')
+text(mean(f_eq),10.^mean(log10(1e-2*f_eq.^-4))*7,'$\mathrm{f^{-4}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
+text(mean(f_sat),10.^mean(log10(5e-3*f_sat.^-5))*7,'$\mathrm{f^{-5}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 
 nexttile(2)
 hold on
@@ -193,9 +193,9 @@ hold off
 colororder(cmap_binned)
 xlim([1e-2 1e3])
 ylim([1e-12 1e2])
-ylabel('F(k) [m^3]')
-text(1.5*10^mean(log10(k_eq)),10.^mean(log10(4e-2*k_eq.^-2.5))*20,'k^{-2.5}','FontSize',fsize,'HorizontalAlignment','center')
-text(1.5*10^mean(log10(k_sat)),10.^mean(log10(4e-2*k_sat.^-3))*20,'k^{-3}','FontSize',fsize,'HorizontalAlignment','center')
+ylabel('$\mathrm{F(k)\ [m^3]}$','Interpreter','latex')
+text(1.5*10^mean(log10(k_eq)),10.^mean(log10(4e-2*k_eq.^-2.5))*20,'$\mathrm{k^{-2.5}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
+text(1.5*10^mean(log10(k_sat)),10.^mean(log10(4e-2*k_sat.^-3))*20,'$\mathrm{k^{-3}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 
 nexttile(3)
 hold on
@@ -207,10 +207,10 @@ hold off
 colororder(cmap_binned)
 xlim([1e-2 2e1])
 ylim([1e-4 5e-2])
-xlabel('f [Hz]')
-ylabel('(2\pif)^5/g^2F(f) [rad]')
-text(mean(f_eq),1.3*10.^mean(log10(3e-2*f_eq.^1))*1.5,'f^{1}','FontSize',fsize,'HorizontalAlignment','center')
-text(mean(f_sat),1.3*10.^mean(log10(1.5e-2*f_sat.^0))*1.5,'f^{0}','FontSize',fsize,'HorizontalAlignment','center')
+xlabel('$\mathrm{f\ [Hz]}$','Interpreter','latex')
+ylabel('$\mathrm{(2\pi f)^5/g^2F(f)\ [rad]}$','Interpreter','latex')
+text(mean(f_eq),1.3*10.^mean(log10(3e-2*f_eq.^1))*1.5,'$\mathrm{f^{1}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
+text(mean(f_sat),1.3*10.^mean(log10(1.5e-2*f_sat.^0))*1.5,'$\mathrm{f^{0}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 
 nexttile(4)
 hold on
@@ -222,10 +222,10 @@ hold off
 colororder(cmap_binned)
 xlim([1e-2 1e3])
 ylim([1e-4 5e-2])
-xlabel('k [rad m^{-1}]')
-ylabel('k^3F(k) [rad]')
-text(10^mean(log10(k_eq)),1.1*10.^mean(log10(1.8e-2*k_eq.^0.5))*1.5,'k^{0.5}','FontSize',fsize,'HorizontalAlignment','center')
-text(10^mean(log10(k_sat)),1.1*10.^mean(log10(1.7e-2*k_sat.^0))*1.5,'k^{0}','FontSize',fsize,'HorizontalAlignment','center')
+xlabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
+ylabel('$\mathrm{k^3F(k)\ [rad]}$','Interpreter','latex')
+text(10^mean(log10(k_eq)),1.1*10.^mean(log10(1.8e-2*k_eq.^0.5))*1.5,'$\mathrm{k^{0.5}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
+text(10^mean(log10(k_sat)),1.1*10.^mean(log10(1.7e-2*k_sat.^0))*1.5,'$\mathrm{k^{0}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 
 for n = 1:4
     ax_struc(n).ax = nexttile(n);
@@ -258,4 +258,4 @@ cbar.Layout.TileSpan = [2 2];
 cbar.Ticks = Ulims(1):d_waveage_norm:Ulims(2);
 cbar.TickLabels = flipud(cbar.TickLabels);
 cbar.Direction = 'reverse';
-set(get(cbar,'Label'),'String','c_p/u_*')
+set(get(cbar,'Label'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')

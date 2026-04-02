@@ -60,8 +60,8 @@ box on
 xlim([0 20])
 ylim([0 25])
 colororder(cmap)
-xlabel('U [m s^{-1}]')
-ylabel('z [m]')
+xlabel('$\mathrm{U\ [m\ s^{-1}]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{z\ [m]}$','Interpreter','LaTeX')
 ax_struc(1).ax = gca;
 
 nexttile(2)
@@ -73,11 +73,11 @@ box on
 xlim([5e-3 1e0])
 ylim([0 25])
 colororder(magma(length(wind_speed_centers)))
-xlabel('\tau [N m^{-2}]')
-ylabel('z [m]')
+xlabel('$\mathrm{\tau\ [N\ m^{-2}]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{z\ [m]}$','Interpreter','LaTeX')
 
 cbar = colorbar;
-set(get(cbar,'Title'),'String','U_{10} [m s^{-1}]')
+set(get(cbar,'Title'),'String','$\mathrm{U\ [m\ s^{-1}]}$','Interpreter','LaTeX')
 colormap(magma(length(wind_speed_centers)))
 clim([wind_speed_centers(1) wind_speed_centers(end)] + [-1 1]*dU/2)
 cbar.Ticks = wind_speed_centers(1)-dU/2:dU:wind_speed_centers(end)+dU/2;

@@ -136,8 +136,8 @@ ax_struc(1).ax.XScale = 'log';
 ax_struc(1).ax.YTick = -3:1:3;
 xlim([1e-2 1e1]*2)
 ylim([-1 1]*3)
-xlabel('f [Hz]')
-ylabel('"n" such that B(f)\proptof^{n}')
+xlabel('$\mathrm{f\ [Hz]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{\lq\lq n"\ such\ that\ B(f)\propto f^{n}}$','Interpreter','LaTeX')
 
 nexttile(2)
 plot(f_Hz_EPSS,(2*pi*f_Hz_EPSS).^5/g^2.*Ff_EPSS(:,particular_ind),'-',f_Hz_Pyxis,((2*pi*(f_Hz_Pyxis)).^1).*Sf(:,particular_ind),'-','linewidth',3)
@@ -155,10 +155,10 @@ xlim([1e-2 1e1]*2)
 ylim([1e-4 1e0])
 clim([-1 1]*3)
 colormap(coolwarm)
-xlabel('f [Hz]')
-ylabel('B(f) [rad]')
+xlabel('$\mathrm{f\ [Hz]}$','Interpreter','LaTeX')
+ylabel('$\mathrm{B(f)\ [rad]}$','Interpreter','LaTeX')
 cbar = colorbar;
-set(get(cbar,'Title'),'String','"n"')
+set(get(cbar,'Title'),'String','$\mathrm{\lq\lq n"}$','Interpreter','LaTeX')
 
 text(0.08,0.0035,'direct','FontSize',fsize,'fontweight','bold','HorizontalAlignment','center','color',teal)
 text(0.08,0.00035,'E-PSS','FontSize',fsize,'fontweight','bold','HorizontalAlignment','center','color',violet)
