@@ -21,3 +21,10 @@ data/ASIT2019_combined_frequency_slope_spectra.mat
 data/ASIT2019_combined_wavenumber_elevation_spectra.mat
 data/integrated_wave_breaking_quantities.mat
 data/wave_age_binned_breaking_quantities.mat
+
+# Local scratch / manuscript drafts
+_dustbin/
+Python/
+#Python/.venv/
+#Python/figs/
+#Python/**/__pycache__/
