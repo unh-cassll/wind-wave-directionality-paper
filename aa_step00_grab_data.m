@@ -3,7 +3,7 @@ close all;clear;clc
 
 %% grab data files from Zenodo repository
 
-base_url = 'https://zenodo.org/records/18881301/files/';
+base_url = 'https://zenodo.org/records/20566556/files/';
 
 filenames = {'ASIT2019_EPSS_directional_spectra.nc','ASIT2019_supporting_environmental_observations.nc','ASIT2019_supporting_data_compilation.nc','ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc'};
 
