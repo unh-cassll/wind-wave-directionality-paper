@@ -34,8 +34,16 @@ SFTHETA = double(ncread(short_wave_nc_name,'S_f_theta'));
 SKTHETA = double(ncread(short_wave_nc_name,'S_k_theta'));
 
 f_Hz_EPSS = double(ncread(long_wave_nc_name,'frequency'));
-theta_rad_EPSS = double(ncread(long_wave_nc_name,'direction'))*pi/180;
-FFTHETA = double(ncread(long_wave_nc_name,'F_f_d'))*180/pi;
+
+% Auto-detect direction units (legacy: deg/per-deg, current: rad/per-rad)
+dir_EPSS = double(ncread(long_wave_nc_name,'direction'));
+FFTHETA = double(ncread(long_wave_nc_name,'F_f_d'));
+if max(abs(dir_EPSS)) > 2*pi
+    theta_rad_EPSS = dir_EPSS*pi/180;
+    FFTHETA = FFTHETA*180/pi;
+else
+    theta_rad_EPSS = dir_EPSS;
+end
 
 f_Hz_EPSS = f_Hz_EPSS(2:end);
 FFTHETA = FFTHETA(:,:,2:end);
@@ -58,20 +66,23 @@ water_depth_m = 15;
 [c_disp,~] = lindisp_with_current(2*pi*f_Hz_Pyxis,water_depth_m,0);
 k_disp_Pyxis = 2*pi*f_Hz_Pyxis./c_disp;
 
-FFTHETA_EPSS_big = [FFTHETA FFTHETA FFTHETA];
 FFTHETA_direct_big = k_disp_Pyxis.^-2.*[SFTHETA SFTHETA SFTHETA];
 
-theta_rad_EPSS_big = [theta_rad_EPSS(:)'-2*pi theta_rad_EPSS(:)' theta_rad_EPSS(:)'+2*pi];
 theta_rad_direct_big = [theta_rad_Pyxis(:)'-2*pi theta_rad_Pyxis(:)' theta_rad_Pyxis(:)'+2*pi];
-
-inds_keep_EPSS = theta_rad_EPSS_big >= -pi & theta_rad_EPSS_big < pi;
 inds_keep_direct = theta_rad_direct_big >= -pi & theta_rad_direct_big < pi;
 
-FFTHETA_combined = [FFTHETA_EPSS_big(:,inds_keep_EPSS,:); FFTHETA_direct_big(:,inds_keep_direct,:)];
+% Shared Pyxis direction grid ([-pi,pi)) for the combined spectrum
+theta_rad = theta_rad_direct_big(inds_keep_direct);
+
+% Resample E-PSS spectrum from its native direction grid onto the Pyxis grid
+FFTHETA_EPSS_resamp = NaN*ones(size(FFTHETA,1),length(theta_rad),size(FFTHETA,3));
+for run_ind = 1:size(FFTHETA,3)
+    FFTHETA_EPSS_resamp(:,:,run_ind) = regrid_directional_spectrum(squeeze(FFTHETA(:,:,run_ind)),theta_rad_EPSS,theta_rad);
+end
+
+FFTHETA_combined = [FFTHETA_EPSS_resamp; FFTHETA_direct_big(:,inds_keep_direct,:)];
 
 f_Hz_combined = [f_Hz_EPSS; f_Hz_Pyxis];
-
-theta_rad = theta_rad_EPSS_big(inds_keep_EPSS);
 
 frequency_spect = load('data/ASIT2019_combined_frequency_slope_spectra.mat');
 

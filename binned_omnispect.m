@@ -7,7 +7,16 @@ long_wave_spectra_nc_name = 'data/ASIT2019_EPSS_directional_spectra.nc';
 g = 9.81;
 
 f_Hz_EPSS = ncread(long_wave_spectra_nc_name,'frequency');
-theta_rad_EPSS = double(ncread(long_wave_spectra_nc_name,'direction'))*pi/180;
+
+% Auto-detect direction units (legacy: deg/per-deg, current: rad/per-rad)
+dir_EPSS = double(ncread(long_wave_spectra_nc_name,'direction'));
+if max(abs(dir_EPSS)) > 2*pi
+    theta_rad_EPSS = dir_EPSS*pi/180;
+    epss_per_rad_scale = 180/pi;
+else
+    theta_rad_EPSS = dir_EPSS;
+    epss_per_rad_scale = 1;
+end
 
 f_Hz_Pyxis = ncread(short_wave_spectra_nc_name,'f_Hz');
 k_rad_m_Pyxis = ncread(short_wave_spectra_nc_name,'k_rad_m');
@@ -23,7 +32,7 @@ EC_U10_m_s = EC_ustar_m_s/kappa.*log(10./EC_z0_m);
 
 SKTHETA = double(ncread(short_wave_spectra_nc_name,'S_k_theta'));
 SFTHETA = double(ncread(short_wave_spectra_nc_name,'S_f_theta'));
-FFTHETA = double(ncread(long_wave_spectra_nc_name,'F_f_d'))*180/pi;
+FFTHETA = double(ncread(long_wave_spectra_nc_name,'F_f_d'))*epss_per_rad_scale;
 
 SKTHETA(SKTHETA==0) = NaN;
 SFTHETA(SFTHETA==0) = NaN;
@@ -48,9 +57,15 @@ water_depth_m = 15;
 
 N = length(EC_U10_m_s);
 
-F_f_block = NaN*ones(length(f_Hz_EPSS)+length(f_Hz_Pyxis(ind_trim:end)),N);
+% EWDM long-wave wavenumber spectra (handoff to Pyxis direct at k = 2 rad/m)
+k_EWDM = ncread(long_wave_spectra_nc_name,'wavenumber');
+F_k_omni_all = ncread(long_wave_spectra_nc_name,'F_k');   % MATLAB (run, wavenumber)
+keepE = k_EWDM < 2;
+keepP = k_rad_m_Pyxis >= 2;
+
+F_f_block = NaN*ones(length(f_Hz_EPSS)+length(f_Hz_Pyxis(ind_trim:end-1)),N);
 S_f_block = F_f_block;
-F_k_block = NaN*ones(1024+length(k_rad_m_Pyxis),N);
+F_k_block = NaN*ones(nnz(keepE)+nnz(keepP),N);
 
 for example_run_ind = 1:N
 
@@ -67,7 +82,9 @@ for example_run_ind = 1:N
         F_f_theta_m2_Hz_rad = squeeze(FFTHETA(example_run_ind,:,:))';
 
         [S_f_theta,theta_rad] = convert_dirspect_to_downwind(S_f_theta,theta_rad_Pyxis,wdir_rad);
-        [F_f_theta_m2_Hz_rad,~] = convert_dirspect_to_downwind(F_f_theta_m2_Hz_rad,theta_rad_EPSS,wdir_rad);
+        [F_f_theta_m2_Hz_rad,theta_rad_EPSS_dw] = convert_dirspect_to_downwind(F_f_theta_m2_Hz_rad,theta_rad_EPSS,wdir_rad);
+        % Resample E-PSS onto the Pyxis downwind direction grid used downstream
+        F_f_theta_m2_Hz_rad = regrid_directional_spectrum(F_f_theta_m2_Hz_rad,theta_rad_EPSS_dw,theta_rad);
 
         [c_disp_EPSS,~] = lindisp_with_current(2*pi*f_Hz_EPSS,water_depth_m,0);
         [c_disp_Pyxis,~] = lindisp_with_current(2*pi*f_Hz_Pyxis,water_depth_m,0);
@@ -81,21 +98,19 @@ for example_run_ind = 1:N
         F_f_Pyxis = k_disp_Pyxis.^-2.*S_f_Pyxis;
         F_f_EPSS = sum(F_f_theta_m2_Hz_rad,2,'omitnan')*dtheta;
 
-        f_Hz_combined = [f_Hz_EPSS; f_Hz_Pyxis(ind_trim:end)];
-        F_f_combined = [F_f_EPSS; F_f_Pyxis(ind_trim:end)];
-        S_f_combined = [k_disp_EPSS.^2.*F_f_EPSS; S_f_Pyxis(ind_trim:end)];
+        f_Hz_combined = [f_Hz_EPSS; f_Hz_Pyxis(ind_trim:end-1)];
+        F_f_combined = [F_f_EPSS; F_f_Pyxis(ind_trim:end-1)];
+        S_f_combined = [k_disp_EPSS.^2.*F_f_EPSS; S_f_Pyxis(ind_trim:end-1)];
 
         [S_k_theta,~] = convert_dirspect_to_downwind(S_k_theta,theta_rad_Pyxis,wdir_rad);
 
-        Umag_m_s = sqrt(U_E_m_s(example_run_ind,:).^2+U_N_m_s(example_run_ind,:).^2);
-        Udir_deg = mod(atan2(U_E_m_s(example_run_ind,:),U_N_m_s(example_run_ind,:))*180/pi+360,360);
+        % Long waves: EWDM omni wavenumber elevation spectrum (k<2); short
+        % waves: Pyxis direct (k>=2), F_k = sum(k.*(k^-2 S_k),theta)dtheta
+        F_k_EWDM_omni = F_k_omni_all(example_run_ind,:).';
+        F_k_Pyxis_omni = sum(k_rad_m_Pyxis.^-1.*S_k_theta,2,'omitnan')*dtheta;
 
-        [wave_F_k_theta,k_rad_m,~,~] = directional_Doppler_shift_spectrum(Umag_m_s,Udir_deg,z_m(example_run_ind,:),water_depth_m,f_Hz_EPSS,F_f_theta_m2_Hz_rad,theta_rad,tail_flag,k_max);
-
-        k_rad_m_combined = [k_rad_m; k_rad_m_Pyxis(:)];
-        F_k_theta_combined = [wave_F_k_theta; k_rad_m_Pyxis.^-2.*S_k_theta];
-
-        F_k_combined = sum(k_rad_m_combined.*F_k_theta_combined,2,'omitnan')*dtheta;
+        k_rad_m_combined = [k_EWDM(keepE); k_rad_m_Pyxis(keepP)];
+        F_k_combined = [F_k_EWDM_omni(keepE); F_k_Pyxis_omni(keepP)];
 
         F_f_block(:,example_run_ind) = F_f_combined(:);
         S_f_block(:,example_run_ind) = S_f_combined(:);
@@ -152,7 +167,7 @@ F_f_binned = fliplr(F_f_binned);
 F_k_binned = fliplr(F_k_binned);
 
 f_ind_cut = ind_cut;
-k_ind_cut = 1024;
+k_ind_cut = nnz(keepE);
 
 F_f_binned(f_ind_cut,:) = NaN;
 F_k_binned(k_ind_cut,:) = NaN;
