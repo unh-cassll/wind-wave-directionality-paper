@@ -37,7 +37,8 @@ end
 fig_folder = 'figs/';
 
 % Global figure settings
-example_run_ind = 114;
+example_run_ind = 109;            % spectra/spreading example (figs 5, 10, B1; initial-submission case)
+breaking_example_run_ind = 114;   % breaking example (figs 11, 12): run 109 has no Lambda data; 114 = v2 breaking case (theta_br +11.71)
 dk = 2.16;
 k_low = 2*dk;
 k_high = 100;
@@ -47,7 +48,8 @@ U_low = 1;
 U_high = 13;
 dU = 2;
 wave_age_lims = [10 60];
-save('data/global_figure_settings.mat','example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU','wave_age_lims')
+recompute_derived_products = false;
+save('data/global_figure_settings.mat','example_run_ind','breaking_example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU','wave_age_lims','recompute_derived_products')
 
 %% Handle input figure list
 
@@ -352,11 +354,13 @@ for fignum = fig_list
 
             if print_flag
 
-                figure(fignum)
+                % explicit handle: the generator also creates figure fignum+1,
+                % and pause() lets the newer figure steal gcf in batch mode
+                h_fig = figure(fignum);
                 pause(0.5)
-                print([fig_folder 'frequency_wavenumber_directional_spreading_binned.svg'],'-dsvg')
+                print(h_fig,[fig_folder 'frequency_wavenumber_directional_spreading_binned.svg'],'-dsvg')
                 pause(0.5)
-                print([fig_folder 'frequency_wavenumber_directional_spreading_binned.png'],'-dpng',raster_dpi_string)
+                print(h_fig,[fig_folder 'frequency_wavenumber_directional_spreading_binned.png'],'-dpng',raster_dpi_string)
 
             end
 
@@ -369,11 +373,11 @@ for fignum = fig_list
 
             if print_flag
 
-                figure(fignum)
+                h_fig = figure(fignum);
                 pause(0.5)
-                print([fig_folder 'normalized_directional_spreading_binned.svg'],'-dsvg')
+                print(h_fig,[fig_folder 'normalized_directional_spreading_binned.svg'],'-dsvg')
                 pause(0.5)
-                print([fig_folder 'normalized_directional_spreading_binned.png'],'-dpng',raster_dpi_string)
+                print(h_fig,[fig_folder 'normalized_directional_spreading_binned.png'],'-dpng',raster_dpi_string)
 
             end
 
