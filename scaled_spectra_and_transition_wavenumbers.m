@@ -6,11 +6,7 @@ in_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 
 g = 9.81;
 
-water_depth_m = 15;
-
 EC_ustar_m_s = ncread(in_nc_name,'EC_ustar_m_s');
-
-U_sfc_mag_m_s = ncread(in_nc_name,'U_sfc_mag_m_s');
 
 load('data/ASIT2019_combined_wavenumber_elevation_spectra.mat')
 
@@ -27,20 +23,8 @@ load('data/LenainMelville2017_kn.mat')
 cmap = viridis(7);
 cerulean = cmap(3,:);
 
-f_eq_end = f_eq_end(:);
-
-k_eq_end_disp = NaN*f_p;
-
-for n = 1:length(f_eq_end)
-
-    try
-
-        [c,~] = lindisp_with_current(2*pi*f_eq_end(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_eq_end_disp(n) = 2*pi*f_eq_end(n)./c;
-
-    end
-
-end
+% k_n taken directly from the EWDM+Pyxis combined wavenumber elevation spectrum
+k_eq_end = k_eq_end(:);
 
 in_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 
@@ -49,9 +33,10 @@ Hs = 4*squeeze(std(wse_m_Riegl,[],2,'omitnan'));
 Hs(Hs<0.2) = NaN;
 Hs_median = median(Hs,2);
 ustar_norm = EC_ustar_m_s./sqrt(g*Hs_median);
+ustar_norm(ustar_norm>0.11) = NaN;
 
-d_ustar_norm_centers = 0.03;
-ustar_norm_centers = 0.03:d_ustar_norm_centers:0.15; % retain 90% of points
+d_ustar_norm_centers = 0.02;
+ustar_norm_centers = 0.04:d_ustar_norm_centers:0.10;
 % inds_consider = ustar_norm >= ustar_norm_centers(1)-d_ustar_norm_centers/2 & ustar_norm < ustar_norm_centers(end)+d_ustar_norm_centers/2;
 % frac_retain = sum(inds_consider)/sum(~isnan(ustar_norm));
 
@@ -79,8 +64,8 @@ for n = 1:length(ustar_norm_centers)
     B_k_binned(:,n) = Bk_mean;
     k_binned(:,n) = k_mean;
 
-    k_n_binned(n) = mean(k_eq_end_disp(inds_consider),'omitnan');
-    k_n_std_e(n) = std(k_eq_end_disp(inds_consider),'omitnan')/sqrt(sum(inds_consider));
+    k_n_binned(n) = median(k_eq_end(inds_consider),'omitnan');
+    k_n_std_e(n) = std(k_eq_end(inds_consider),'omitnan')/sqrt(sum(inds_consider));
 
 end
 
@@ -95,9 +80,9 @@ scat_size = 0.8*msize^2;
 fA = 0.25;
 
 % low cutoff: k ~ 0.03 rad/m (f~0.05 Hz)
-start_index = 67;
+start_index = find(k_rad_m_combined >= 0.03,1,'first');
 % high cutoff: k = 371 rad/m (k of gravity-capillary minimum phase speed)
-end_index = 1196;
+end_index = find(k_rad_m_combined <= 371,1,'last');
 
 figure(fignum);clf
 tlayout = tiledlayout(2,1);
@@ -128,14 +113,14 @@ nexttile(2)
 hold on
 % h_LM2017 = scatter(LM2017_ustar_norm,LM2017_kn,scat_size,LM_color,'filled');
 h_LM2017 = plot(LM2017_ustar_norm,LM2017_kn,'o','markersize',msize,'markerfacecolor','w','markeredgecolor',LM_color,'linewidth',2);
-h_ours_all = scatter(ustar_norm,k_eq_end_disp,scat_size,our_color,'filled');
+h_ours_all = scatter(ustar_norm,k_eq_end,scat_size,our_color,'filled');
 for i = 1:length(k_n_binned)
     plot(ustar_norm_centers(i)*[1 1],k_n_binned(i)+[-1 1]*k_n_std_e(i)*1.96,'-','Color',our_color,'linewidth',2)
 end
 h_ours_binned = scatter(ustar_norm_centers,k_n_binned,scat_size*3,our_color,'filled');
 hold off
 box on
-xlim([0 0.2])
+xlim([0 0.14])
 ylim([0 10])
 xlabel('$\mathrm{u_*/\sqrt{gH_s}}$','Interpreter','LaTeX')
 ylabel('$\mathrm{k_n\ [rad\ m^{-1}]}$','Interpreter','LaTeX')

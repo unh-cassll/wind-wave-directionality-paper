@@ -32,17 +32,13 @@ f_eq_start = f_eq_start(:);
 f_eq_end = f_eq_end(:);
 f_sat_end = f_sat_end(:);
 
-k_p_disp = NaN*f_p;
-k_eq_start_disp = k_p_disp;
-k_eq_end_disp = k_p_disp;
-k_sat_end_disp = k_p_disp;
+k_eq_start_disp = NaN*f_p;
+k_eq_end_disp = k_eq_start_disp;
+k_sat_end_disp = k_eq_start_disp;
 
 for n = 1:length(U_sfc_mag_m_s)
 
     try
-
-        [c,~] = lindisp_with_current(2*pi*f_p(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_p_disp(n) = 2*pi*f_p(n)./c;
 
         [c,~] = lindisp_with_current(2*pi*f_eq_start(n),water_depth_m,U_sfc_mag_m_s(n));
         k_eq_start_disp(n) = 2*pi*f_eq_start(n)./c;
@@ -57,7 +53,9 @@ for n = 1:length(U_sfc_mag_m_s)
 
 end
 
-c_p = 2*pi*f_p./k_p_disp;
+% Wave age phase speed: linear dispersion of f_p (no current)
+[c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
+c_p = c_p(:);
 
 g = 9.81;
 

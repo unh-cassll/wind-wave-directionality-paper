@@ -25,40 +25,9 @@ U_sfc_mag_m_s = ncread(supporting_nc_name,'U_sfc_mag_m_s');
 g = 9.81;
 water_depth_m = 15;
 
-frequency_spect = load('data/ASIT2019_combined_frequency_slope_spectra.mat');
-
-f_p = sum(frequency_spect.f_Hz_combined.*frequency_spect.F_f_block.^4,1,'omitnan')./sum(frequency_spect.F_f_block.^4,1,'omitnan');
-f_p = f_p(:);
-
-f_eq_start = freq_spect_range_limits.f_eq_start(:);
-f_eq_end = freq_spect_range_limits.f_eq_end(:);
-f_sat_end = freq_spect_range_limits.f_sat_end(:);
+% Transition wavenumbers taken directly from the EWDM+Pyxis combined spectrum limits
+k_eq_end = wavenumber_spect_range_limits.k_eq_end(:);
 k_sat_end = wavenumber_spect_range_limits.k_sat_end(:);
-
-k_p_disp = NaN*f_p;
-k_eq_start_disp = k_p_disp;
-k_eq_end_disp = k_p_disp;
-k_sat_end_disp = k_p_disp;
-
-for n = 1:length(U_sfc_mag_m_s)
-
-    try
-
-        [c,~] = lindisp_with_current(2*pi*f_p(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_p_disp(n) = 2*pi*f_p(n)./c;
-
-        [c,~] = lindisp_with_current(2*pi*f_eq_start(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_eq_start_disp(n) = 2*pi*f_eq_start(n)./c;
-
-        [c,~] = lindisp_with_current(2*pi*f_eq_end(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_eq_end_disp(n) = 2*pi*f_eq_end(n)./c;
-
-        [c,~] = lindisp_with_current(2*pi*f_sat_end(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_sat_end_disp(n) = 2*pi*f_sat_end(n)./c;
-
-    end
-
-end
 
 s = load('data/global_figure_settings.mat');
 wave_age_lims = s.wave_age_lims;
@@ -175,14 +144,14 @@ for n = 1:length(wave_age_centers)
         D_k_50th_block(:,m) = interp1(k_hat,D_k_50th_halfwidth_consider(:,m),k_hat_binned);
     end
 
-    k_n_binned(n) = mean(k_eq_end_disp(inds_consider),'omitnan');
-    k_n_hat_binned(n) = mean(k_eq_end_disp(inds_consider),'omitnan')*median(ustar_consider,'all','omitnan')^2/g;
+    k_n_binned(n) = mean(k_eq_end(inds_consider),'omitnan');
+    k_n_hat_binned(n) = mean(k_eq_end(inds_consider),'omitnan')*median(ustar_consider,'all','omitnan')^2/g;
     k_s_hat_binned(n) = mean(k_sat_end(inds_consider),'omitnan')*median(ustar_consider,'all','omitnan')^2/g;
 
-    k_sg_norm_n_s_binned(1,n) = k_sg/mean(k_eq_end_disp(inds_consider),'omitnan');
+    k_sg_norm_n_s_binned(1,n) = k_sg/mean(k_eq_end(inds_consider),'omitnan');
     k_sg_norm_n_s_binned(2,n) = k_sg/mean(k_sat_end(inds_consider),'omitnan');
 
-    k_gc_norm_n_s_binned(1,n) = k_gc/mean(k_eq_end_disp(inds_consider),'omitnan');
+    k_gc_norm_n_s_binned(1,n) = k_gc/mean(k_eq_end(inds_consider),'omitnan');
     k_gc_norm_n_s_binned(2,n) = k_gc/mean(k_sat_end(inds_consider),'omitnan');
 
     diff_k_n = abs(k_n_hat_binned(n)-k_hat_binned);

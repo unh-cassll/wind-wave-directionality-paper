@@ -48,10 +48,9 @@ Sf = trapz(theta_rad,S_f_particular')';
 
 f_combined = [frequency(frequency>frequency(1) & frequency <= 0.35); f_Hz(f_Hz>0.4 & f_Hz <=5)];
 Ff_combined = [Ff(frequency>frequency(1) & frequency <= 0.35)'; ((2*pi*f_Hz(f_Hz>0.4 & f_Hz <=5)).^2/g).^-2.*Sf(f_Hz>0.4 & f_Hz <=5)];
-T_E = trapz(f_combined,f_combined.^-1.*Ff_combined)/trapz(f_combined,Ff_combined);
-f_E = T_E^-1;
+f_p = sum(f_combined.*Ff_combined.^4,'omitnan')./sum(Ff_combined.^4,'omitnan');
 
-[c_E,~] = lindisp_with_current(2*pi*f_E,water_depth_m,0);
+[c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
 
 camera_choice = 2;
 
@@ -81,7 +80,7 @@ Lambda_k_theta_particular = -dc_dk.*c_phase(:)./k_disp(:).*Lambda_C_theta_partic
 % Updated values of A and B for this field campaign from Hogan et al. [2025]
 A = 2.027e-3;
 B = -2.166e-5;
-b = A+B*(c_E/EC_ustar_m_s_particular);
+b = A+B*(c_p/EC_ustar_m_s_particular);
 S_ds_particular = b/g^2*c_phase(:).^5.*Lambda_k_theta_particular;
 
 big_Lambda_c_theta = [Lambda_C_theta_particular Lambda_C_theta_particular Lambda_C_theta_particular];

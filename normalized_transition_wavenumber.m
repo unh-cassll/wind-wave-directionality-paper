@@ -1,6 +1,10 @@
 %
 function normalized_transition_wavenumber(fignum,fsize)
 
+% Locked conventions: k_n and k_p both taken from the EWDM+Pyxis combined
+% wavenumber spectrum (ratio fully in measured k-space); wave age c_p/u* uses
+% c_p from linear dispersion of the Young (1995) peak frequency f_p
+
 in_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 
 g = 9.81;
@@ -24,30 +28,28 @@ f_p = f_p(:);
 f_eq_start = f_eq_start(:);
 f_eq_end = f_eq_end(:);
 
-k_p_disp = NaN*f_p;
-k_eq_start_disp = k_p_disp;
-k_eq_end_disp = k_p_disp;
-k_sat_end_disp = k_p_disp;
+k_eq_start_disp = NaN*f_p;
+
+% k_n taken directly from the EWDM+Pyxis combined wavenumber elevation spectrum
+k_eq_end = k_eq_end(:);
 
 for n = 1:length(U_sfc_mag_m_s)
 
     try
 
-        [c,~] = lindisp_with_current(2*pi*f_p(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_p_disp(n) = 2*pi*f_p(n)./c;
-
         [c,~] = lindisp_with_current(2*pi*f_eq_start(n),water_depth_m,U_sfc_mag_m_s(n));
         k_eq_start_disp(n) = 2*pi*f_eq_start(n)./c;
-
-        [c,~] = lindisp_with_current(2*pi*f_eq_end(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_eq_end_disp(n) = 2*pi*f_eq_end(n)./c;
-
-        [c,~] = lindisp_with_current(2*pi*f_sat_end(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_sat_end_disp(n) = 2*pi*f_sat_end(n)./c;
 
     end
 
 end
+
+% Peak wavenumber: F(k)^4-weighted centroid of the combined wavenumber spectrum
+k_p = (sum(k_rad_m_combined.*F_k_block.^4,1,'omitnan')./sum(F_k_block.^4,1,'omitnan'))';
+
+% Wave age phase speed: linear dispersion of f_p (no current)
+[c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
+c_p = c_p(:);
 
 B_k_block = k_rad_m_combined.^3.*F_k_block;
 E_k_block = k_rad_m_combined.^2.5.*F_k_block;
@@ -57,11 +59,11 @@ E = B;
 
 for n = 1:length(B)
 
-    inds_consider = k_rad_m_combined >= k_eq_end_disp(n) & k_rad_m_combined <= k_sat_end(n);
+    inds_consider = k_rad_m_combined >= k_eq_end(n) & k_rad_m_combined <= k_sat_end(n);
 
     B(n) = mean(B_k_block(inds_consider,n),'all','omitnan');
 
-    inds_consider = k_rad_m_combined >= k_eq_start_disp(n) & k_rad_m_combined <= k_eq_end_disp(n);
+    inds_consider = k_rad_m_combined >= k_eq_start_disp(n) & k_rad_m_combined <= k_eq_end(n);
 
     E(n) = mean(E_k_block(inds_consider,n),'all','omitnan');
 
@@ -89,7 +91,7 @@ load('data/RM1010_ko.mat')
 
 load('data/RM2010_ko_kp_wave_age.mat')
 
-wave_age_full = 2*pi*f_E(:)./k_p_disp(:)./EC_ustar_m_s(:);
+wave_age_full = c_p./EC_ustar_m_s(:);
 
 ko_HW_full = (2*B./beta).^2*g./EC_ustar_m_s(:).^2;
 
@@ -112,14 +114,14 @@ h_RF10_k0 = plot(RF10_k0(:,1),RF10_k0(:,2),'s','markerfacecolor',RM_color,'marke
 h_RF10_k2 = plot(RF10_k2(:,1),RF10_k2(:,2),'s','markerfacecolor','w','markeredgecolor',RM_color,'markersize',msize,'linewidth',lw_thick);
 h_RM2010_CI = fill([RM2010_wave_age; flipud(RM2010_wave_age)],[RM2010_ko_kp_CI(:,1); flipud(RM2010_ko_kp_CI(:,2))],RM_color);
 h_RM2010_fit = plot(RM2010_wave_age,RM2010_ko_kp,'Color',RM_color,'linewidth',3);
-h_ours = plot(wave_age_full,k_eq_end_disp./k_p_disp(:),'o','markerfacecolor',our_color,'markeredgecolor',our_color,'markersize',msize,'linewidth',lw_thin);
+h_ours = plot(wave_age_full,k_eq_end./k_p(:),'o','markerfacecolor',our_color,'markeredgecolor',our_color,'markersize',msize,'linewidth',lw_thin);
 hold off
 box on
 ax_struc(1).ax = gca;
 ax_struc(1).ax.XScale = 'log';
 ax_struc(1).ax.YScale = 'log';
 xlim([10 100])
-ylim([1 100])
+ylim([1 200])
 xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 ylabel('$\mathrm{k_n/k_p,\ obs.}$','Interpreter','LaTeX')
 
@@ -131,9 +133,9 @@ h_RM2010_CI.FaceAlpha = fA;
 
 nexttile(2)
 hold on
-plot(ko_HW_full./k_p_disp,k_eq_end_disp./k_p_disp,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize)
-plot([1 100],[1 100],'--','Color',0.5*[1 1 1],'linewidth',2)
-scatter(ko_HW_full./k_p_disp,k_eq_end_disp./k_p_disp,0.8*msize^2,(wave_age_full),'filled')
+plot(ko_HW_full./k_p,k_eq_end./k_p,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize)
+plot([1 200],[1 200],'--','Color',0.5*[1 1 1],'linewidth',2)
+scatter(ko_HW_full./k_p,k_eq_end./k_p,0.8*msize^2,(wave_age_full),'filled')
 hold off
 box on
 cbar = colorbar;
@@ -144,8 +146,8 @@ cbar.Ticks = 10:10:60;
 ax_struc(2).ax = gca;
 ax_struc(2).ax.XScale = 'log';
 ax_struc(2).ax.YScale = 'log';
-xlim([1 100])
-ylim([1 100])
+xlim([1 200])
+ylim([1 200])
 xlabel('$\mathrm{k_n/k_p,\ Hwang\ \&\ Wang\ [2001]}$','Interpreter','LaTeX')
 ylabel('$\mathrm{k_n/k_p,\ obs.}$','Interpreter','LaTeX')
 
@@ -170,7 +172,7 @@ end
 tlayout.TileSpacing = 'tight';
 
 ko_HW_full = ko_HW_full(:);
-k_eq_end_disp = k_eq_end_disp(:);
+k_eq_end = k_eq_end(:);
 
-inds_keep = ~isnan(ko_HW_full) & ~isnan(k_eq_end_disp);
-[r2,rmse] = rsquare(ko_HW_full(inds_keep),k_eq_end_disp(inds_keep))
+inds_keep = ~isnan(ko_HW_full) & ~isnan(k_eq_end);
+[r2,rmse] = rsquare(ko_HW_full(inds_keep),k_eq_end(inds_keep))
