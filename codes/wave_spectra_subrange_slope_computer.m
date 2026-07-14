@@ -1,7 +1,31 @@
 
 close all;clear;clc
 
-load ../../../../../colormaps/coolwarm.mat
+% Skip expensive recompute unless explicitly requested
+recompute_derived_products = false;
+if exist('../data/global_figure_settings.mat','file')
+    gset = load('../data/global_figure_settings.mat');
+    if isfield(gset,'recompute_derived_products')
+        recompute_derived_products = gset.recompute_derived_products;
+    end
+end
+if ~recompute_derived_products
+    return
+end
+
+make_diagnostic_plots = false;
+pause off
+
+% Colormap only needed for diagnostic plots
+if make_diagnostic_plots
+    if exist('../../../../../colormaps/coolwarm.mat','file')
+        load ../../../../../colormaps/coolwarm.mat
+    elseif exist('../data/coolwarm.mat','file')
+        load ../data/coolwarm.mat
+    elseif exist('coolwarm.mat','file')
+        load coolwarm.mat
+    end
+end
 
 short_wave_nc_name = '../data/ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc';
 long_wave_nc_name = '../data/ASIT2019_EPSS_directional_spectra.nc';
@@ -28,8 +52,17 @@ Sf = squeeze(sum(SFTHETA,2,'omitnan'))*dtheta;
 avg_size = 2;
 
 f_Hz_EPSS = double(ncread(long_wave_nc_name,'frequency'));
-theta_rad_EPSS = double(ncread(long_wave_nc_name,'direction'))*pi/180;
-F_f_m2_Hz_rad_EPSS = double(ncread(long_wave_nc_name,'F_f_d'))*180/pi;
+
+% Auto-detect direction units (legacy: deg/per-deg, current: rad/per-rad)
+dir_EPSS = double(ncread(long_wave_nc_name,'direction'));
+if max(abs(dir_EPSS)) > 2*pi
+    theta_rad_EPSS = dir_EPSS*pi/180;
+    epss_per_rad_scale = 180/pi;
+else
+    theta_rad_EPSS = dir_EPSS;
+    epss_per_rad_scale = 1;
+end
+F_f_m2_Hz_rad_EPSS = double(ncread(long_wave_nc_name,'F_f_d'))*epss_per_rad_scale;
 
 dtheta = median(diff(theta_rad_EPSS));
 
@@ -62,23 +95,14 @@ inds_keep = f_Hz_combined <= 10;
 f_Hz_combined = f_Hz_combined(inds_keep);
 Ff_combined = Ff_combined(inds_keep,:);
 
-T_s = f_Hz_combined.^-1;
-T_s(1) = 0;
-f_E = (trapz(f_Hz_combined,T_s.*Ff_combined)./trapz(f_Hz_combined,Ff_combined)).^-1;
-f_p = NaN*f_E;
-for n = 1:190
-    try
-        ind = find(Ff_EPSS(:,n)==max(Ff_EPSS(:,n),[],'all','omitnan'),1,'first');
-        f_p(n) = f_Hz_EPSS(ind);
-    end
-end
+% Peak frequency: F(f)^4-weighted spectral centroid (per run)
+f_p = sum(f_Hz_combined.*Ff_combined.^4,1,'omitnan')./sum(Ff_combined.^4,1,'omitnan');
 
 water_depth_m = 15;
-f_p = f_E;
 [C_p,Cg_p] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
 k_p = 2*pi*f_p(:)./C_p(:);
 
-% save('../data/ASIT2019_peak_wave_phase_speed.mat','f_p','k_p','C_p')
+save('../data/ASIT2019_peak_wave_phase_speed.mat','f_p','k_p','C_p')
 
 %%
 
@@ -147,8 +171,8 @@ for particular_ind = 1:size(Sf,2)
         x = x(inds_keep);
         y = y(inds_keep);
         z = z(inds_keep);
-        ind_start = find(y == max(y));
-        ind_end = find(y == min(y));
+        ind_start = find(y == max(y),1,'first');
+        ind_end = find(y == min(y),1,'first');
         x = x(ind_start:ind_end);
         y = y(ind_start:ind_end);
         z = z(ind_start:ind_end);
@@ -183,6 +207,8 @@ for particular_ind = 1:size(Sf,2)
         f_holder_struc(particular_ind).f_eq_end = f_eq_end;
         f_holder_struc(particular_ind).f_sat_end = f_sat_end;
         f_holder_struc(particular_ind).tail_slope = tail_slope;
+
+        if make_diagnostic_plots
 
         figure(1);clf
         tlayout = tiledlayout(2,1);
@@ -240,6 +266,8 @@ for particular_ind = 1:size(Sf,2)
 
         tile_cleaner(ax_struc,tlayout)
 
+        end
+
     catch e
 
     end
@@ -253,9 +281,6 @@ for particular_ind = 1:size(Sf,2)
 
     end
 
-    % pause(0.1)
-    pause()
-
 end
 
 f_eq_start = [f_holder_struc.f_eq_start];
@@ -263,7 +288,7 @@ f_eq_end = [f_holder_struc.f_eq_end];
 f_sat_end = [f_holder_struc.f_sat_end];
 tail_slope = [f_holder_struc.tail_slope]-5;
 
-% save('../data/frequency_spect_range_limits.mat','f_eq_start','f_eq_end','f_sat_end','tail_slope','f_E')
+save('../data/frequency_spect_range_limits.mat','f_eq_start','f_eq_end','f_sat_end','tail_slope','f_p')
 
 %%
 
@@ -326,6 +351,8 @@ for particular_ind = 1:size(Sf,2)
         k_holder_struc(particular_ind).k_sat_end = k_sat_end;
         k_holder_struc(particular_ind).tail_slope = tail_slope;
 
+        if make_diagnostic_plots
+
         colors = flipud(spectral(7));
         violet = colors(1,:);
         teal = colors(2,:);
@@ -374,15 +401,94 @@ for particular_ind = 1:size(Sf,2)
 
         tile_cleaner(ax_struc,tlayout)
 
+        end
+
     end
 
-    pause(0.1)
-    % pause()
+end
+
+%% Direct EWDM+Pyxis wavenumber equilibrium->saturation transition (k_n)
+% Mirrors the frequency slope-crossing method, applied to the combined
+% wavenumber elevation spectrum saved by binned_omnispect (fig 6).
+
+w = load('../data/ASIT2019_combined_wavenumber_elevation_spectra.mat');
+k_rad_m_combined = double(w.k_rad_m_combined);
+F_k_block = w.F_k_block;
+
+k_new_ewdm = logspace(log10(0.05),log10(50),64)';
+Fk_new_ewdm = interp1(k_rad_m_combined,F_k_block,k_new_ewdm);
+Fk_new_ewdm = smoothdata2(Fk_new_ewdm,'movmedian',{11,1},'omitnan');
+
+log_k_ewdm = log10(k_new_ewdm);
+log_Fk_ewdm = log10(Fk_new_ewdm);
+
+indices_per_window = 16;
+
+for particular_ind = 1:size(Sf,2)
+
+    k_eq_start = NaN;
+    k_eq_end = NaN;
+
+    try
+
+        log_Fk_bit = log_Fk_ewdm(:,particular_ind);
+
+        k_slope = NaN*log_k_ewdm;
+        SE_k = k_slope;
+
+        for i = indices_per_window/2:length(log_k_ewdm)-indices_per_window/2+1
+
+            istart = i - indices_per_window/2 + 1;
+            iend = i + indices_per_window/2 - 1;
+
+            x = log_k_ewdm(istart:iend);
+            y = log_Fk_bit(istart:iend);
+
+            lm = fitlm(x,y);
+
+            k_slope(i) = lm.Coefficients.Estimate(2);
+            SE_k(i) = lm.Coefficients.SE(2);
+
+        end
+
+        % Wavenumber canonical: equilibrium F(k)~k^-2.5 -> +0.5, saturation F(k)~k^-3 -> 0
+        k_slope = k_slope + 3;
+
+        x = log_k_ewdm;
+        y = k_slope;
+        z = SE_k;
+
+        inds_keep = ~isnan(x) & ~isnan(y) & x < log10(50) & ~isinf(x) & ~isinf(y);
+        x = x(inds_keep);
+        y = y(inds_keep);
+        z = z(inds_keep);
+        ind_start = find(y == max(y),1,'first');
+        ind_end = find(y == min(y),1,'first');
+        x = x(ind_start:ind_end);
+        y = y(ind_start:ind_end);
+        z = z(ind_start:ind_end);
+
+        ind_eq_start = find(y-2*z>0.5,1,'last');
+        ind_eq_end = find(y-2*z>0,1,'last');
+
+        if ~isempty(ind_eq_start)
+            k_eq_start = 10.^x(ind_eq_start);
+        end
+        if ~isempty(ind_eq_end)
+            k_eq_end = 10.^x(ind_eq_end);
+        end
+
+    end
+
+    k_holder_struc(particular_ind).k_eq_start = k_eq_start;
+    k_holder_struc(particular_ind).k_eq_end = k_eq_end;
 
 end
 
 k_sat_end = [k_holder_struc.k_sat_end];
 tail_slope = [k_holder_struc.tail_slope]-3;
 k_sat_end(hard_code_inds) = hard_code_k;
+k_eq_end = [k_holder_struc.k_eq_end];
+k_eq_start = [k_holder_struc.k_eq_start];
 
-% save('../data/wavenumber_spect_range_limits.mat','k_sat_end','tail_slope')
+save('../data/wavenumber_spect_range_limits.mat','k_sat_end','tail_slope','k_eq_end','k_eq_start')

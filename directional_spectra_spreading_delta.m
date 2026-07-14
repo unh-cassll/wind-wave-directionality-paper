@@ -4,8 +4,6 @@ function directional_spectra_spreading_delta(fignum,fsize)
 supporting_data_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 short_wave_nc_name = 'ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc';
 
-load('data/directional_spreading_quantification_data.mat')
-
 s = load('data/global_figure_settings.mat');
 example_run_ind = s.example_run_ind;
 
@@ -31,6 +29,9 @@ S_k_theta = squeeze(S_k_theta(:,:,example_run_ind));
 
 [S_f_theta,theta_rad] = convert_dirspect_to_downwind(S_f_theta,theta_rad_Pyxis,wdir_rad);
 [S_k_theta,~] = convert_dirspect_to_downwind(S_k_theta,theta_rad_Pyxis,wdir_rad);
+
+% wind-frame display axis (before the half-bin shift below), for lobe peak-finding
+theta_disp = theta_rad;
 
 f_cut = 0.6;
 
@@ -64,15 +65,19 @@ BFTHETA_smooth = smoothdata2(BFTHETA,'movmean',{5,3});
 BKTHETA = (BKTHETA-min(BKTHETA,[],'all','omitnan'))/(max(BKTHETA,[],'all','omitnan')-min(BKTHETA,[],'all','omitnan'));
 BFTHETA = (BFTHETA-min(BFTHETA,[],'all','omitnan'))/(max(BFTHETA,[],'all','omitnan')-min(BFTHETA,[],'all','omitnan'));
 
-Dk50_left = smoothdata(squeeze(D_spread_holder_struc(example_run_ind).D_k_limits(:,1,1)),'movmean',5)-10*pi/180;
-Dk50_right = smoothdata(squeeze(D_spread_holder_struc(example_run_ind).D_k_limits(:,2,1)),'movmean',5)-10*pi/180;
-
+% 50% spreading edges taken directly from the displayed D(X,theta), so the dotted
+% outline traces the plotted field (first crossing below 0.5 outward from the peak).
+% theta_halfwidth = (right - left)/2. The shipped D_*_limits are in a wave-rotated,
+% ROI-cleaned frame that does not overlay the raw wind-referenced field shown here.
+[Dk50_left,Dk50_right] = fifty_percent_edges(D_k_theta,theta_disp);
+Dk50_left = smoothdata(Dk50_left,'movmean',5,'omitnan');
+Dk50_right = smoothdata(Dk50_right,'movmean',5,'omitnan');
 Dk50_left(k_rad_m_Pyxis<klow) = NaN;
 Dk50_right(k_rad_m_Pyxis<klow) = NaN;
 
-Df50_left = smoothdata(squeeze(D_spread_holder_struc(example_run_ind).D_f_limits(:,1,1)),'movmean',11)-10*pi/180;
-Df50_right = smoothdata(squeeze(D_spread_holder_struc(example_run_ind).D_f_limits(:,2,1)),'movmean',11)-10*pi/180;
-
+[Df50_left,Df50_right] = fifty_percent_edges(D_f_theta,theta_disp);
+Df50_left = smoothdata(Df50_left,'movmean',11,'omitnan');
+Df50_right = smoothdata(Df50_right,'movmean',11,'omitnan');
 Df50_left(f_Hz_Pyxis<flow) = NaN;
 Df50_right(f_Hz_Pyxis<flow) = NaN;
 
