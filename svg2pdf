@@ -9,11 +9,18 @@ if ! [ -x "$(command -v inkscape)" ]; then
   exit 1
 fi
 
+# Inkscape 1.x replaced --without-gui/--export-pdf with --export-filename
+INK_MAJOR=$(inkscape --version 2>/dev/null | sed -n 's/^Inkscape \([0-9]*\).*/\1/p')
+
 for file in $DIR/*.svg; do
     # Check if the file exists
     if [[ -f "$file" ]]; then
         # Convert SVG to PDF using Inkscape
-        inkscape --without-gui --export-pdf="${file%.svg}.pdf" "$file" > /dev/null 2>&1
+        if [ "${INK_MAJOR:-0}" -ge 1 ]; then
+            inkscape --export-filename="${file%.svg}.pdf" "$file" > /dev/null 2>&1
+        else
+            inkscape --without-gui --export-pdf="${file%.svg}.pdf" "$file" > /dev/null 2>&1
+        fi
         echo "Converted $file to ${file%.svg}.pdf"
     else
         echo "$file does not exist."

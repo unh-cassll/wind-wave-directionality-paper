@@ -176,3 +176,8 @@ k_eq_end = k_eq_end(:);
 
 inds_keep = ~isnan(ko_HW_full) & ~isnan(k_eq_end);
 [r2,rmse] = rsquare(ko_HW_full(inds_keep),k_eq_end(inds_keep))
+
+% Manuscript fragment: Hwang & Wang model vs observed k_n agreement
+write_tex_macros('figs/tex/values_fig_knkp.tex', ...
+    {'FigKnKpRsq','FigKnKpRmse'}, ...
+    {sprintf('%.2f',r2),sprintf('%.2f',rmse)})

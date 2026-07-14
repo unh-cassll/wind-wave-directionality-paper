@@ -100,6 +100,10 @@ Sm = mean(sind(bigtheta_deg(inds_downwind)).*big_S_ds(:,inds_downwind).*k_disp./
 Cm = mean(cosd(bigtheta_deg(inds_downwind)).*big_S_ds(:,inds_downwind).*k_disp./c_phase(:),'all','omitnan');
 theta_mean_br = 180/pi*atan2(Sm,Cm);
 
+% Manuscript fragment: example-case mean breaker direction
+write_tex_macros('figs/tex/values_fig_breaking_example.tex', ...
+    {'ThetaBrExample'},{sprintf('%.2f',theta_mean_br)})
+
 k_mean_br = sum(k_disp.*big_S_ds(:,inds_downwind).*k_disp./c_phase(:),'all','omitnan')/sum(big_S_ds(:,inds_downwind).*k_disp./c_phase(:),'all','omitnan');
 
 text_x = 0.04;
