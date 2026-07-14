@@ -6,7 +6,12 @@ short_wave_spectra_nc_name = 'data/ASIT2019_wave_spectra_stats_timeseries_empiri
 long_wave_spectra_nc_name = 'data/ASIT2019_EPSS_directional_spectra.nc';
 
 s = load('data/global_figure_settings.mat');
-example_run_ind = s.example_run_ind;
+% Breaking example run (run 109's spectra example has no Lambda observation)
+if isfield(s,'breaking_example_run_ind')
+    example_run_ind = s.breaking_example_run_ind;
+else
+    example_run_ind = s.example_run_ind;
+end
 
 wdir_deg = ncread(supporting_data_nc_name,'COARE_Wdir');
 wdir_deg = wdir_deg(example_run_ind);

@@ -6,7 +6,12 @@ short_wave_spectra_nc_name = 'data/ASIT2019_wave_spectra_stats_timeseries_empiri
 long_wave_spectra_nc_name = 'data/ASIT2019_EPSS_directional_spectra.nc';
 
 s = load('data/global_figure_settings.mat');
-example_run_ind = s.example_run_ind;
+% Breaking example run (spectrum + S_ds contours must share one case with Lambda data)
+if isfield(s,'breaking_example_run_ind')
+    example_run_ind = s.breaking_example_run_ind;
+else
+    example_run_ind = s.example_run_ind;
+end
 
 wdir_deg = ncread(supporting_data_nc_name,'COARE_Wdir');
 wdir_deg = wdir_deg(example_run_ind);
@@ -73,7 +78,12 @@ f_p = sum(f_combined.*Ff_combined.^4,'omitnan')./sum(Ff_combined.^4,'omitnan');
 
 [c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
 
-[c_direct_disp,cg_direct_disp] = lindisp_with_current(2*pi*f_Hz,water_depth_m,U_sfc_mag_m_s(example_run_ind));
+% Surface current is NaN for some runs; fall back to quiescent dispersion
+U_sfc_example = U_sfc_mag_m_s(example_run_ind);
+if ~isfinite(U_sfc_example)
+    U_sfc_example = 0;
+end
+[c_direct_disp,cg_direct_disp] = lindisp_with_current(2*pi*f_Hz,water_depth_m,U_sfc_example);
 
 k_direct_disp = 2*pi*f_Hz./c_direct_disp;
 S_k_particular_disp = 1./(2*pi*k_direct_disp).*cg_direct_disp.*S_f_particular;
@@ -108,6 +118,8 @@ c_phase = c_phase(inds_retain);
 
 Lambda_C_theta_particular = squeeze(Lambda_c_theta_02(inds_retain,:,example_run_ind))*180/pi;
 
+% Empty (c,theta) bins = no detected breakers; zero-fill so pchip interp1 accepts runs with gaps
+Lambda_C_theta_particular(~isfinite(Lambda_C_theta_particular)) = 0;
 
 c_phase_interp = logspace(log10(0.25),log10(12),100);
 
