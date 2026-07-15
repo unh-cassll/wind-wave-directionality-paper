@@ -17,8 +17,6 @@ data/ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc
 
 # Ignore specific .mat files in the data/ folder
 data/global_figure_settings.mat
-data/ASIT2019_combined_frequency_slope_spectra.mat
-data/ASIT2019_combined_wavenumber_elevation_spectra.mat
 data/integrated_wave_breaking_quantities.mat
 data/wave_age_binned_breaking_quantities.mat
 
