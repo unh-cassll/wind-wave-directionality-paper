@@ -44,6 +44,8 @@ z_m = double(ncread(supporting_data_nc_name,'z_m'));
 tail_flag = false;
 k_max = 10;
 
+U10_high_cutoff = 15;
+
 f_cut = 0.35;
 
 ind_trim = find(f_Hz_Pyxis>f_cut,1,'first');
@@ -120,6 +122,9 @@ for example_run_ind = 1:N
 
 end
 
+F_f_block(:,EC_U10_m_s>U10_high_cutoff) = NaN;
+F_k_block(:,EC_U10_m_s>U10_high_cutoff) = NaN;
+
 F_f_block(F_f_block==0) = NaN;
 S_f_block(S_f_block==0) = NaN;
 F_k_block(F_k_block==0) = NaN;
@@ -142,8 +147,9 @@ f_p = sum(f_Hz_combined.*F_f_block.^4,1,'omitnan')./sum(F_f_block.^4,1,'omitnan'
 
 waveage = c_p./EC_ustar_m_s(:);
 
-d_waveage_norm = 10;
-waveage_centers = 15:d_waveage_norm:55;
+s = load('data/global_figure_settings.mat');
+d_waveage_norm = s.d_wave_age;
+waveage_centers = s.wave_age_lims(1)+d_waveage_norm/2:d_waveage_norm:s.wave_age_lims(2)-d_waveage_norm/2;
 nU = length(waveage_centers);
 
 Ulims = [waveage_centers(1) waveage_centers(end)] + [-1 1]*d_waveage_norm/2;

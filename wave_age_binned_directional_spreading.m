@@ -31,7 +31,7 @@ k_sat_end = wavenumber_spect_range_limits.k_sat_end(:);
 
 s = load('data/global_figure_settings.mat');
 wave_age_lims = s.wave_age_lims;
-d_wave_age = 10;
+d_wave_age = s.d_wave_age;
 wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
 
 clims = [wave_age_centers(1) wave_age_centers(end)] + d_wave_age/2*[-1 1];

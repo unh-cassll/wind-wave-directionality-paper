@@ -97,7 +97,8 @@ ko_HW_full = (2*B./beta).^2*g./EC_ustar_m_s(:).^2;
 
 %%
 
-wave_age_bins = 10:10:60;
+s = load('data/global_figure_settings.mat');
+wave_age_bins = s.wave_age_lims(1):s.d_wave_age:s.wave_age_lims(2);
 cmap = flipud(magma(length(wave_age_bins)-1));
 
 figure(fignum);clf
@@ -139,10 +140,10 @@ scatter(ko_HW_full./k_p,k_eq_end./k_p,0.8*msize^2,(wave_age_full),'filled')
 hold off
 box on
 cbar = colorbar;
-clim([10 60])
+clim(s.wave_age_lims)
 colormap(cmap)
 set(get(cbar,'Title'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
-cbar.Ticks = 10:10:60;
+cbar.Ticks = s.wave_age_lims(1):s.d_wave_age:s.wave_age_lims(2);
 ax_struc(2).ax = gca;
 ax_struc(2).ax.XScale = 'log';
 ax_struc(2).ax.YScale = 'log';

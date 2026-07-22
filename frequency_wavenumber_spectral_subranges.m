@@ -77,12 +77,13 @@ scat_size = 64;
 lw_thick = 3;
 lw_thin = 2;
 
-d_wave_age = 10;
+s = load('data/global_figure_settings.mat');
+d_wave_age = s.d_wave_age;
 
 wave_age = c_p./EC_ustar_m_s;
 
-wave_age_left = 10:10:70;
-wave_age_right = wave_age_left + 10;
+wave_age_left = s.wave_age_lims(1):d_wave_age:s.wave_age_lims(2)-d_wave_age;
+wave_age_right = wave_age_left + d_wave_age;
 wave_age_lims = [wave_age_left(:) wave_age_right(:)];
 wave_age_mean = NaN*wave_age_lims(:,1);
 f_block = NaN*ones(size(wave_age_lims,1),3);
@@ -102,7 +103,7 @@ end
 
 fA = 0.2;
 
-wave_age_lims = [0 80];
+wave_age_lims = s.wave_age_lims;
 
 figure(fignum);clf
 tlayout = tiledlayout(3,1);

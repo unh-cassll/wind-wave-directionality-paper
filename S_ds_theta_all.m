@@ -214,7 +214,7 @@ labels = {'(a)','(b)'};
 
 s = load('data/global_figure_settings.mat');
 wave_age_lims = s.wave_age_lims;
-d_wave_age = 10;
+d_wave_age = s.d_wave_age;
 wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
 
 wave_age = c_p_m_s./ustar_m_s;

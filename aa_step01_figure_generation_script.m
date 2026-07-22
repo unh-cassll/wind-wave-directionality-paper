@@ -5,7 +5,7 @@
 %
 % N. Laxague and co-authors, 2026
 %
-% First argument: skip intro figure flag [true or false]
+% First argument: figure number(s) to generate [default: 1:num_figs]
 % Second argument: print flag [true or false]
 %
 function aa_step01_figure_generation_script(varargin)
@@ -22,7 +22,7 @@ full_pos = [50 100 1100 1000];
 raster_dpi = 300;
 raster_dpi_string = ['-r' num2str(raster_dpi)];
 
-num_figs = 20;
+num_figs = 19;
 
 if length(varargin) < 1
     fig_list = 1:num_figs;
@@ -47,9 +47,10 @@ nu_high = 4;
 U_low = 1;
 U_high = 13;
 dU = 2;
-wave_age_lims = [10 60];
+wave_age_lims = [0 120];
+d_wave_age = 20;
 recompute_derived_products = false;
-save('data/global_figure_settings.mat','example_run_ind','breaking_example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU','wave_age_lims','recompute_derived_products')
+save('data/global_figure_settings.mat','example_run_ind','breaking_example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU','wave_age_lims','d_wave_age','recompute_derived_products')
 
 % Example-case values consumed by the manuscript via \input fragments
 pk = load('data/ASIT2019_peak_wave_phase_speed.mat');
