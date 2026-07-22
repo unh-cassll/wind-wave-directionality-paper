@@ -35,14 +35,16 @@ rho_a = 1.25;
 shear_fit_toskin_5_8_12 = struc_VisStress.shear_fit_toskin_5_8_12  ;
 U10i = struc_VisStress.U10i  ;
 
-wave_age_lims = [10 60];
-d_wave_age = 10;
-wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
+% Exception to the global wave-age binning: six equal-count (quantile) bins.
+% The breaking sample is dense below c_p/u_* ~ 40 and sparse above 80, so
+% equal-width bins lump the monotonic low-wave-age behavior into two bins while
+% leaving the oldest bins with only 2-3 samples. Edges are set after filtering.
+n_wave_age_bins = 6;
 
 off_wind_theta_br(isnan(off_wind_theta_m)) = NaN;
 Momentum_flux_br(isnan(off_wind_theta_m)) = NaN;
 
-binned_theta_m_minus_theta_wind = NaN*ones(length(wave_age_centers),1);
+binned_theta_m_minus_theta_wind = NaN*ones(n_wave_age_bins,1);
 binned_theta_wave_minus_theta_wind = binned_theta_m_minus_theta_wind;
 binned_momentum_flux = binned_theta_m_minus_theta_wind;
 binned_wave_age = binned_theta_m_minus_theta_wind;
@@ -65,11 +67,19 @@ z = z(inds_keep);
 q = q(inds_keep);
 u10 = u10(inds_keep);
 
-for m = 1:length(wave_age_centers)
+% Equal-count bin edges from the filtered wave-age distribution
+wave_age_edges = prctile(z,linspace(0,100,n_wave_age_bins+1));
+wave_age_axis_max = ceil(max(z)/10)*10;
 
-    wave_age_low = wave_age_centers(m) - d_wave_age/2;
-    wave_age_high = wave_age_centers(m) + d_wave_age/2;
-    inds_consider = z >= wave_age_low & z < wave_age_high;
+for m = 1:n_wave_age_bins
+
+    wave_age_low = wave_age_edges(m);
+    wave_age_high = wave_age_edges(m+1);
+    if m < n_wave_age_bins
+        inds_consider = z >= wave_age_low & z < wave_age_high;
+    else
+        inds_consider = z >= wave_age_low & z <= wave_age_high;
+    end
 
     binned_momentum_flux(m) = median(x(inds_consider),'all','omitnan');
     binned_theta_wave_minus_theta_wind(m) = median(y(inds_consider),'all','omitnan');
@@ -90,7 +100,7 @@ ax_struc = struct();
 
 nexttile()
 hold on
-plot([0 100],[0 0],'--','linewidth',2,'Color',0.5*[1 1 1])
+plot([0 wave_age_axis_max],[0 0],'--','linewidth',2,'Color',0.5*[1 1 1])
 plot(wave_age,off_wind_theta_br,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize,'linewidth',0.5)
 scatter(wave_age,off_wind_theta_br,0.65*msize^2,off_wind_theta_m,'filled')
 plot(binned_wave_age,binned_theta_wave_minus_theta_wind,'o-','color','k','markerfacecolor','k','markeredgecolor','k','markersize',msize*2.25,'linewidth',2)
@@ -116,7 +126,7 @@ ylabel('$\mathrm{\theta_{br}-\theta_{wind}\ [^\circ]}$','Interpreter','latex')
 
 nexttile()
 hold on
-plot([0 100],[0 0],'--','linewidth',2,'Color',0.5*[1 1 1])
+plot([0 wave_age_axis_max],[0 0],'--','linewidth',2,'Color',0.5*[1 1 1])
 plot(wave_age,Momentum_flux_br,'o','markerfacecolor','k','markeredgecolor','k','markersize',msize,'linewidth',0.5)
 scatter(wave_age,Momentum_flux_br,0.65*msize^2,off_wind_theta_m,'filled')
 plot(binned_wave_age,binned_momentum_flux,'o-','color','k','markerfacecolor','k','markeredgecolor','k','markersize',msize*1.25,'linewidth',2)
@@ -124,7 +134,7 @@ plot(binned_wave_age,rho_a*binned_ustar.^2,'s:','color','k','markerfacecolor','n
 plot(binned_wave_age,binned_viscous_stress,'d--','color','k','markerfacecolor','none','markeredgecolor','k','markersize',msize*1.75,'linewidth',2.5)
 hold off
 box on
-ylim([1e-3 1e1])
+ylim([1e-4 1e1])
 
 % text(binned_wave_age(end)+3,binned_momentum_flux(end),'$\tau_{\mathrm{br}}$','FontSize',fsize*1.25,'Interpreter','latex')
 % text(binned_wave_age(end)+3,binned_viscous_stress(end),'$\tau_{\nu}$','FontSize',fsize*1.25,'Interpreter','latex')
@@ -140,7 +150,7 @@ for n = 1:2
     nexttile(n)
     colormap(coolwarm)
     clim([-90 90])
-    xlim([0 80])
+    xlim([0 wave_age_axis_max])
     text(text_x,text_y,labels{n},'Units','normalized','FontSize',fsize,'HorizontalAlignment','left')
 end
 
