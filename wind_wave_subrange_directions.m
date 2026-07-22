@@ -293,10 +293,10 @@ for n = 1:6
 
     hold off
     box on
-    pbaspect([1 0.5 1])
+    pbaspect([1 0.75 1])
 
     xlim([-1 1]*dir_max)
-    ylim([-1 1]*dir_max/2)
+    ylim([-1 1]*dir_max*3/4)
     ax_struc(n).ax = gca;
     ax_struc(n).ax.YTick = -360:45:360;
     ax_struc(n).ax.XTick = -360:45:360;
