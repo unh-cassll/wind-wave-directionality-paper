@@ -1,6 +1,6 @@
 function binned_omnispect(fignum,fsize)
 
-supporting_data_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
+supporting_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 short_wave_spectra_nc_name = 'data/ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc';
 long_wave_spectra_nc_name = 'data/ASIT2019_EPSS_directional_spectra.nc';
 
@@ -24,11 +24,10 @@ theta_rad_Pyxis = ncread(short_wave_spectra_nc_name,'theta_rad');
 
 kappa = 0.4;
 
-EC_U_m_s = ncread(supporting_data_nc_name,'EC_U_m_s');
-EC_ustar_m_s = ncread(supporting_data_nc_name,'EC_ustar_m_s');
-EC_z_m_above_water = ncread(supporting_data_nc_name,'EC_z_m_above_water');
-EC_z0_m = EC_z_m_above_water.*exp(-kappa*EC_U_m_s./EC_ustar_m_s);
-EC_U10_m_s = EC_ustar_m_s/kappa.*log(10./EC_z0_m);
+% Wind forcing per the source selected in the aa_step01 preamble
+wind = wind_forcing(supporting_nc_name);
+EC_ustar_m_s = wind.ustar;
+EC_U10_m_s = wind.U10;
 
 SKTHETA = double(ncread(short_wave_spectra_nc_name,'S_k_theta'));
 SFTHETA = double(ncread(short_wave_spectra_nc_name,'S_f_theta'));
@@ -38,9 +37,9 @@ SKTHETA(SKTHETA==0) = NaN;
 SFTHETA(SFTHETA==0) = NaN;
 FFTHETA(FFTHETA==0) = NaN;
 
-U_E_m_s = double(ncread(supporting_data_nc_name,'U_E_m_s'));
-U_N_m_s = double(ncread(supporting_data_nc_name,'U_N_m_s'));
-z_m = double(ncread(supporting_data_nc_name,'z_m'));
+U_E_m_s = double(ncread(supporting_nc_name,'U_E_m_s'));
+U_N_m_s = double(ncread(supporting_nc_name,'U_N_m_s'));
+z_m = double(ncread(supporting_nc_name,'z_m'));
 tail_flag = false;
 k_max = 10;
 
@@ -73,7 +72,7 @@ for example_run_ind = 1:N
 
     try
 
-        wdir_deg = double(ncread(supporting_data_nc_name,'COARE_Wdir'));
+        wdir_deg = double(ncread(supporting_nc_name,'COARE_Wdir'));
 
         wdir_deg = mod(wdir_deg(example_run_ind)+180,360);
         wdir_rad = pi/180*wdir_deg;
@@ -148,11 +147,11 @@ f_p = sum(f_Hz_combined.*F_f_block.^4,1,'omitnan')./sum(F_f_block.^4,1,'omitnan'
 waveage = c_p./EC_ustar_m_s(:);
 
 s = load('data/global_figure_settings.mat');
-d_waveage_norm = s.d_wave_age;
-waveage_centers = s.wave_age_lims(1)+d_waveage_norm/2:d_waveage_norm:s.wave_age_lims(2)-d_waveage_norm/2;
+[waveage_edges,waveage_centers] = wave_age_bin_edges();
 nU = length(waveage_centers);
 
-Ulims = [waveage_centers(1) waveage_centers(end)] + [-1 1]*d_waveage_norm/2;
+wc = wave_age_color();
+Ulims = wc.clims;
 
 cmap_binned = (magma(nU));
 
@@ -160,12 +159,20 @@ F_f_binned = NaN*ones(size(F_f_combined,1),nU);
 S_f_binned = F_f_binned;
 F_k_binned = NaN*ones(size(F_k_combined,1),nU);
 
+% Runs actually contributing to each bin mean, i.e. in the bin AND carrying a
+% spectrum, which is the number worth reporting rather than the bin occupancy
+has_spectrum = any(isfinite(F_f_block),1)';
+
+n_per_bin = NaN(1,nU);
+
 for n = 1:nU
 
-    inds_consider = waveage >= waveage_centers(n)-d_waveage_norm/2 & waveage < waveage_centers(n)+d_waveage_norm/2;
+    inds_consider = waveage >= waveage_edges(n) & waveage < waveage_edges(n+1);
     F_f_binned(:,n) = mean(F_f_block(:,inds_consider),2,'omitnan');
     S_f_binned(:,n) = mean(S_f_block(:,inds_consider),2,'omitnan');
     F_k_binned(:,n) = mean(F_k_block(:,inds_consider),2,'omitnan');
+
+    n_per_bin(n) = sum(inds_consider & has_spectrum);
 
 end
 
@@ -204,6 +211,54 @@ ylabel('$\mathrm{F(f)\ [m^2Hz^{-1}]}$','Interpreter','latex')
 text(mean(f_eq),10.^mean(log10(1e-2*f_eq.^-4))*7,'$\mathrm{f^{-4}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 text(mean(f_sat),10.^mean(log10(5e-3*f_sat.^-5))*7,'$\mathrm{f^{-5}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 
+% Sample size per wave-age bin
+ax_panel = gca;
+ax_panel.XScale = 'log';
+ax_panel.YScale = 'log';
+
+bin_label_size = fsize;
+x_left = 0.035;
+y_base = 0.045;
+lateral_gap = 0.04;
+
+label_string = [{'N  ='} arrayfun(@(v) num2str(v),n_per_bin,'UniformOutput',false)];
+label_color = [{[0 0 0]} arrayfun(@(n) cmap_binned(nU+1-n,:),1:nU,'UniformOutput',false)];
+
+% Determine layout with throwaway text objects first
+h_measure = gobjects(1,numel(label_string));
+x_cursor = x_left;
+for n = 1:numel(label_string)
+    h_measure(n) = text(x_cursor,y_base,label_string{n},'Units','normalized', ...
+        'FontSize',bin_label_size,'FontWeight','bold', ...
+        'HorizontalAlignment','left','VerticalAlignment','bottom');
+    x_cursor = x_cursor + h_measure(n).Extent(3) + lateral_gap;
+end
+
+label_extent = cell2mat(arrayfun(@(h) h.Extent,h_measure,'UniformOutput',false)');
+token_x = label_extent(:,1)';
+delete(h_measure)
+
+% Backing box
+box_pad = 0.014;
+box_x = [min(label_extent(:,1)) - box_pad, x_cursor - lateral_gap + box_pad];
+box_y = [min(label_extent(:,2)) - box_pad, max(sum(label_extent(:,[2 4]),2)) + box_pad];
+
+x_limits = xlim;
+y_limits = ylim;
+to_x = @(fx) 10.^(log10(x_limits(1)) + fx*diff(log10(x_limits)));
+to_y = @(fy) 10.^(log10(y_limits(1)) + fy*diff(log10(y_limits)));
+
+hold on
+patch(to_x(box_x([1 2 2 1])),to_y(box_y([1 1 2 2])),0.5*[1 1 1], ...
+    'EdgeColor','k','LineWidth',0.75,'FaceAlpha',0.15);
+
+for n = 1:numel(label_string)
+    textborder(to_x(token_x(n)),to_y(y_base),label_string{n}, ...
+        label_color{n},'k','FontSize',bin_label_size,'FontWeight','bold', ...
+        'HorizontalAlignment','left','VerticalAlignment','bottom')
+end
+hold off
+
 nexttile(2)
 hold on
 loglog(k_rad_m_combined,F_k_binned,'k-','linewidth',3)
@@ -229,7 +284,7 @@ colororder(cmap_binned)
 xlim([1e-2 2e1])
 ylim([1e-4 5e-2])
 xlabel('$\mathrm{f\ [Hz]}$','Interpreter','latex')
-ylabel('$\mathrm{(2\pi f)^5/g^2F(f)\ [rad]}$','Interpreter','latex')
+ylabel('$\mathrm{(2\pi f)^5g^{-2}F(f)\ [rad]}$','Interpreter','latex')
 text(mean(f_eq),1.3*10.^mean(log10(3e-2*f_eq.^1))*1.5,'$\mathrm{f^{1}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 text(mean(f_sat),1.3*10.^mean(log10(1.5e-2*f_sat.^0))*1.5,'$\mathrm{f^{0}}$','FontSize',fsize,'HorizontalAlignment','center','Interpreter','latex')
 
@@ -276,7 +331,8 @@ cbar = colorbar(ax_struc(2).ax);
 
 cbar.Layout.Tile = 'north';
 cbar.Layout.TileSpan = [2 2];
-cbar.Ticks = Ulims(1):d_waveage_norm:Ulims(2);
+cbar.Ticks = wc.ticks;
+cbar.TickLabels = wc.ticklabels;
 cbar.TickLabels = flipud(cbar.TickLabels);
 cbar.Direction = 'reverse';
 set(get(cbar,'Label'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')

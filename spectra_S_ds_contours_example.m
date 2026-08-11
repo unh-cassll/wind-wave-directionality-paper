@@ -1,7 +1,7 @@
 %
 function spectra_S_ds_contours_example(fignum,fsize)
 
-supporting_data_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
+supporting_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 short_wave_spectra_nc_name = 'data/ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc';
 long_wave_spectra_nc_name = 'data/ASIT2019_EPSS_directional_spectra.nc';
 
@@ -13,11 +13,13 @@ else
     example_run_ind = s.example_run_ind;
 end
 
-wdir_deg = ncread(supporting_data_nc_name,'COARE_Wdir');
+wdir_deg = ncread(supporting_nc_name,'COARE_Wdir');
 wdir_deg = wdir_deg(example_run_ind);
 wdir_deg = mod(wdir_deg+180,360);
 
-EC_ustar_m_s = ncread(supporting_data_nc_name,'EC_ustar_m_s');
+% Wind forcing per the source selected in the aa_step01 preamble
+wind = wind_forcing(supporting_nc_name);
+EC_ustar_m_s = wind.ustar;
 EC_ustar_m_s_particular = EC_ustar_m_s(example_run_ind);
 
 load('data/ASIT2019_Lambda_c_theta_Pyxis_runs.mat')
@@ -52,12 +54,14 @@ theta_rad = ncread(short_wave_spectra_nc_name,'theta_rad');
 f_Hz = ncread(short_wave_spectra_nc_name,'f_Hz');
 
 F_f_d = double(ncread(long_wave_spectra_nc_name,'F_f_d'));
+F_k_d = double(ncread(long_wave_spectra_nc_name,'F_k_d'));
 frequency = double(ncread(long_wave_spectra_nc_name,'frequency'));
+wavenumber = double(ncread(long_wave_spectra_nc_name,'wavenumber'));
 direction = double(ncread(long_wave_spectra_nc_name,'direction'));
 
-nc_name_supporting = 'data/ASIT2019_supporting_environmental_observations.nc';
+supporting_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 
-U_sfc_mag_m_s = ncread(nc_name_supporting,'U_sfc_mag_m_s');
+U_sfc_mag_m_s = ncread(supporting_nc_name,'U_sfc_mag_m_s');
 
 freq_spect_range_limits = load('data/frequency_spect_range_limits.mat');
 wavenumber_spect_range_limits = load('data/wavenumber_spect_range_limits.mat');
@@ -78,35 +82,19 @@ f_p = sum(f_combined.*Ff_combined.^4,'omitnan')./sum(Ff_combined.^4,'omitnan');
 
 [c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
 
-% Surface current is NaN for some runs; fall back to quiescent dispersion
-U_sfc_example = U_sfc_mag_m_s(example_run_ind);
-if ~isfinite(U_sfc_example)
-    U_sfc_example = 0;
-end
-[c_direct_disp,cg_direct_disp] = lindisp_with_current(2*pi*f_Hz,water_depth_m,U_sfc_example);
-
-k_direct_disp = 2*pi*f_Hz./c_direct_disp;
-S_k_particular_disp = 1./(2*pi*k_direct_disp).*cg_direct_disp.*S_f_particular;
-
-transition_wavenumber = 5;
-
-inds_direct = k_rad_m > transition_wavenumber;
-inds_disp = k_direct_disp < transition_wavenumber;
-
 k_low = 0.1;
 k_high = 200;
 
 k_interp = (k_low:k_low:k_high)';
 
-k_rad_m_combined = [k_direct_disp(inds_disp); k_rad_m(inds_direct)];
-S_k_theta_combined = [S_k_particular_disp(inds_disp,:); squeeze(S_k_theta(inds_direct,:,example_run_ind))];
+% The direct wavenumber spectrum carries the short waves down to its own k_min;
+% nothing from the frequency spectrum is stitched in below it. The E-PSS long
+% waves take over there
+k_handoff = min(k_rad_m);
 
-S_k_theta_interp = interp1(k_rad_m_combined,S_k_theta_combined,k_interp,'pchip');
+S_k_theta_interp = interp1(k_rad_m,squeeze(S_k_theta(:,:,example_run_ind)),k_interp,'pchip');
 
-s = load('data/global_figure_settings.mat');
-klow = s.k_low;
-
-S_k_theta_interp(k_interp<klow,:) = NaN;
+S_k_theta_interp(k_interp<k_handoff,:) = NaN;
 
 camera_choice = 2;
 
@@ -154,10 +142,29 @@ bigtheta_rad = [theta_rad-2*pi; theta_rad; theta_rad+2*pi]' - wdir_deg*pi/180;
 big_S_k_particular = [S_k_theta_interp S_k_theta_interp S_k_theta_interp];
 big_B_k_particular =  k_interp.^2.*big_S_k_particular;
 
-big_S_k_particular_disp_interp = interp1(bigtheta_rad*180/pi,interp1(k_interp,big_S_k_particular,k_disp)',bigtheta_deg)';
+% Long waves for the panel (a) backdrop, taken directly from the E-PSS
+% wavenumber-directional scan: B = k^4*F(k,theta). Carries the map only below
+% the direct spectrum's k_min
+F_k_d_particular = squeeze(F_k_d(example_run_ind,:,:)).';   % (wavenumber, direction)
+if max(abs(direction)) > 2*pi
+    theta_EPSS_rad = direction*pi/180;
+    F_k_d_particular = F_k_d_particular*180/pi;
+else
+    theta_EPSS_rad = direction;
+end
+
+k_EPSS = wavenumber(:);
+B_k_EPSS = k_EPSS.^4.*F_k_d_particular;
+B_k_EPSS(B_k_EPSS <= 0) = NaN;
+B_k_EPSS(k_EPSS >= k_handoff,:) = NaN;
+
+bigtheta_EPSS_deg = [theta_EPSS_rad(:)-2*pi; theta_EPSS_rad(:); theta_EPSS_rad(:)+2*pi]'*180/pi - wdir_deg;
+B_k_EPSS = [B_k_EPSS B_k_EPSS B_k_EPSS];
+
+big_S_k_particular_interp = interp1(bigtheta_rad*180/pi,interp1(k_interp,big_S_k_particular,k_disp)',bigtheta_deg)';
 
 beta_Plant = 0.04*(EC_ustar_m_s_particular./c_phase(:)).^2.*(c_phase(:).*k_disp(:)).*cosd(bigtheta_deg(:)');
-S_in_Plant = beta_Plant.*big_S_k_particular_disp_interp/(rho_w*g);
+S_in_Plant = beta_Plant.*big_S_k_particular_interp/(rho_w*g);
 
 big_S_in_Plant_downwind = S_in_Plant.*cosd(bigtheta_deg).*k_disp;
 big_S_in_Plant_downwind(isnan(big_S_in_Plant_downwind)) = 0;
@@ -180,7 +187,7 @@ text_x = 0.05;
 text_y = 0.95;
 labels = {'(a)','(b)','(c)','(d)','(e)','(f)'};
 
-YTicks = linspace(-5e-8,5e-8,5);
+YTicks = linspace(-6e-8,6e-8,5);
 
 figure(fignum);clf
 tlayout = tiledlayout(3,1);
@@ -189,8 +196,7 @@ ax_struc = struct();
 nexttile(1)
 hold on
 ax_struc(1).ax = gca;
-f = fill([-180 180 180 -180],[1e-1 1e-1 1e2 1e2],'k');
-f.FaceAlpha = 0.5;
+pcolor(bigtheta_EPSS_deg,k_EPSS,log10(B_k_EPSS));colormap(viridis)
 pcolor(bigtheta_rad*180/pi,k_interp,log10(big_B_k_particular));colormap(viridis)
 for n = 1:length(S_ds_levels)
     [contour_c,contour_h] = contour(bigtheta_deg + 0.5,k_disp,log10(big_S_ds_contours),[S_ds_levels(n) 10],'-','Color',contour_color(n,:),'linewidth',2);
@@ -203,12 +209,12 @@ shading('flat')
 cbar = colorbar;
 cbar.Location = 'northoutside';
 set(get(cbar,'Label'),'String','$\mathrm{log_{10}\{B(k,\theta)\}}$','Interpreter','LaTeX')
-text(-175,0.65,'$\mathrm{log_{10}\{k^4S_{ds}(k,\theta)\}}$','Interpreter','LaTeX','FontSize',fsize,'Color','w','HorizontalAlignment','left')
+text(175,0.5,'$\mathrm{log_{10}\{k^4S_{ds}(k,\theta)\}}$','Interpreter','LaTeX','FontSize',fsize,'Color','w','HorizontalAlignment','right')
 ax_struc(1).ax.YScale = 'log';
 shading('flat')
 clim([-4 -2.5])
 xlim([-180 180])
-ylim([5e-1 1e2])
+ylim([1e-1 1e2])
 ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
 
 S_in_Plant = -trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)');
@@ -259,7 +265,7 @@ box on
 
 for n = 1:3
     nexttile(n)
-    xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
+    xlabel('$\mathrm{\theta-\theta_{\mathrm{wind}}\ [^\circ]}$','Interpreter','latex')
     ax_struc(n).ax.XTick = dir_ticks;
     if n == 1
         labelcolor = 'w';

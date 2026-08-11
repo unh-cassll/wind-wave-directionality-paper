@@ -15,7 +15,7 @@ function textborder(x, y, string, text_color, border_color, varargin)
 %   the right size for the figure before calling TEXTBORDER, or always
 %   redraw the figure after resizing it.
 %   
-%   Author: João F. Henriques, April 2010
+%   Author: Joï¿½o F. Henriques, April 2010
 
 	if isempty(string), return; end
 	

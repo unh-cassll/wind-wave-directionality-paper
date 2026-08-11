@@ -1,7 +1,7 @@
 %
 function directional_spectra_spreading_revisit(fignum,fsize)
 
-supporting_data_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
+supporting_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 short_wave_nc_name = 'ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc';
 
 s = load('data/global_figure_settings.mat');
@@ -9,7 +9,7 @@ example_run_ind = s.example_run_ind;
 
 g = 9.81;
 
-wdir_deg = ncread(supporting_data_nc_name,'COARE_Wdir');
+wdir_deg = ncread(supporting_nc_name,'COARE_Wdir');
 wdir_deg = wdir_deg(example_run_ind);
 wdir_deg = mod(wdir_deg+180,360);
 wdir_rad = pi/180*wdir_deg;

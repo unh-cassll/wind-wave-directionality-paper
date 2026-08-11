@@ -1,7 +1,7 @@
 %
 function S_ds_theta_all(fignum,fsize)
 
-supporting_data_nc_name = 'data/ASIT2019_supporting_data_compilation.nc';
+compilation_nc_name = 'data/ASIT2019_supporting_data_compilation.nc';
 
 load('data/ASIT2019_Lambda_c_theta_all.mat')
 
@@ -21,27 +21,29 @@ k_of_c = fit(c_disp(:),k(:),'spline');
 dir_ticks = 180*(-1:0.25:1);
 
 DN_start = datenum(2019,10,16,0,0,0);
-time = double(ncread(supporting_data_nc_name,'time'));
+time = double(ncread(compilation_nc_name,'time'));
 DN = DN_start + time/60/24;
 DTime = datetime(datevec(DN));
 
-wdir_deg_all = mod(ncread(supporting_data_nc_name,'COARE_winddir')+180,360);
-EC_ustar_m_s = ncread(supporting_data_nc_name,'EC_ustar');
-EC_U_m_s = ncread(supporting_data_nc_name,'EC_U');
-EC_z_m_above_water = ncread(supporting_data_nc_name,'EC_z');
+wdir_deg_all = mod(ncread(compilation_nc_name,'COARE_winddir')+180,360);
+% Wind forcing per the source selected in the aa_step01 preamble; the hybrid
+% *_best variables exist only on the production grid, so this falls back
+wind = wind_forcing(compilation_nc_name);
+EC_U_m_s = ncread(compilation_nc_name,'EC_U');
+EC_z_m_above_water = ncread(compilation_nc_name,'EC_z');
 
-EC_tau_downwind_N_m2 = ncread(supporting_data_nc_name,'EC_tau_downwind');
-EC_tau_crosswind_N_m2 = ncread(supporting_data_nc_name,'EC_tau_crosswind');
+EC_tau_downwind_N_m2 = ncread(compilation_nc_name,'EC_tau_downwind');
+EC_tau_crosswind_N_m2 = ncread(compilation_nc_name,'EC_tau_crosswind');
 
 EC_stress_angle_deg = 180/pi*atan2(EC_tau_crosswind_N_m2,EC_tau_downwind_N_m2);
 
 kappa = 0.4;
 
-EC_z0_m = EC_z_m_above_water.*exp(-kappa*EC_U_m_s./EC_ustar_m_s);
-EC_U10_m_s = EC_ustar_m_s/kappa.*log(10./EC_z0_m);
+EC_ustar_m_s = wind.ustar;
+EC_U10_m_s = wind.U10;
 
-f_Hz = ncread(supporting_data_nc_name,'frequency_omni');
-F_f_m2_Hz = ncread(supporting_data_nc_name,'Omni_F_f');
+f_Hz = ncread(compilation_nc_name,'frequency_omni');
+F_f_m2_Hz = ncread(compilation_nc_name,'Omni_F_f');
 
 inds_keep = f_Hz > 5e-2 & f_Hz < 1;
 
@@ -49,9 +51,9 @@ F_f_m2_Hz(isnan(F_f_m2_Hz)) = 0;
 f_p = trapz(f_Hz(inds_keep),f_Hz(inds_keep).*F_f_m2_Hz(inds_keep,:).^4)'./trapz(f_Hz(inds_keep),F_f_m2_Hz(inds_keep,:).^4)';
 f_p = f_p(:);
 
-f_Hz_ADCP = ncread(supporting_data_nc_name,'frequency_dir')';
-theta_rad_ADCP = ncread(supporting_data_nc_name,'direction')';
-F_f_theta_m2_Hz_rad_ADCP = ncread(supporting_data_nc_name,'Dir_F_f_theta');
+f_Hz_ADCP = ncread(compilation_nc_name,'frequency_dir')';
+theta_rad_ADCP = ncread(compilation_nc_name,'direction')';
+F_f_theta_m2_Hz_rad_ADCP = ncread(compilation_nc_name,'Dir_F_f_theta');
 
 Sm = squeeze(mean(sin(theta_rad_ADCP(:)').*F_f_theta_m2_Hz_rad_ADCP,[1 2],'omitnan'));
 Cm = squeeze(mean(cos(theta_rad_ADCP(:)').*F_f_theta_m2_Hz_rad_ADCP,[1 2],'omitnan'));
@@ -214,8 +216,7 @@ labels = {'(a)','(b)'};
 
 s = load('data/global_figure_settings.mat');
 wave_age_lims = s.wave_age_lims;
-d_wave_age = s.d_wave_age;
-wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
+[wave_age_edges,wave_age_centers] = wave_age_bin_edges();
 
 wave_age = c_p_m_s./ustar_m_s;
 
@@ -233,8 +234,8 @@ ustar_binned = NaN*wave_age_centers;
 
 for n = 1:length(wave_age_centers)
 
-    wave_age_low = wave_age_centers(n) - d_wave_age/2;
-    wave_age_high = wave_age_centers(n) + d_wave_age/2;
+    wave_age_low = wave_age_edges(n);
+    wave_age_high = wave_age_edges(n+1);
     inds_consider = wave_age >= wave_age_low & wave_age < wave_age_high;
 
     tau_br_theta_binned_by_wave_age(:,n) = median(tau_theta(inds_consider,:),1,'omitnan');
@@ -263,7 +264,8 @@ switch option
 
         tau_br_theta_binned = tau_br_theta_binned_by_wave_age;
         cmap_binned = cmap_binned_wave_age;
-        clims = [wave_age_centers(1) wave_age_centers(end)] + d_wave_age/2*[-1 1];
+        wc = wave_age_color();
+        clims = wc.clims;
 
     case 'U10'
 
@@ -300,13 +302,14 @@ switch option
         clim(clims)
     case 'waveage'
         set(get(cbar,'Label'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
-        cbar.Ticks = clims(1):d_wave_age:clims(end);
+        cbar.Ticks = wc.ticks;
+        cbar.TickLabels = wc.ticklabels;
         clim(clims)
 end
 box on
-ylim(-[1.0e-2 0])
+ylim(-[1.3e-2 0])
 xlim([-1 1]*180)
-xlabel('$\mathrm{\theta-\theta_{br}\ [rad]}$','Interpreter','LaTeX')
+xlabel('$\mathrm{\theta-\theta_{br}\ [^\circ]}$','Interpreter','LaTeX')
 ylabel('$\mathrm{\tau_{br}(\theta)\ [N\ m^{-2}rad^{-1}]}$','Interpreter','LaTeX')
 ax_struc(1).ax = gca;
 
@@ -354,7 +357,7 @@ hold off
 box on
 ylim([-1.2 0])
 xlim([-1 1]*180)
-xlabel('$\mathrm{\theta-\theta_{br}\ [rad]}$','Interpreter','LaTeX')
+xlabel('$\mathrm{\theta-\theta_{br}\ [^\circ]}$','Interpreter','LaTeX')
 ylabel('$\tau_{\mathrm{br}}(\theta)$, norm.','Interpreter','latex')
 ax_struc(2).ax = gca;
 

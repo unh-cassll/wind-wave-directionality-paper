@@ -71,7 +71,9 @@ Ff_EPSS = squeeze(sum(F_f_m2_Hz_rad_EPSS,2,'omitnan'))'*dtheta;
 kappa = 0.4;
 
 EC_U_m_s = ncread(supporting_nc_name,'EC_U_m_s');
-EC_ustar_m_s = ncread(supporting_nc_name,'EC_ustar_m_s');
+% Wind forcing per the source selected in the aa_step01 preamble
+wind = wind_forcing(supporting_nc_name);
+EC_ustar_m_s = wind.ustar;
 EC_z_m_above_water = ncread(supporting_nc_name,'EC_z_m_above_water');
 EC_z0_m = EC_z_m_above_water.*exp(-kappa*EC_U_m_s./EC_ustar_m_s);
 EC_U10_m_s = EC_ustar_m_s/kappa.*log(10./EC_z0_m);
@@ -288,6 +290,47 @@ f_eq_end = [f_holder_struc.f_eq_end];
 f_sat_end = [f_holder_struc.f_sat_end];
 tail_slope = [f_holder_struc.tail_slope]-5;
 
+% Equilibrium-range validity. The crossing scan returns the highest frequency
+% still shallower than f^-5, which is well defined even for spectra that have no
+% f^-4 range at all -- swell-dominated runs then report the peak flank. A broken
+% power law fitted above the peak identifies those: if the slope below the break
+% is already at the saturation value, there is no equilibrium range to end.
+equilibrium_slope_cut = -4.3;
+if isfield(gset,'equilibrium_slope_cut')
+    equilibrium_slope_cut = gset.equilibrium_slope_cut;
+end
+equilibrium_slope = NaN*f_eq_end;
+for particular_ind = 1:numel(f_eq_end)
+    if ~isfinite(f_p(particular_ind)); continue; end
+    seg = segmented_transition_frequency(f_Hz_combined,Ff_combined(:,particular_ind), ...
+        2.5*f_p(particular_ind),2);
+    equilibrium_slope(particular_ind) = seg.slope_eq;
+end
+no_equilibrium = equilibrium_slope < equilibrium_slope_cut;
+n_fixed_band = sum(no_equilibrium);
+
+% One retry for the rejected runs only, with the band start moved to where the
+% spectrum actually leaves the peak flank. The fixed 2.5 f_p start sits above
+% the f^-4 range in young seas, so the lower segment reports saturation and the
+% run is rejected for the wrong reason. Runs the fixed band accepts are never
+% re-tested: the retry is a rescue, not a re-adjudication
+f_band_start = equilibrium_band_start(f_Hz_combined,Ff_combined,f_p);
+for particular_ind = find(no_equilibrium(:))'
+    band_lo = max(f_band_start(particular_ind),1.5*f_p(particular_ind));
+    if ~isfinite(band_lo); continue; end
+    seg = segmented_transition_frequency(f_Hz_combined,Ff_combined(:,particular_ind),band_lo,2);
+    if seg.slope_eq >= equilibrium_slope_cut
+        no_equilibrium(particular_ind) = false;
+        equilibrium_slope(particular_ind) = seg.slope_eq;
+    end
+end
+
+f_eq_start(no_equilibrium) = NaN;
+f_eq_end(no_equilibrium) = NaN;
+fprintf(['equilibrium-range validity: %d of %d rejected by the fixed band, ' ...
+    '%d rescued by the adaptive start, %d finally rejected\n'], ...
+    n_fixed_band,numel(f_eq_end),n_fixed_band-sum(no_equilibrium),sum(no_equilibrium));
+
 save('../data/frequency_spect_range_limits.mat','f_eq_start','f_eq_end','f_sat_end','tail_slope','f_p')
 
 %%
@@ -301,8 +344,6 @@ indices_per_window = 24;
 
 k_holder_struc = struct();
 
-hard_code_inds = [45 46 51];
-hard_code_k = k_rad_m_Pyxis([5 4 3]);
 
 for particular_ind = 1:size(Sf,2)
 
@@ -485,10 +526,25 @@ for particular_ind = 1:size(Sf,2)
 
 end
 
-k_sat_end = [k_holder_struc.k_sat_end];
 tail_slope = [k_holder_struc.tail_slope]-3;
-k_sat_end(hard_code_inds) = hard_code_k;
-k_eq_end = [k_holder_struc.k_eq_end];
-k_eq_start = [k_holder_struc.k_eq_start];
 
-save('../data/wavenumber_spect_range_limits.mat','k_sat_end','tail_slope','k_eq_end','k_eq_start')
+% Direct k-space extractions, retained for reference only. The combined grid has
+% no point between 2.155 and 4.311 rad/m (EWDM log-spaced below the seam, Pyxis
+% linear at dk = 2.155 above), which is where the transition sits: 89% of the
+% extracted k_n fell in that one octave. Equilibrium scales come from the
+% frequency spectrum through linear dispersion instead.
+k_sat_end_kspace = [k_holder_struc.k_sat_end];
+k_eq_end_kspace = [k_holder_struc.k_eq_end];
+k_eq_start_kspace = [k_holder_struc.k_eq_start];
+
+k_eq_start = dispersion_wavenumber(f_eq_start,water_depth_m);
+k_eq_end = dispersion_wavenumber(f_eq_end,water_depth_m);
+
+% k_sat_end is the exception: it sits at 2-50 rad/m, entirely above the seam,
+% where Pyxis resolves the spectrum properly. The direct extraction is kept both
+% because it is better tied to wind forcing and so that the direct and
+% dispersion-derived subrange limits stay distinguishable in fig 6(c).
+k_sat_end = k_sat_end_kspace;
+
+save('../data/wavenumber_spect_range_limits.mat','k_sat_end','tail_slope','k_eq_end','k_eq_start', ...
+    'k_sat_end_kspace','k_eq_end_kspace','k_eq_start_kspace')

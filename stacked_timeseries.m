@@ -1,6 +1,6 @@
 function stacked_timeseries(fignum,fsize)
 
-supporting_data_nc_name = 'data/ASIT2019_supporting_data_compilation.nc';
+compilation_nc_name = 'data/ASIT2019_supporting_data_compilation.nc';
 
 cmap = flipud(spectral(21));
 violet = cmap(1,:);
@@ -11,19 +11,27 @@ goldenrod = cmap(16,:)*0.8;
 crimson = cmap(21,:);
 
 DN_start = datenum(2019,10,16,0,0,0);
-time = double(ncread(supporting_data_nc_name,'time'));
+time = double(ncread(compilation_nc_name,'time'));
 DN = DN_start + time/60/24;
 DTime = datetime(datevec(DN),'TimeZone','UTC');
 
-COARE_U10 = ncread(supporting_data_nc_name,'COARE_U10');
-COARE_ustar_m_s = ncread(supporting_data_nc_name,'COARE_ustar');
-EC_ustar_m_s = ncread(supporting_data_nc_name,'EC_ustar');
+COARE_U10 = ncread(compilation_nc_name,'COARE_U10');
+COARE_ustar_m_s = ncread(compilation_nc_name,'COARE_ustar');
+EC_ustar_m_s = ncread(compilation_nc_name,'EC_ustar');
 
-Tpeak = ncread(supporting_data_nc_name,'COARE_peak_wave_period');
-Tmean = ncread(supporting_data_nc_name,'COARE_mean_wave_period');
+% hourly block means (6 x 10 min) of the ASIT wind/stress records
+nblk = 6;
+blk = @(x) mean(reshape(x(1:nblk*floor(numel(x)/nblk)),nblk,[]),1,'omitnan').';
+DTime_hr = mean(reshape(DTime(1:nblk*floor(numel(DTime)/nblk)),nblk,[]),1).';
+COARE_U10_hr = blk(COARE_U10);
+EC_ustar_hr = blk(EC_ustar_m_s);
+COARE_ustar_hr = blk(COARE_ustar_m_s);
 
-f_Hz = ncread(supporting_data_nc_name,'frequency_omni');
-F_f_m2_Hz = ncread(supporting_data_nc_name,'Omni_F_f');
+Tpeak = ncread(compilation_nc_name,'COARE_peak_wave_period');
+Tmean = ncread(compilation_nc_name,'COARE_mean_wave_period');
+
+f_Hz = ncread(compilation_nc_name,'frequency_omni');
+F_f_m2_Hz = ncread(compilation_nc_name,'Omni_F_f');
 Hm0 = 4*sqrt(trapz(f_Hz,F_f_m2_Hz));
 
 DT_lim = [datetime(2019,10,7,'TimeZone','UTC') datetime(2020,2,14,'TimeZone','UTC')];
@@ -52,7 +60,10 @@ ax_struc = struct();
 % time series
 
 nexttile((1-1)*num_wide+1,[1 num_wide-1])
-plot(DTime,COARE_U10,'Color',bluish,'linewidth',lw)
+hold on
+plot(DTime_hr,COARE_U10_hr,'Color',bluish,'linewidth',lw)
+hold off
+box on
 xlim(DT_lim)
 ylim(U10_lims)
 ax_struc((1-1)*num_wide+1).ax = gca;
@@ -61,8 +72,8 @@ text(text_x_left,text_y,'(a)','Units','Normalized','FontSize',fsize,'HorizontalA
 
 nexttile((2-1)*num_wide+1,[1 num_wide-1])
 hold on
-h_EC = plot(DTime,EC_ustar_m_s,'-','Color',violet,'markersize',3,'linewidth',lw);
-h_COARE = plot(DTime,COARE_ustar_m_s,'-','Color',teal,'markersize',3,'linewidth',lw);
+h_EC = plot(DTime_hr,EC_ustar_hr,'-','Color',violet,'markersize',3,'linewidth',lw);
+h_COARE = plot(DTime_hr,COARE_ustar_hr,'-','Color',teal,'markersize',3,'linewidth',lw);
 hold off
 box on
 xlim(DT_lim)
@@ -97,22 +108,27 @@ ylabel('$\mathrm{T\ [s]}$','Interpreter','LaTeX')
 text(text_x_left,text_y,'(d)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
 % histograms
-[counts_U10,centers_U10] = hist(COARE_U10,nbins);
+
+[counts_U10,centers_U10] = hist(COARE_U10_hr,nbins);
 P_U10 = counts_U10/max(counts_U10);
 
 nexttile(1*num_wide)
+hold on
 plot(P_U10,centers_U10,'-','Color',bluish,'LineWidth',lw*1.5)
+hold off
+box on
 xlim(Plims)
 ylim(U10_lims)
 ax_struc(1*num_wide).ax = gca;
+text(0.55,17,'ASIT','Color',bluish,'FontSize',fsize,'HorizontalAlignment','center')
 text(text_x_right,text_y,'(e)','Units','Normalized','FontSize',fsize,'HorizontalAlignment','center')
 
-ustar_m_s_EC = EC_ustar_m_s;
+ustar_m_s_EC = EC_ustar_hr;
 ustar_m_s_EC(ustar_m_s_EC>1) = NaN;
 
 [counts_ustar_EC,centers_ustar_EC] = hist(ustar_m_s_EC,nbins);
 P_ustar_EC = counts_ustar_EC/max(counts_ustar_EC);
-[counts_ustar_bulk,centers_ustar_bulk] = hist(COARE_ustar_m_s,nbins);
+[counts_ustar_bulk,centers_ustar_bulk] = hist(COARE_ustar_hr,nbins);
 P_ustar_bulk = counts_ustar_bulk/max(counts_ustar_bulk);
 
 nexttile(2*num_wide)

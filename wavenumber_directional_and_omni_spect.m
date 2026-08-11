@@ -2,7 +2,7 @@
 function wavenumber_directional_and_omni_spect(fignum,fsize)
 
 
-supporting_data_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
+supporting_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 short_wave_spectra_nc_name = 'data/ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc';
 long_wave_spectra_nc_name = 'data/ASIT2019_EPSS_directional_spectra.nc';
 
@@ -15,7 +15,7 @@ teal = cmap(2,:);
 goldenrod = cmap(5,:);
 crimson = cmap(7,:);
 
-wdir_deg = ncread(supporting_data_nc_name,'COARE_Wdir');
+wdir_deg = ncread(supporting_nc_name,'COARE_Wdir');
 wdir_deg = wdir_deg(example_run_ind);
 wdir_deg = mod(wdir_deg+180,360);
 wdir_rad = pi/180*wdir_deg;
@@ -85,11 +85,11 @@ ylim(theta_lims)
 xlim(klims)
 clim([-5.5 -2.5])
 ax_struc(1).ax = gca;
-ax_struc(1).ax.YDir = 'reverse';
+% ax_struc(1).ax.YDir = 'reverse';
 ax_struc(1).ax.XScale = 'log';
 ax_struc(1).ax.XTick = k_ticks;
 ax_struc(1).ax.YTick = dir_ticks;
-ylabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','latex')
+ylabel('$\mathrm{\theta-\theta_{\mathrm{wind}}\ [^\circ]}$','Interpreter','latex')
 xlabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','latex')
 text(text_x,text_y,'(a)','Color','w','FontSize',fsize,'Units','normalized')
 

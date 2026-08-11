@@ -6,17 +6,21 @@ violet = cmap(1,:);
 teal = cmap(2,:);
 crimson = cmap(7,:);
 
-in_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
+supporting_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 
-kappa = 0.4;
+% Wind forcing per the source selected in the aa_step01 preamble
+wind = wind_forcing(supporting_nc_name);
+EC_U10_m_s = wind.U10;
+EC_ustar_m_s = wind.ustar;
 
-EC_U_m_s = ncread(in_nc_name,'EC_U_m_s');
-EC_ustar_m_s = ncread(in_nc_name,'EC_ustar_m_s');
-EC_z_m_above_water = ncread(in_nc_name,'EC_z_m_above_water');
-EC_z0_m = EC_z_m_above_water.*exp(-kappa*EC_U_m_s./EC_ustar_m_s);
-EC_U10_m_s = EC_ustar_m_s/kappa.*log(10./EC_z0_m);
+% Oncoming-wind gate
+% wind_dir_deg_coming_from = ncread(supporting_nc_name,'COARE_Wdir');
+% mask = oncoming_wind_mask(wind_dir_deg_coming_from);
+%
+% EC_ustar_m_s = mask.*EC_ustar_m_s;
+% EC_U10_m_s = mask.*EC_U10_m_s;
 
-U_sfc_mag_m_s = ncread(in_nc_name,'U_sfc_mag_m_s');
+U_sfc_mag_m_s = ncread(supporting_nc_name,'U_sfc_mag_m_s');
 
 load('data/frequency_spect_range_limits.mat')
 load('data/wavenumber_spect_range_limits.mat')
@@ -32,26 +36,12 @@ f_eq_start = f_eq_start(:);
 f_eq_end = f_eq_end(:);
 f_sat_end = f_sat_end(:);
 
-k_eq_start_disp = NaN*f_p;
-k_eq_end_disp = k_eq_start_disp;
-k_sat_end_disp = k_eq_start_disp;
-
-for n = 1:length(U_sfc_mag_m_s)
-
-    try
-
-        [c,~] = lindisp_with_current(2*pi*f_eq_start(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_eq_start_disp(n) = 2*pi*f_eq_start(n)./c;
-
-        [c,~] = lindisp_with_current(2*pi*f_eq_end(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_eq_end_disp(n) = 2*pi*f_eq_end(n)./c;
-
-        [c,~] = lindisp_with_current(2*pi*f_sat_end(n),water_depth_m,U_sfc_mag_m_s(n));
-        k_sat_end_disp(n) = 2*pi*f_sat_end(n)./c;
-
-    end
-
-end
+% Equilibrium-range limits are stored dispersion-derived (no current). k_sat_end
+% is stored as the direct k-space extraction, so its dispersion counterpart is
+% computed here -- panel (c) contrasts the two.
+k_eq_start_disp = k_eq_start(:);
+k_eq_end_disp = k_eq_end(:);
+k_sat_end_disp = dispersion_wavenumber(f_sat_end,water_depth_m);
 
 % Wave age phase speed: linear dispersion of f_p (no current)
 [c_p,~] = lindisp_with_current(2*pi*f_p,water_depth_m,0);
@@ -78,13 +68,11 @@ lw_thick = 3;
 lw_thin = 2;
 
 s = load('data/global_figure_settings.mat');
-d_wave_age = s.d_wave_age;
+wave_age_edges = wave_age_bin_edges();
 
 wave_age = c_p./EC_ustar_m_s;
 
-wave_age_left = s.wave_age_lims(1):d_wave_age:s.wave_age_lims(2)-d_wave_age;
-wave_age_right = wave_age_left + d_wave_age;
-wave_age_lims = [wave_age_left(:) wave_age_right(:)];
+wave_age_lims = [wave_age_edges(1:end-1)' wave_age_edges(2:end)'];
 wave_age_mean = NaN*wave_age_lims(:,1);
 f_block = NaN*ones(size(wave_age_lims,1),3);
 omega_block = f_block;
@@ -104,6 +92,7 @@ end
 fA = 0.2;
 
 wave_age_lims = s.wave_age_lims;
+wc = wave_age_color();
 
 figure(fignum);clf
 tlayout = tiledlayout(3,1);
@@ -120,6 +109,7 @@ h_sat_end_binned = scatter(wave_age_mean,f_block(:,3),2*scat_size,crimson);
 hold off
 box on
 xlim(wave_age_lims)
+set(gca,'XScale',wc.axis_scale,'XTick',wc.axis_ticks,'XMinorTick','off')
 ylim([0 3])
 xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 ylabel('$\mathrm{f\ [Hz]}$','Interpreter','LaTeX')
@@ -152,6 +142,7 @@ h_sat_end_binned = scatter(wave_age_mean,omega_block(:,3),2*scat_size,crimson);
 hold off
 box on
 xlim(wave_age_lims)
+set(gca,'XScale',wc.axis_scale,'XTick',wc.axis_ticks,'XMinorTick','off')
 ylim([0 10])
 xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 ylabel('$\mathrm{\hat{\omega}\equiv\omega U_{10}/g}$','Interpreter','LaTeX')
@@ -179,13 +170,16 @@ h_eq_start_binned = scatter(wave_age_mean,k_block_disp(:,1),2*scat_size,violet);
 h_eq_end_binned = scatter(wave_age_mean,k_block_disp(:,2),2*scat_size,teal);
 h_sat_end_binned = scatter(wave_age_mean,k_block_disp(:,3),2*scat_size,crimson);
 h_sat_end_true_binned = scatter(wave_age_mean,k_block,2*scat_size,crimson,'filled');
+plot([15 70],5e-2*[15 70].^-1,'k--','linewidth',2)
 hold off
 box on
 xlim(wave_age_lims)
+set(gca,'XScale',wc.axis_scale,'XTick',wc.axis_ticks,'XMinorTick','off')
 ylim([1e-4 1e-1]*3)
 xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 ylabel('$\mathrm{\hat{k}\equiv k u_*^2/g}$','Interpreter','LaTeX')
 text(50,0.15,'direct','Color',crimson,'FontWeight','bold','FontSize',fsize,'HorizontalAlignment','center')
+text(16,1.5e-3,'$\propto u_*^{-1}$','Interpreter','LaTeX','FontSize',fsize,'HorizontalAlignment','Center')
 
 h_eq_start_binned.Marker = 's';
 h_eq_end_binned.Marker = 's';

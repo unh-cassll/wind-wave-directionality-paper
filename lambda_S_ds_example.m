@@ -1,7 +1,7 @@
 %
 function lambda_S_ds_example(fignum,fsize)
 
-supporting_data_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
+supporting_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 short_wave_spectra_nc_name = 'data/ASIT2019_wave_spectra_stats_timeseries_empirical_gain.nc';
 long_wave_spectra_nc_name = 'data/ASIT2019_EPSS_directional_spectra.nc';
 
@@ -13,10 +13,12 @@ else
     example_run_ind = s.example_run_ind;
 end
 
-wdir_deg = ncread(supporting_data_nc_name,'COARE_Wdir');
+wdir_deg = ncread(supporting_nc_name,'COARE_Wdir');
 wdir_deg = wdir_deg(example_run_ind);
 wdir_deg = mod(wdir_deg+180,360);
-EC_ustar_m_s = ncread(supporting_data_nc_name,'EC_ustar_m_s');
+% Wind forcing per the source selected in the aa_step01 preamble
+wind = wind_forcing(supporting_nc_name);
+EC_ustar_m_s = wind.ustar;
 EC_ustar_m_s_particular = EC_ustar_m_s(example_run_ind);
 
 load('data/ASIT2019_Lambda_c_theta_Pyxis_runs.mat')
@@ -154,7 +156,7 @@ ylim([1e-1 1e2])
 clim([S_ds_contour_levels(2) S_ds_contour_levels(end)]+[-1 1]*median(diff(S_ds_contour_levels)))
 xlabel('$\mathrm{\theta\ [^\circ]}$','Interpreter','LaTeX')
 ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
-text(80,3e-1,['$\mathrm{\bar{\theta}_{br}}$ = ' sprintf('%0.2f',theta_mean_br) '$^\circ$'],'HorizontalAlignment','Center','FontSize',fsize,'Interpreter','LaTeX')
+text(-95,3e-1,['$\mathrm{\bar{\theta}_{br}}$ = ' sprintf('%0.2f',theta_mean_br) '$^\circ$'],'HorizontalAlignment','Center','FontSize',fsize,'Interpreter','LaTeX')
 cbar = colorbar;
 set(get(cbar,'Label'),'String','$\mathrm{log_{10}\{S_{ds}(k,\theta)\}\ [m^4 rad^{-1} s^{-1}]}$','Interpreter','LaTeX')
 cbar.Ticks = S_ds_contour_levels(2:end);

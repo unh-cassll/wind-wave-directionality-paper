@@ -1,9 +1,14 @@
 function wind_speed_direction_rose(fignum,fsize)
 
-supporting_data_nc_name = 'data/ASIT2019_supporting_data_compilation.nc';
+compilation_nc_name = 'data/ASIT2019_supporting_data_compilation.nc';
 
-COARE_U10 = ncread(supporting_data_nc_name,'COARE_U10');
-wdir_deg_all = mod(ncread(supporting_data_nc_name,'COARE_winddir'),360);
+% Wind forcing per the source selected in the aa_step01 preamble; the hybrid
+% *_best variables exist only on the production grid, so this falls back. The
+% ustar gate is NOT applied: this figure documents the wind climatology, so
+% filtering out the light-wind sectors would misrepresent the record.
+wind = wind_forcing(compilation_nc_name,false);
+COARE_U10 = wind.U10;
+wdir_deg_all = mod(ncread(compilation_nc_name,'COARE_winddir'),360);
 
 Options = struct();
 Options.AngleNorth = 0;

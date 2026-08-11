@@ -7,6 +7,10 @@
 %
 % First argument: figure number(s) to generate [default: 1:num_figs]
 % Second argument: print flag [true or false]
+% Third argument: wind source override, for the four-way source comparison in
+%                 aa_step02_wind_source_comparison [default: the preamble value]
+% Fourth argument: wave-age bin spacing override ('quantile', 'log' or
+%                  'linear'), for sensitivity reruns [default: the preamble value]
 %
 function aa_step01_figure_generation_script(varargin)
 
@@ -34,11 +38,21 @@ if length(varargin) < 2
 else
     print_flag = varargin{2};
 end
+if length(varargin) < 3
+    wind_source_override = '';
+else
+    wind_source_override = varargin{3};
+end
+if length(varargin) < 4
+    wave_age_spacing_override = '';
+else
+    wave_age_spacing_override = varargin{4};
+end
 fig_folder = 'figs/';
 
 % Global figure settings
-example_run_ind = 109;            % spectra/spreading example (figs 5, 10, B1; initial-submission case)
-breaking_example_run_ind = 114;   % breaking example (figs 11, 12): run 109 has no Lambda data; 114 = v2 breaking case (theta_br +11.71)
+example_run_ind = 109;            % spectra/spreading example (figs 5, 8, B1; initial-submission case)
+breaking_example_run_ind = 173;   % breaking example (figs 9, 10): run 109 has no Lambda data; 114 = v2 breaking case (theta_br +11.71)
 dk = 2.16;
 k_low = 2*dk;
 k_high = 100;
@@ -47,15 +61,37 @@ nu_high = 4;
 U_low = 1;
 U_high = 13;
 dU = 2;
-wave_age_lims = [0 120];
-d_wave_age = 20;
+wave_age_lims = [10 90];
+wave_age_bin_spacing = 'log';  % 'quantile' (equal count), 'log' (wave age ~ 1/U10, skewed), or 'linear'
+n_wave_age_bins = 5;                % quantile and log spacing
+d_wave_age = 15;                    % linear spacing only
+wind_source_choice = 'EC_COARE_ASIT';  % 'EC_ASIT', 'COARE_ASIT', 'EC_COARE_ASIT' (EC with ASIT
+                                       % COARE backfill)
+
+diving_board_heading_deg = 255;   % instrument boom heading [deg true]
+
+ASIT_EC_wind_gate_deg = 90;
+
+ASIT_COARE_wind_gate_deg = 135;
+
+equilibrium_slope_cut = -4.3;     % reject runs whose fitted slope below the break is already at the
+                                  % saturation value: no equilibrium range, so f_eq_end is the swell flank
+ustar_cut = 0;                    
+
 recompute_derived_products = false;
-save('data/global_figure_settings.mat','example_run_ind','breaking_example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU','wave_age_lims','d_wave_age','recompute_derived_products')
+if ~isempty(wind_source_override)
+    wind_source_choice = wind_source_override;
+end
+if ~isempty(wave_age_spacing_override)
+    wave_age_bin_spacing = wave_age_spacing_override;
+end
+save('data/global_figure_settings.mat','example_run_ind','breaking_example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU','wave_age_lims','d_wave_age','wave_age_bin_spacing','n_wave_age_bins','wind_source_choice','equilibrium_slope_cut','diving_board_heading_deg','ASIT_EC_wind_gate_deg','ASIT_COARE_wind_gate_deg','ustar_cut','recompute_derived_products')
 
 % Example-case values consumed by the manuscript via \input fragments
 pk = load('data/ASIT2019_peak_wave_phase_speed.mat');
-U10_coare = ncread('data/ASIT2019_supporting_environmental_observations.nc','COARE_U10');
-us_ec = ncread('data/ASIT2019_supporting_environmental_observations.nc','EC_ustar_m_s');
+wind = wind_forcing();
+U10_coare = wind.U10;
+us_ec = wind.ustar;
 write_tex_macros('figs/tex/values_example_cases.tex', ...
     {'ExRunID','ExUten','ExWaveAge','BrExRunID','BrExUten','BrExWaveAge'}, ...
     {sprintf('%d',example_run_ind), ...
@@ -185,47 +221,9 @@ for fignum = fig_list
 
             end
 
-            %% Figure 07 - scaled wavenumber spectra and transition wavenumbers
+            %% Figure 07 - directional spectra comparison: f, k
 
         case 7
-
-            figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 0.5 1])
-
-            scaled_spectra_and_transition_wavenumbers(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'scaled_spectra_and_transition_wavenumbers.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'scaled_spectra_and_transition_wavenumbers.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure 08 - normalized transition wavenumber
-
-        case 8
-
-            figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 1 0.55])
-
-            normalized_transition_wavenumber(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'normalized_transition_wavenumber.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'normalized_transition_wavenumber.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure 09 - directional spectra comparison: f, k
-
-        case 9
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 1 0.75])
@@ -242,9 +240,9 @@ for fignum = fig_list
 
             end
 
-            %% Figure 10 - breaking crest length distribution and S_ds
+            %% Figure 08 - breaking crest length distribution and S_ds
 
-        case 10
+        case 8
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 0.5 1])
@@ -261,9 +259,9 @@ for fignum = fig_list
 
             end
 
-            %% Figure 11 - short wave spectrum with S_ds contours and wavenumber-integrated quantities (e.g., saturation-range spreading function and S_ds)
+            %% Figure 09 - short wave spectrum with S_ds contours and wavenumber-integrated quantities (e.g., saturation-range spreading function and S_ds)
 
-        case 11
+        case 9
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 0.5 1.33])
@@ -280,9 +278,9 @@ for fignum = fig_list
 
             end
 
-            %% Figure 12 - S_ds(theta), binned by wave age
+            %% Figure 10 - S_ds(theta), binned by wave age
 
-        case 12
+        case 10
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 0.5 1])
@@ -299,9 +297,9 @@ for fignum = fig_list
 
             end
 
-            %% Figure 13 - wave breaking momentum flux and breaking direction
+            %% Figure 11 - wave breaking momentum flux and breaking direction
 
-        case 13
+        case 11
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 0.5 1])
@@ -318,12 +316,12 @@ for fignum = fig_list
 
             end
 
-            %% Figure 14 - wave-relative wind direction with wind speed
+            %% Figure 12 - wave-relative wind direction with wind speed
 
-        case 14
+        case 12
 
             figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 1 1.25])
+            set(fignum,'Position',full_pos.*[1 1 1 1.1])
 
             wind_wave_subrange_directions(fignum,fsize)
 
@@ -334,6 +332,44 @@ for fignum = fig_list
                 print([fig_folder 'wind_wave_subrange_directions.svg'],'-dsvg')
                 pause(0.5)
                 print([fig_folder 'wind_wave_subrange_directions.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 13 - scaled wavenumber spectra and transition wavenumbers
+
+        case 13
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 0.55 1])
+
+            scaled_spectra_and_transition_wavenumbers(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'scaled_spectra_and_transition_wavenumbers.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'scaled_spectra_and_transition_wavenumbers.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 14 - normalized transition wavenumber
+
+        case 14
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 1 0.55])
+
+            normalized_transition_wavenumber(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'normalized_transition_wavenumber.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'normalized_transition_wavenumber.png'],'-dpng',raster_dpi_string)
 
             end
 

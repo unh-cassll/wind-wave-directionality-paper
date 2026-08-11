@@ -11,7 +11,9 @@ wave_age_binned_breaking_quantities = load('data/wave_age_binned_breaking_quanti
 
 f_Hz_Pyxis = double(ncread(short_wave_nc_name,'f_Hz'));
 k_rad_m_Pyxis = double(ncread(short_wave_nc_name,'k_rad_m'));
-EC_ustar_m_s = ncread(supporting_nc_name,'EC_ustar_m_s');
+% Wind forcing per the source selected in the aa_step01 preamble
+wind = wind_forcing(supporting_nc_name);
+EC_ustar_m_s = wind.ustar;
 load('data/ASIT2019_peak_wave_phase_speed.mat')
 
 load('data/LenainMelville2017_kn.mat');
@@ -31,10 +33,10 @@ k_sat_end = wavenumber_spect_range_limits.k_sat_end(:);
 
 s = load('data/global_figure_settings.mat');
 wave_age_lims = s.wave_age_lims;
-d_wave_age = s.d_wave_age;
-wave_age_centers = wave_age_lims(1)+d_wave_age/2:d_wave_age:wave_age_lims(2)-d_wave_age/2;
+[wave_age_edges,wave_age_centers] = wave_age_bin_edges();
 
-clims = [wave_age_centers(1) wave_age_centers(end)] + d_wave_age/2*[-1 1];
+wc = wave_age_color();
+clims = wc.clims;
 
 wave_age = C_p./EC_ustar_m_s;
 
@@ -123,8 +125,8 @@ LM2017_r_binned = NaN*wave_age_centers;
 
 for n = 1:length(wave_age_centers)
 
-    wave_age_low = wave_age_centers(n) - d_wave_age/2;
-    wave_age_high = wave_age_centers(n) + d_wave_age/2;
+    wave_age_low = wave_age_edges(n);
+    wave_age_high = wave_age_edges(n+1);
     inds_consider = wave_age >= wave_age_low & wave_age < wave_age_high;
 
     inds_LM2017 = LM2017_Cp_ustar >= wave_age_low & LM2017_Cp_ustar < wave_age_high;
@@ -154,10 +156,14 @@ for n = 1:length(wave_age_centers)
     k_gc_norm_n_s_binned(1,n) = k_gc/mean(k_eq_end(inds_consider),'omitnan');
     k_gc_norm_n_s_binned(2,n) = k_gc/mean(k_sat_end(inds_consider),'omitnan');
 
+    % Nearest grid index to the in-bin k_n/k_s. min() tolerates the all-NaN
+    % distance a sparse wave-age bin can produce (log/linear spacing, where
+    % a bin may hold no runs with a valid k_n) and exact ties, both of which
+    % crash an indexed find() assignment
     diff_k_n = abs(k_n_hat_binned(n)-k_hat_binned);
-    ind_match_n(n) = find(diff_k_n==min(diff_k_n,[],'all','omitnan'));
+    [~,ind_match_n(n)] = min(diff_k_n);
     diff_k_s = abs(k_s_hat_binned(n)-k_hat_binned);
-    ind_match_s(n) = find(diff_k_s==min(diff_k_s,[],'all','omitnan'));
+    [~,ind_match_s(n)] = min(diff_k_s);
 
     delta_k_binned(:,n) = mean(delta_k_block,2,'omitnan');
     D_k_50th_binned(:,n) = pi/180*mean(D_k_50th_block,2,'omitnan');
@@ -239,15 +245,17 @@ for i = 1:length(wave_age_centers)
     plot(-0.5,k_n_hat_binned(n),'o','markersize',8,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
 end
 
+% L&M wave ages must be mapped through the same transform as the color axis
 cmap_LM2017 = flipud(magma(255));
-inds = floor((LM2017_Cp_ustar-clims(1))/(clims(2)-clims(1))*255);
+inds = floor((wc.transform(LM2017_Cp_ustar)-clims(1))/(clims(2)-clims(1))*255);
 inds(inds>255) = 255;
+inds(inds<1) = 1;
 for i = 1:length(LM2017_Cp_ustar)
     LM2017_r_fill = fill([0.6 0.6 0.9 0.9],[0.95 1.05 1.05 0.95]*LM2017_r(i),cmap_LM2017(inds(i),:));
     LM2017_r_fill.FaceAlpha = 0.5;
     LM2017_r_fill.LineStyle = 'none';
 end
-text(0.73,6e-3,{'L&M 2017'},'HorizontalAlignment','center','FontSize',fsize,'Color',0.35*[1 1 1])
+text(0.73,3.5e-2,{'L&M 2017'},'HorizontalAlignment','center','FontSize',fsize,'Color',0.35*[1 1 1])
 plot([0 0],k_hat_lims,'--','Color',0.5*[1 1 1],'linewidth',lw_thin)
 plot(delta_f_binned,k_hat_disp_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
@@ -271,7 +279,7 @@ for i = 1:length(wave_age_centers)
     plot([D_k_50th_binned(ind_bar_theta_k(n),n) 3*pi/4]*180/pi,k_s_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',lw_thick)
     plot([D_k_50th_binned(ind_bar_theta_k(n),n) 3*pi/4]*180/pi,0.94*k_s_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
     plot([D_k_50th_binned(ind_bar_theta_k(n),n) 3*pi/4]*180/pi,1.06*k_s_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
-    plot(3*pi/4*180/pi,k_s_hat_binned(n),'s','markersize',9,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
+    plot(3*pi/4*180/pi,k_s_hat_binned(n),'o','markersize',8,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
     S_ds_fill = fill(S_ds_id_range(i)+[-1 -1 1 1]*2.5,[k_ds_hat(1,i) k_ds_hat(5,i) k_ds_hat(5,i) k_ds_hat(1,i)],cmap_binned(i,:));
     S_ds_fill.FaceAlpha = 0.5;
 end
@@ -297,7 +305,7 @@ for i = 1:length(wave_age_centers)
     plot([delta_k_binned(ind_bar_delta_k(n),n) -0.5],k_s_hat_binned(n)*[1 1],'Color',[cmap_binned(n,:) alpha_vec(n)],'linewidth',lw_thick)
     plot([delta_k_binned(ind_bar_delta_k(n),n) -0.5],0.94*k_s_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
     plot([delta_k_binned(ind_bar_delta_k(n),n) -0.5],1.06*k_s_hat_binned(n)*[1 1],'k','linewidth',lw_outer)
-    plot(-0.5,k_s_hat_binned(n),'s','markersize',9,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
+    plot(-0.5,k_s_hat_binned(n),'o','markersize',8,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
 end
 plot([0 0],k_hat_lims,'--','Color',0.5*[1 1 1],'linewidth',lw_thin)
 plot(delta_k_binned,k_hat_binned,'k-','linewidth',lw_thick)
@@ -323,10 +331,11 @@ cbar = colorbar(ax_struc(3).ax);
 
 cbar.Layout.Tile = 'east';
 cbar.Layout.TileSpan = [2 2];
-cbar.Ticks = clims(1):d_wave_age:clims(end);
+cbar.Ticks = wc.ticks;
+cbar.TickLabels = wc.ticklabels;
 set(get(cbar,'Title'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 
-boxdims = [0.42 0.593 0.185 0.10];
+boxdims = [0.42 0.58 0.185 0.11];
 str = 'upper limit of equilibrium range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -334,7 +343,7 @@ a.FontSize = fsize*1;
 a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 
-boxdims = [0.42 0.21 0.185 0.10];
+boxdims = [0.42 0.21 0.185 0.08];
 str = {'upper limit of','saturation range'};
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -369,11 +378,11 @@ for i = 1:length(wave_age_centers)
     plot(D_f_50th_binned(:,n)*180/pi,k_hat_binned./k_n_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
     S_ds_fill = fill(S_ds_id_range(n)+[-1 -1 1 1]*2.5,[k_ds_hat(1,n) k_ds_hat(5,n) k_ds_hat(5,n) k_ds_hat(1,n)]/k_n_hat_binned(n),cmap_binned(n,:));
     S_ds_fill.FaceAlpha = 0.5;
-    sg_norm_fill =  fill([100 100 125 125],[0.95 1.05 1.05 0.95]*k_sg_norm_n_s_binned(1,n),cmap_binned(n,:));
+    sg_norm_fill =  fill([95 95 120 120],[0.95 1.05 1.05 0.95]*k_sg_norm_n_s_binned(1,n),cmap_binned(n,:));
     sg_norm_fill.FaceAlpha = 0.5;
     sg_norm_fill.LineStyle = '-';
 end
-text(152,5e1,{'short gravity'},'HorizontalAlignment','center','VerticalAlignment','middle','FontSize',fsize,'Color',0.35*[1 1 1])
+text(150,5e1,{'short gravity'},'HorizontalAlignment','center','VerticalAlignment','middle','FontSize',fsize,'Color',0.35*[1 1 1])
 hold off
 colororder(cmap_binned)
 box on
@@ -411,11 +420,11 @@ for i = 1:length(wave_age_centers*180/pi)
     plot(D_k_50th_binned(:,n)*180/pi,k_hat_binned./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
     S_ds_fill = fill(S_ds_id_range(n)+[-1 -1 1 1]*2.5,[k_ds_hat(1,n) k_ds_hat(5,n) k_ds_hat(5,n) k_ds_hat(1,n)]/k_s_hat_binned(n),cmap_binned(n,:));
     S_ds_fill.FaceAlpha = 0.5;
-    sg_norm_fill =  fill([100 100 125 125],[0.95 1.05 1.05 0.95]*k_sg_norm_n_s_binned(2,n),cmap_binned(n,:));
+    sg_norm_fill =  fill([95 95 120 120],[0.95 1.05 1.05 0.95]*k_sg_norm_n_s_binned(2,n),cmap_binned(n,:));
     sg_norm_fill.FaceAlpha = 0.5;
     sg_norm_fill.LineStyle = '-';
 end
-text(152,1.2e1,{'short gravity'},'HorizontalAlignment','center','VerticalAlignment','middle','FontSize',fsize,'Color',0.35*[1 1 1])
+text(150,1.2e1,{'short gravity'},'HorizontalAlignment','center','VerticalAlignment','middle','FontSize',fsize,'Color',0.35*[1 1 1])
 hold off
 colororder(cmap_binned)
 box on
@@ -453,13 +462,14 @@ cbar = colorbar(ax_struc(3).ax);
 
 cbar.Layout.Tile = 'east';
 cbar.Layout.TileSpan = [2 2];
-cbar.Ticks = clims(1):d_wave_age:clims(end);
+cbar.Ticks = wc.ticks;
+cbar.TickLabels = wc.ticklabels;
 set(get(cbar,'Title'),'String','$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 
 tile_cleaner(ax_struc,tlayout)
 tlayout.TileSpacing = 'tight';
 
-boxdims = [0.42 0.68 0.20 0.06];
+boxdims = [0.42 0.68 0.18 0.06];
 str = 'upper limit of equilibrium range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
@@ -467,7 +477,7 @@ a.FontSize = fsize*1;
 a.HorizontalAlignment = 'center';
 a.VerticalAlignment = 'middle';
 
-boxdims = [0.42 0.28 0.20 0.06];
+boxdims = [0.42 0.28 0.18 0.06];
 str = 'upper limit of saturation range';
 a = annotation('textbox',boxdims,'String',str);
 a.BackgroundColor = 'w';
