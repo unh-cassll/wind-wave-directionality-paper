@@ -19,7 +19,7 @@
 % Returns:
 % *mask - 1 or NaN, same shape as the input
 %
-% N. Laxague 2026
+% Nathan Laxague 2026
 %
 function mask = oncoming_wind_mask(wind_dir_deg_coming_from,gate_deg)
 

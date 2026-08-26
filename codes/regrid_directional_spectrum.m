@@ -7,7 +7,7 @@
 % theta_tgt: target directions (rad)
 % S_out:     nf x ndir_tgt density resampled onto theta_tgt
 %
-% N. Laxague 2026
+% Nathan Laxague 2026
 %
 function S_out = regrid_directional_spectrum(S,theta_src,theta_tgt)
 

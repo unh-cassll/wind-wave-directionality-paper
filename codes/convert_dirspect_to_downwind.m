@@ -1,7 +1,7 @@
 % Given wavenumber/frequency/inverse phase speed-directional spectrum and
 % wind direction, arranges about wind direction +/- pi radians
 %
-% N. Laxague 2025
+% Nathan Laxague 2025
 %
 function [out_spect,out_dir_rad] = convert_dirspect_to_downwind(in_spect,in_dir_rad,wind_dir_going_to_rad)
 

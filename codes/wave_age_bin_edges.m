@@ -15,7 +15,7 @@
 % *centers - 1 x n bin centers: arithmetic midpoints if linear, geometric if
 %             log, and the reference sample's per-bin median if quantile
 %
-% N. Laxague 2026
+% Nathan Laxague 2026
 %
 function [edges,centers] = wave_age_bin_edges()
 

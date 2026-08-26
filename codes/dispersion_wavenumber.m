@@ -10,7 +10,7 @@
 % Returns:
 % *k - wavenumber [rad/m], same shape as f_Hz, NaN where f is not finite
 %
-% N. Laxague 2026
+% Nathan Laxague 2026
 %
 function k = dispersion_wavenumber(f_Hz,depth_m)
 

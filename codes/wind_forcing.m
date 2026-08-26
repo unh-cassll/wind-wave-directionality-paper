@@ -40,7 +40,7 @@
 % *provenance - per record, which source supplied the value: 1 primary, 2 fill,
 %               NaN where nothing did (blended sources only, else all ones)
 %
-% N. Laxague 2026
+% Nathan Laxague 2026
 %
 function w = wind_forcing(nc_name,apply_cut)
 

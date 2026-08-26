@@ -8,7 +8,7 @@
 % Returns:
 % *p - absolute path
 %
-% N. Laxague 2026
+% Nathan Laxague 2026
 %
 function p = repo_data_path(name)
 

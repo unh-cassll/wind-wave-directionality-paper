@@ -18,7 +18,7 @@
 % Returns:
 % *f_start - band start per run [Hz], NaN where the spectrum never steepens
 %
-% N. Laxague 2026
+% Nathan Laxague 2026
 %
 function f_start = equilibrium_band_start(f,F,f_p,slope_enter)
 

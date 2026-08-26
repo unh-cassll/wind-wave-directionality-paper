@@ -24,7 +24,7 @@
 % *accepted  - passed every acceptance test
 % *reason    - why it was rejected, '' if accepted
 %
-% N. Laxague 2026
+% Nathan Laxague 2026
 %
 function out = segmented_transition_frequency(f,E,f_lo,f_hi,slope_lims)
 
