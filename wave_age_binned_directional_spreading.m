@@ -84,6 +84,14 @@ flow = sqrt(9.81*klow)/(2*pi);
 k_high = 550;
 f_high = 15;
 
+% Directional ambiguity limit: above this wavenumber fewer than four samples
+% span a wave period, the upwind and downwind lobes stop being separable, and
+% the retrieved direction is assigned rather than measured. The limit is
+% measured per run, as currents and bound-wave content shift the scale at which
+% the lobes merge; k_ambiguity_run arrives with delta_with_wind_speed_data.
+% The wavenumber-side curves are faded above the limit rather than truncated
+alpha_ambiguity = 0.25;
+
 halfwidth_lims = [0 180];
 k_hat_lims = [1e-3 1e2];
 k_hat_norm_lims = [5e-2 1e2];
@@ -103,6 +111,8 @@ D_k_50th_halfwidth(k_rad_m_Pyxis>k_high,:) = NaN;
 D_f_50th_halfwidth(f_Hz_Pyxis>f_high,:) = NaN;
 
 k_hat_binned = logspace(log10(k_hat_lims(1)),log10(k_hat_lims(2)),100)';
+ustar_med_binned = NaN*wave_age_centers;
+k_ambiguity_binned = NaN*wave_age_centers;
 delta_k_binned = NaN*ones(length(k_hat_binned),length(wave_age_centers));
 D_k_50th_binned = delta_k_binned;
 
@@ -136,7 +146,10 @@ for n = 1:length(wave_age_centers)
     D_k_50th_halfwidth_consider = D_k_50th_halfwidth(:,inds_consider);
     ustar_consider = EC_ustar_m_s(inds_consider);
 
-    k_hat = k_rad_m_Pyxis*median(ustar_consider,'all','omitnan')^2/g;
+    ustar_med_binned(n) = median(ustar_consider,'all','omitnan');
+    k_ambiguity_binned(n) = median(k_ambiguity_run(inds_consider),'omitnan');
+
+    k_hat = k_rad_m_Pyxis*ustar_med_binned(n)^2/g;
 
     delta_k_block = NaN*ones(length(k_hat_binned),length(ustar_consider));
     D_k_50th_block = delta_k_block;
@@ -205,6 +218,16 @@ alpha_vec = flipud(linspace(0.3,1,length(wave_age_centers))');
 S_ds_id_range = wave_age_binned_breaking_quantities.tau_br_quantile_angles(5,:) - wave_age_binned_breaking_quantities.tau_br_quantile_angles(1,:);
 
 k_ds_hat = wave_age_binned_breaking_quantities.k_ds_quantiles_binned_by_wave_age.*wave_age_binned_breaking_quantities.ustar_binned.^2/g;
+
+% Both the ambiguity wavenumber and the u_*^2/g scaling vary by bin
+k_hat_ambiguity_binned = k_ambiguity_binned.*ustar_med_binned.^2/g;
+
+% Resolved and ambiguous portions of the k_hat axis, per wave-age bin
+inds_resolved_binned = cell(1,length(wave_age_centers));
+inds_ambiguous_binned = cell(1,length(wave_age_centers));
+for n = 1:length(wave_age_centers)
+    [inds_resolved_binned{n},inds_ambiguous_binned{n}] = split_at_ambiguity(k_hat_binned,k_hat_ambiguity_binned(n));
+end
 
 figure(fignum);clf
 tlayout = tiledlayout(2,2);
@@ -283,10 +306,19 @@ for i = 1:length(wave_age_centers)
     S_ds_fill = fill(S_ds_id_range(i)+[-1 -1 1 1]*2.5,[k_ds_hat(1,i) k_ds_hat(5,i) k_ds_hat(5,i) k_ds_hat(1,i)],cmap_binned(i,:));
     S_ds_fill.FaceAlpha = 0.5;
 end
-plot(D_k_50th_binned*180/pi,k_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(D_k_50th_binned(:,n)*180/pi,k_hat_binned,'Color',cmap_binned(n,:),'linewidth',lw_thin)
+    inds_res = inds_resolved_binned{n};
+    inds_amb = inds_ambiguous_binned{n};
+    plot(D_k_50th_binned(inds_res,n)*180/pi,k_hat_binned(inds_res),'k-','linewidth',lw_thick)
+    plot(D_k_50th_binned(inds_amb,n)*180/pi,k_hat_binned(inds_amb),'-','Color',[0 0 0 alpha_ambiguity],'linewidth',lw_thick)
+end
+for i = 1:length(wave_age_centers)
+    n = length(wave_age_centers)-i+1;
+    inds_res = inds_resolved_binned{n};
+    inds_amb = inds_ambiguous_binned{n};
+    plot(D_k_50th_binned(inds_res,n)*180/pi,k_hat_binned(inds_res),'Color',cmap_binned(n,:),'linewidth',lw_thin)
+    plot(D_k_50th_binned(inds_amb,n)*180/pi,k_hat_binned(inds_amb),'Color',[cmap_binned(n,:) alpha_ambiguity],'linewidth',lw_thin)
 end
 hold off
 colororder(cmap_binned)
@@ -308,10 +340,19 @@ for i = 1:length(wave_age_centers)
     plot(-0.5,k_s_hat_binned(n),'o','markersize',8,'markerfacecolor',cmap_binned(n,:),'markeredgecolor','k','linewidth',lw_outer)
 end
 plot([0 0],k_hat_lims,'--','Color',0.5*[1 1 1],'linewidth',lw_thin)
-plot(delta_k_binned,k_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(delta_k_binned(:,n),k_hat_binned,'Color',cmap_binned(n,:),'linewidth',lw_thin)
+    inds_res = inds_resolved_binned{n};
+    inds_amb = inds_ambiguous_binned{n};
+    plot(delta_k_binned(inds_res,n),k_hat_binned(inds_res),'k-','linewidth',lw_thick)
+    plot(delta_k_binned(inds_amb,n),k_hat_binned(inds_amb),'-','Color',[0 0 0 alpha_ambiguity],'linewidth',lw_thick)
+end
+for i = 1:length(wave_age_centers)
+    n = length(wave_age_centers)-i+1;
+    inds_res = inds_resolved_binned{n};
+    inds_amb = inds_ambiguous_binned{n};
+    plot(delta_k_binned(inds_res,n),k_hat_binned(inds_res),'Color',cmap_binned(n,:),'linewidth',lw_thin)
+    plot(delta_k_binned(inds_amb,n),k_hat_binned(inds_amb),'Color',[cmap_binned(n,:) alpha_ambiguity],'linewidth',lw_thin)
 end
 hold off
 colororder(cmap_binned)
@@ -414,10 +455,19 @@ colormap(cmap_binned)
 nexttile(3)
 hold on
 plot([-180 180],[1 1],'k:','linewidth',lw_thin)
-plot(D_k_50th_binned*180/pi,k_hat_binned./k_s_hat_binned,'k-','linewidth',lw_thick)
-for i = 1:length(wave_age_centers*180/pi)
+for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(D_k_50th_binned(:,n)*180/pi,k_hat_binned./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
+    inds_res = inds_resolved_binned{n};
+    inds_amb = inds_ambiguous_binned{n};
+    plot(D_k_50th_binned(inds_res,n)*180/pi,k_hat_binned(inds_res)./k_s_hat_binned(n),'k-','linewidth',lw_thick)
+    plot(D_k_50th_binned(inds_amb,n)*180/pi,k_hat_binned(inds_amb)./k_s_hat_binned(n),'-','Color',[0 0 0 alpha_ambiguity],'linewidth',lw_thick)
+end
+for i = 1:length(wave_age_centers)
+    n = length(wave_age_centers)-i+1;
+    inds_res = inds_resolved_binned{n};
+    inds_amb = inds_ambiguous_binned{n};
+    plot(D_k_50th_binned(inds_res,n)*180/pi,k_hat_binned(inds_res)./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
+    plot(D_k_50th_binned(inds_amb,n)*180/pi,k_hat_binned(inds_amb)./k_s_hat_binned(n),'Color',[cmap_binned(n,:) alpha_ambiguity],'linewidth',lw_thin)
     S_ds_fill = fill(S_ds_id_range(n)+[-1 -1 1 1]*2.5,[k_ds_hat(1,n) k_ds_hat(5,n) k_ds_hat(5,n) k_ds_hat(1,n)]/k_s_hat_binned(n),cmap_binned(n,:));
     S_ds_fill.FaceAlpha = 0.5;
     sg_norm_fill =  fill([95 95 120 120],[0.95 1.05 1.05 0.95]*k_sg_norm_n_s_binned(2,n),cmap_binned(n,:));
@@ -440,10 +490,19 @@ nexttile(4)
 hold on
 plot([-10 10],[1 1],'k:','linewidth',lw_thin)
 plot([0 0],[1e-2 1e3],'--','Color',0.5*[1 1 1],'linewidth',lw_thin)
-plot(delta_k_binned,k_hat_binned./k_s_hat_binned,'k-','linewidth',lw_thick)
 for i = 1:length(wave_age_centers)
     n = length(wave_age_centers)-i+1;
-    plot(delta_k_binned(:,n),k_hat_binned./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
+    inds_res = inds_resolved_binned{n};
+    inds_amb = inds_ambiguous_binned{n};
+    plot(delta_k_binned(inds_res,n),k_hat_binned(inds_res)./k_s_hat_binned(n),'k-','linewidth',lw_thick)
+    plot(delta_k_binned(inds_amb,n),k_hat_binned(inds_amb)./k_s_hat_binned(n),'-','Color',[0 0 0 alpha_ambiguity],'linewidth',lw_thick)
+end
+for i = 1:length(wave_age_centers)
+    n = length(wave_age_centers)-i+1;
+    inds_res = inds_resolved_binned{n};
+    inds_amb = inds_ambiguous_binned{n};
+    plot(delta_k_binned(inds_res,n),k_hat_binned(inds_res)./k_s_hat_binned(n),'Color',cmap_binned(n,:),'linewidth',lw_thin)
+    plot(delta_k_binned(inds_amb,n),k_hat_binned(inds_amb)./k_s_hat_binned(n),'Color',[cmap_binned(n,:) alpha_ambiguity],'linewidth',lw_thin)
     gc_norm_fill =  fill([0.05 0.05 0.4 0.4],[0.95 1.05 1.05 0.95]*k_gc_norm_n_s_binned(2,n),cmap_binned(n,:));
     gc_norm_fill.FaceAlpha = 0.5;
     gc_norm_fill.LineStyle = '-';
@@ -497,4 +556,26 @@ end
 for n = 1:length(labels)
     nexttile(n)
     text(text_x,text_y,labels{n},'FontSize',fsize,'HorizontalAlignment','center','Units','normalized')
+end
+
+% Splits a k_hat axis at the ambiguity limit. The two index sets overlap by one
+% sample so the solid and faded segments join without a visible gap
+function [inds_res,inds_amb] = split_at_ambiguity(k_hat,k_hat_limit)
+
+n_k = length(k_hat);
+
+if ~isfinite(k_hat_limit)
+    inds_res = 1:n_k;
+    inds_amb = [];
+    return
+end
+
+i_split = find(k_hat <= k_hat_limit,1,'last');
+
+if isempty(i_split)
+    inds_res = [];
+    inds_amb = 1:n_k;
+else
+    inds_res = 1:i_split;
+    inds_amb = i_split:n_k;
 end
