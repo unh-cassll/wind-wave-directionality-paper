@@ -187,7 +187,7 @@ text_x = 0.05;
 text_y = 0.95;
 labels = {'(a)','(b)','(c)','(d)','(e)','(f)'};
 
-YTicks = linspace(-6e-8,6e-8,5);
+YTicks = linspace(-6e-4,6e-4,5);
 
 figure(fignum);clf
 tlayout = tiledlayout(3,1);
@@ -217,7 +217,14 @@ xlim([-180 180])
 ylim([1e-1 1e2])
 ylabel('$\mathrm{k\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
 
-S_in_Plant = -trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)');
+% Wavenumber-integrated source terms per unit direction. rho_w*g, applied at
+% each use below, converts them from elevation-variance units into
+% N m^-2 rad^-1; the breaking integrand carries the extra factor of k from the
+% k-space Jacobian
+int_wind = trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)');
+int_break = trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)'.*k_disp(inds_consider));
+
+S_in_Plant = -rho_w*g*int_wind;
 
 nexttile(2)
 hold on
@@ -229,7 +236,7 @@ f_in = fill([bigtheta_deg fliplr(bigtheta_deg)],[1.5*S_in_Plant fliplr(0.5*S_in_
 h_in = plot(bigtheta_deg,S_in_Plant,'-','Color',cerulean,'linewidth',2);
 f_in.FaceAlpha = 0.25;
 f_in.LineStyle = 'none';
-h_ds = plot(bigtheta_deg,trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)'),'-','Color',crimson,'linewidth',2);
+h_ds = plot(bigtheta_deg,rho_w*g*int_break,'-','Color',crimson,'linewidth',2);
 hold off
 box on
 xlim([-180 180])
@@ -241,8 +248,9 @@ H = [h_in h_ds];
 L = {'$\mathrm{\tau_{w}}$','$\mathrm{\tau_{br}}$'};
 legend(H,L,'Location','southeast','Interpreter','LaTeX')
 
-residual_upper = -1.5*trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)');
-residual_lower = -0.5*trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)');
+% Wind input is uncertain by a factor of two, so the residual is bracketed
+residual_upper = rho_w*g*(-1.5*int_wind+int_break);
+residual_lower = rho_w*g*(-0.5*int_wind+int_break);
 
 nexttile(3)
 hold on
@@ -253,7 +261,7 @@ plot([0 0],[-180 180],'--','Color',0.5*[1 1 1],'linewidth',2)
 f_residual = fill([bigtheta_deg fliplr(bigtheta_deg)],[residual_upper fliplr(residual_lower)],'k');
 f_residual.FaceAlpha = 0.25;
 f_residual.LineStyle = 'none';
-plot(bigtheta_deg,-trapz(k_disp(inds_consider),big_S_in_Plant_downwind(inds_consider,:)./c_phase(inds_consider)')+trapz(k_disp(inds_consider),big_S_ds_for_summing(inds_consider,:)./c_phase(inds_consider)'),'k-','linewidth',2)
+plot(bigtheta_deg,rho_w*g*(-int_wind+int_break),'k-','linewidth',2)
 hold off
 xlim([-180 180])
 ylim([YTicks(1) YTicks(end)])

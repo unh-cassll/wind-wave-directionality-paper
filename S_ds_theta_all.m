@@ -178,7 +178,9 @@ for IPX_ind = 1:N
 
             big_S_ds_for_summing = smoothdata2(big_S_ds,'movmean',{3,3},'omitnan');
 
-            tau_theta_bit = sum(big_S_ds_for_summing(:,inds_downbreak).*k_disp.*dk_vec,1,'omitnan');
+            % Momentum flux per unit direction: 1/c converts the dissipation
+            % source into a momentum sink
+            tau_theta_bit = sum(big_S_ds_for_summing(:,inds_downbreak)./c_phase(:).*k_disp.*dk_vec,1,'omitnan');
 
             k_ds(IPX_ind) = sum(k_disp.^4.*big_S_ds(:,inds_downbreak),'all','omitnan')/sum(k_disp.^3.*big_S_ds(:,inds_downbreak),'all','omitnan');
 
@@ -307,7 +309,7 @@ switch option
         clim(clims)
 end
 box on
-ylim(-[1.3e-2 0])
+ylim(-[5.5e-3 0])
 xlim([-1 1]*90)
 xlabel('$\mathrm{\theta-\theta_{br}\ [^\circ]}$','Interpreter','LaTeX')
 ylabel('$\mathrm{\tau_{br}(\theta)\ [N\ m^{-2}rad^{-1}]}$','Interpreter','LaTeX')
