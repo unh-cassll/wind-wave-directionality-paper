@@ -5,8 +5,8 @@
 % spectrum over each band:
 % * equilibrium and saturation, from the combined frequency/wavenumber spectra
 % * short gravity, between k_sat_end and 117 rad/m
-% * gravity-capillary, over 117-371 rad/m and within +/-90 deg of the short
-%   gravity direction
+% * gravity-capillary, over 117-371 rad/m and within +/-120 deg of the short
+%   gravity direction, matching the window used for the 50% spreading limits
 %
 % Runs with the wind blowing over the platform from behind are dropped
 %
@@ -154,7 +154,7 @@ for n = 1:length(f_eq_start)
     Sktheta_big = [Sktheta_slice Sktheta_slice Sktheta_slice];
     theta_rad_big = [theta_rad_Pyxis(:)'-2*pi theta_rad_Pyxis(:)' theta_rad_Pyxis(:)'+2*pi] - Vm;
     mask = NaN*Sktheta_big;
-    mask(:,theta_rad_big>=-pi/2&theta_rad_big<pi/2) = 1;
+    mask(:,theta_rad_big>=-2*pi/3&theta_rad_big<2*pi/3) = 1;
 
     Sm = mean(mask(inds_gc,:).*sin(theta_rad_big(:)').*k_rad_m(inds_gc).^-2.*Sktheta_big(inds_gc,:),'all','omitnan');
     Cm = mean(mask(inds_gc,:).*cos(theta_rad_big(:)').*k_rad_m(inds_gc).^-2.*Sktheta_big(inds_gc,:),'all','omitnan');
