@@ -163,7 +163,7 @@ F_k_binned = NaN*ones(size(F_k_combined,1),nU);
 % spectrum, which is the number worth reporting rather than the bin occupancy
 has_spectrum = any(isfinite(F_f_block),1)';
 
-n_per_bin = NaN(1,nU);
+n_per_bin = NaN*ones(1,nU);
 
 for n = 1:nU
 
@@ -216,44 +216,63 @@ ax_panel = gca;
 ax_panel.XScale = 'log';
 ax_panel.YScale = 'log';
 
-bin_label_size = fsize;
+bin_label_size = fsize*1.25;
 x_left = 0.035;
 y_base = 0.045;
 lateral_gap = 0.04;
 
-label_string = [{'N  ='} arrayfun(@(v) num2str(v),n_per_bin,'UniformOutput',false)];
-label_color = [{[0 0 0]} arrayfun(@(n) cmap_binned(nU+1-n,:),1:nU,'UniformOutput',false)];
+% One token per bin, in the color of its curve; the curves are drawn in
+% reverse bin order, so the colormap is indexed the same way
+label_string = cell(1,nU+1);
+label_color = cell(1,nU+1);
+label_string{1} = 'N  =';
+label_color{1} = [0 0 0];
+for n = 1:nU
+    label_string{n+1} = num2str(n_per_bin(n));
+    label_color{n+1} = cmap_binned(nU+1-n,:);
+end
 
-% Determine layout with throwaway text objects first
-h_measure = gobjects(1,numel(label_string));
+% Lay the tokens out left to right using throwaway text objects, whose extents
+% are then reused to place the bordered text and its backing box
+h_measure = gobjects(1,length(label_string));
+label_extent = NaN*ones(length(label_string),4);
+
 x_cursor = x_left;
-for n = 1:numel(label_string)
+for n = 1:length(label_string)
+
     h_measure(n) = text(x_cursor,y_base,label_string{n},'Units','normalized', ...
         'FontSize',bin_label_size,'FontWeight','bold', ...
         'HorizontalAlignment','left','VerticalAlignment','bottom');
-    x_cursor = x_cursor + h_measure(n).Extent(3) + lateral_gap;
+
+    label_extent(n,:) = h_measure(n).Extent;
+
+    x_cursor = x_cursor + label_extent(n,3) + lateral_gap;
+
 end
 
-label_extent = cell2mat(arrayfun(@(h) h.Extent,h_measure,'UniformOutput',false)');
 token_x = label_extent(:,1)';
+
 delete(h_measure)
 
-% Backing box
+% Backing box, in normalized units
 box_pad = 0.014;
-box_x = [min(label_extent(:,1)) - box_pad, x_cursor - lateral_gap + box_pad];
-box_y = [min(label_extent(:,2)) - box_pad, max(sum(label_extent(:,[2 4]),2)) + box_pad];
+box_x = [min(label_extent(:,1))-box_pad x_cursor-lateral_gap+box_pad];
+box_y = [min(label_extent(:,2))-box_pad max(label_extent(:,2)+label_extent(:,4))+box_pad];
 
+% Both axes are logarithmic, so normalized positions convert through log10
 x_limits = xlim;
 y_limits = ylim;
-to_x = @(fx) 10.^(log10(x_limits(1)) + fx*diff(log10(x_limits)));
-to_y = @(fy) 10.^(log10(y_limits(1)) + fy*diff(log10(y_limits)));
+box_x_data = 10.^(log10(x_limits(1)) + box_x*diff(log10(x_limits)));
+box_y_data = 10.^(log10(y_limits(1)) + box_y*diff(log10(y_limits)));
+token_x_data = 10.^(log10(x_limits(1)) + token_x*diff(log10(x_limits)));
+token_y_data = 10.^(log10(y_limits(1)) + y_base*diff(log10(y_limits)));
 
 hold on
-patch(to_x(box_x([1 2 2 1])),to_y(box_y([1 1 2 2])),0.5*[1 1 1], ...
+patch(box_x_data([1 2 2 1]),box_y_data([1 1 2 2]),0.5*[1 1 1], ...
     'EdgeColor','k','LineWidth',0.75,'FaceAlpha',0.15);
 
-for n = 1:numel(label_string)
-    textborder(to_x(token_x(n)),to_y(y_base),label_string{n}, ...
+for n = 1:length(label_string)
+    textborder(token_x_data(n),token_y_data,label_string{n}, ...
         label_color{n},'k','FontSize',bin_label_size,'FontWeight','bold', ...
         'HorizontalAlignment','left','VerticalAlignment','bottom')
 end

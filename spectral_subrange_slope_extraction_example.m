@@ -161,7 +161,7 @@ cbar = colorbar;
 set(get(cbar,'Title'),'String','$\mathrm{\lq\lq n"}$','Interpreter','LaTeX')
 
 text(0.08,0.0035,'direct','FontSize',fsize,'fontweight','bold','HorizontalAlignment','center','color',teal)
-text(0.08,0.00035,'E-PSS','FontSize',fsize,'fontweight','bold','HorizontalAlignment','center','color',violet)
+text(0.06,0.00035,'E-PSS','FontSize',fsize,'fontweight','bold','HorizontalAlignment','center','color',violet)
 
 s_combined.Marker = 's';
 s_combined.LineWidth = 1.5;

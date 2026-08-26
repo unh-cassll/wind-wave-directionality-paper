@@ -1,6 +1,5 @@
-% 
+%
 function scaled_spectra_and_transition_wavenumbers(fignum,fsize)
-
 
 supporting_nc_name = 'data/ASIT2019_supporting_environmental_observations.nc';
 
@@ -42,15 +41,14 @@ ustar_norm_centers = 0.05:d_ustar_norm_centers:0.13;
 cmap = (matter(length(ustar_norm_centers)+1));
 cmap(1,:) = [];
 
-% Individual runs are colored by their wave-wind misalignment, theta_m-theta_wind
-mc = wave_wind_misalignment_color();
-dtheta_m = mc.value;
+% Individual runs are colored by their wind-fetch category
+fc = wind_fetch_category();
+n_cat = length(fc.labels);
 
 B_k_binned = NaN*ones(length(k_rad_m_combined),length(ustar_norm_centers));
 k_binned = B_k_binned;
 k_n_binned = NaN*ustar_norm_centers;
 k_n_std_e = k_n_binned;
-dtheta_m_binned = k_n_binned;
 
 for n = 1:length(ustar_norm_centers)
 
@@ -71,18 +69,13 @@ for n = 1:length(ustar_norm_centers)
     k_n_binned(n) = median(k_eq_end(inds_consider),'omitnan');
     k_n_std_e(n) = std(k_eq_end(inds_consider),'omitnan')/sqrt(sum(inds_consider));
 
-    % Misalignment wraps, so the bin's representative direction is a circular
-    % median: the arithmetic one would place a bin split across +/-180 near zero
-    dtheta_m_binned(n) = circular_median(dtheta_m(inds_consider));
-
 end
 
-% Runs with no wave-wind misalignment (no gated wind record) hold their place in
-% the scatter as open gray circles rather than dropping out
+% Runs with no gated wind record hold their place in the scatter as open gray
+% circles rather than dropping out
 no_dir_color = [1 1 1]*0.55;
 CI_color = [1 1 1]*0.3;
-% Green for the published comparison, matching the treatment in figure 8
-LM_color = [0.13 0.55 0.24];
+LM_color = [1 1 1]*0.5;
 msize = 9;
 scat_size = 0.8*msize^2;
 
@@ -104,8 +97,8 @@ hold off
 box on
 colormap(gca,cmap)
 cbar = colorbar;
-cbar.Location = 'eastoutside';
-set(get(cbar,'Title'),'String','$\mathrm{u_*/\sqrt{gH_s}}$','Interpreter','LaTeX')
+cbar.Location = 'northoutside';
+set(get(cbar,'Label'),'String','$\mathrm{u_*/\sqrt{gH_s}}$','Interpreter','LaTeX')
 cbar.Ticks = [ustar_norm_centers(1)-d_ustar_norm_centers/2 ustar_norm_centers+d_ustar_norm_centers/2];
 clim([ustar_norm_centers(1) ustar_norm_centers(end)] + [-1 1]*d_ustar_norm_centers/2)
 xlim([0.999e-5 1e1])
@@ -123,40 +116,28 @@ hold on
 % h_LM2017 = scatter(LM2017_ustar_norm,LM2017_kn,scat_size,LM_color,'filled');
 h_LM2017 = plot(LM2017_ustar_norm,LM2017_kn,'o','markersize',msize*1.2,'markerfacecolor','w','markeredgecolor',LM_color,'linewidth',2);
 h_ours_all = scatter(ustar_norm(:),k_eq_end(:),scat_size,'MarkerEdgeColor',no_dir_color,'linewidth',2);
-h_ours_dir = scatter(ustar_norm(:),k_eq_end(:),scat_size,dtheta_m(:),'filled','MarkerEdgeColor','none');
-% for i = 1:length(k_n_binned)
-%     plot(ustar_norm_centers(i)*[1 1],k_n_binned(i)+[-1 1]*k_n_std_e(i)*1.96,'-','Color',CI_color,'linewidth',2)
-% end
-% h_ours_binned_outline = scatter(ustar_norm_centers,k_n_binned,scat_size*3,dtheta_m_binned,'filled','MarkerEdgeColor','k','linewidth',4);
-% h_ours_binned = scatter(ustar_norm_centers,k_n_binned,scat_size*3,dtheta_m_binned,'filled','MarkerEdgeColor','w','linewidth',1.5);
-% Legend proxy: the binned markers carry data in their fill, so the legend shows
-% the outline alone rather than whichever color the first bin happens to take
-% h_binned_proxy = plot(NaN,NaN,'s','markersize',msize*1.6,'markerfacecolor','w','markeredgecolor','k','linewidth',1.5);
+h_cat = gobjects(1,n_cat);
+for cat_num = 1:n_cat
+
+    inds_cat = fc.cat == cat_num;
+
+    h_cat(cat_num) = scatter(ustar_norm(inds_cat),k_eq_end(inds_cat),scat_size,fc.colors(cat_num,:), ...
+        'filled','MarkerEdgeColor','none','MarkerFaceAlpha',fA_marker);
+
+end
 hold off
 box on
 xlim([0 0.16])
-ylim([2e-1 20])
+ylim([1e-1 20])
 ax = gca;
 ax.YScale = 'log';
-ax.YTick = [0.2 2 20];
-ax.YTickLabel = {'0.2','2','20'};
-colormap(ax,mc.cmap)
-clim(mc.clims)
-cbar_dir = colorbar;
-cbar_dir.Location = 'eastoutside';
-cbar_dir.Ticks = mc.ticks;
-cbar_dir.TickLabels = mc.ticklabels;
-set(get(cbar_dir,'Title'),'String',mc.label,'Interpreter','LaTeX')
+ax.YTick = [0.1 1 10];
+ax.YTickLabel = {'0.1','1','10'};
 xlabel('$\mathrm{u_*/\sqrt{gH_s}}$','Interpreter','LaTeX')
 ylabel('$\mathrm{k_n\ [rad\ m^{-1}]}$','Interpreter','LaTeX')
 
-h_ours_dir.MarkerFaceAlpha = fA_marker;
-
-% h_ours_binned_outline.Marker = 's';
-% h_ours_binned.Marker = 's';
-
-H = [h_LM2017];
-L = {'Lenain & Melville [2017]'};
+H = [h_cat h_LM2017];
+L = [fc.labels {'Lenain & Melville [2017]'}];
 legend(H,L,'Location','southwest')
 
 labels = {'(a)','(b)'};
@@ -166,21 +147,3 @@ for n = 1:2
 end
 
 tlayout.TileSpacing = 'compact';
-
-
-% Circular median of a set of angles [deg]: the sample angle minimizing the
-% summed angular distance to the rest, so a group straddling +/-180 is not
-% dragged to zero the way an arithmetic median would be
-function mu = circular_median(theta_deg)
-
-theta_deg = theta_deg(isfinite(theta_deg));
-theta_deg = theta_deg(:);
-
-if isempty(theta_deg)
-    mu = NaN;
-    return
-end
-
-d = abs(mod(theta_deg - theta_deg' + 180,360) - 180);
-[~,i] = min(sum(d,1));
-mu = theta_deg(i);

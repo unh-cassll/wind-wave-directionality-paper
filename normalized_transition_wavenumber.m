@@ -64,20 +64,18 @@ beta = 2*E*g^0.5./EC_ustar_m_s;
 
 %
 
-% Our runs are colored by their wave-wind misalignment, theta_m-theta_wind; runs
-% with no misalignment (no gated wind record) hold their place in the scatter as
-% open gray circles rather than dropping out
-mc = wave_wind_misalignment_color();
-dtheta_m = mc.value;
+% Our runs are colored by their wind-fetch category; runs with no gated wind
+% record hold their place in the scatter as open gray circles
+fc = wind_fetch_category();
+n_cat = length(fc.labels);
 
 no_dir_color = [1 1 1]*0.35;
-% Green for the published comparison, so it separates from the present study
-% rather than blending into the gray guide lines
-RM_color = [0.13 0.55 0.24];
+RM_color = [1 1 1]*0.5;
 
 msize = 9;
 lw_thin = 0.5;
 lw_thick = 1.5;
+fA_marker = 0.85;
 
 fA = 0.25;
 
@@ -108,23 +106,29 @@ h_RF10_k2 = plot(RF10_k2(:,1),RF10_k2(:,2),'s','markerfacecolor','w','markeredge
 h_RM2010_CI = fill([RM2010_wave_age; flipud(RM2010_wave_age)],[RM2010_ko_kp_CI(:,1); flipud(RM2010_ko_kp_CI(:,2))],RM_color);
 h_RM2010_fit = plot(RM2010_wave_age,RM2010_ko_kp,'Color',RM_color,'linewidth',3);
 scatter(wave_age_full,k_eq_end./k_p(:),scat_size,'MarkerEdgeColor',no_dir_color,'LineWidth',lw_thin);
-scatter(wave_age_full,k_eq_end./k_p(:),scat_size,dtheta_m(:),'filled','MarkerEdgeColor','k','LineWidth',lw_thin);
-h_ours = plot(NaN,NaN,'o','markerfacecolor','none','markeredgecolor','k','markersize',msize,'linewidth',lw_thin);
+kn_kp = k_eq_end(:)./k_p(:);
+h_cat = gobjects(1,n_cat);
+for cat_num = 1:n_cat
+
+    inds_cat = fc.cat == cat_num;
+
+    h_cat(cat_num) = scatter(wave_age_full(inds_cat),kn_kp(inds_cat),scat_size,fc.colors(cat_num,:), ...
+        'filled','MarkerEdgeColor','none','MarkerFaceAlpha',fA_marker);
+
+end
 hold off
 box on
 ax_struc(1).ax = gca;
 ax_struc(1).ax.XScale = 'log';
 ax_struc(1).ax.YScale = 'log';
-colormap(ax_struc(1).ax,mc.cmap)
-clim(mc.clims)
 xlim([10 100])
 ylim([1 200])
 xlabel('$\mathrm{c_p/u_*}$','Interpreter','LaTeX')
 ylabel('$\mathrm{k_n/k_p,\ obs.}$','Interpreter','LaTeX')
 
-H = [h_ours h_RM2010_fit];
-L = {'present study','Romero & Melville [2010]'};
-legend(H,L,'Location','southwest')
+H = [h_cat h_RM2010_fit];
+L = [fc.labels {'Romero & Melville [2010]'}];
+legend(H,L,'Location','southeast')
 
 h_RM2010_CI.FaceAlpha = fA;
 
@@ -132,16 +136,18 @@ nexttile(2)
 hold on
 plot([1 200],[1 200],'--','Color',0.5*[1 1 1],'linewidth',2)
 scatter(ko_HW_full./k_p,k_eq_end./k_p,scat_size,'MarkerEdgeColor',no_dir_color,'LineWidth',lw_thin)
-scatter(ko_HW_full./k_p,k_eq_end./k_p,scat_size,dtheta_m(:),'filled','MarkerEdgeColor','k','LineWidth',lw_thin)
+kn_kp_HW = ko_HW_full(:)./k_p(:);
+for cat_num = 1:n_cat
+
+    inds_cat = fc.cat == cat_num;
+
+    scatter(kn_kp_HW(inds_cat),kn_kp(inds_cat),scat_size,fc.colors(cat_num,:), ...
+        'filled','MarkerEdgeColor','none','MarkerFaceAlpha',fA_marker);
+
+end
 hold off
 box on
 ax_struc(2).ax = gca;
-colormap(ax_struc(2).ax,mc.cmap)
-clim(mc.clims)
-cbar = colorbar;
-set(get(cbar,'Title'),'String',mc.label,'Interpreter','LaTeX')
-cbar.Ticks = mc.ticks;
-cbar.TickLabels = mc.ticklabels;
 ax_struc(2).ax.XScale = 'log';
 ax_struc(2).ax.YScale = 'log';
 xlim([1 200])
@@ -149,9 +155,15 @@ ylim([1 200])
 xlabel('$\mathrm{k_n/k_p,\ Hwang\ \&\ Wang\ [2001]}$','Interpreter','LaTeX')
 ylabel('$\mathrm{k_n/k_p,\ obs.}$','Interpreter','LaTeX')
 
-% Wave-age axis: integer, explicitly log-spaced ticks, as in fig 6
-ax_struc(1).ax.XTick = nice_log_ticks(ax_struc(1).ax.XLim);
-ax_struc(1).ax.XTickLabel = arrayfun(@(v) sprintf('%d',v),ax_struc(1).ax.XTick,'UniformOutput',false);
+% Wave-age axis: octave-spaced major ticks
+wave_age_ticks = [10 20 40 80];
+wave_age_ticklabels = cell(1,length(wave_age_ticks));
+for n = 1:length(wave_age_ticks)
+    wave_age_ticklabels{n} = sprintf('%d',wave_age_ticks(n));
+end
+
+ax_struc(1).ax.XTick = wave_age_ticks;
+ax_struc(1).ax.XTickLabel = wave_age_ticklabels;
 ax_struc(1).ax.XMinorTick = 'off';
 
 ax_struc(1).ax.YTick = 10.^[0 1 2];

@@ -18,7 +18,7 @@ c_disp = omega_disp./k;
 
 k_of_c = fit(c_disp(:),k(:),'spline');
 
-dir_ticks = 180*(-1:0.25:1);
+dir_ticks = 180*(-1:1/6:1);
 
 DN_start = datenum(2019,10,16,0,0,0);
 time = double(ncread(compilation_nc_name,'time'));
@@ -129,10 +129,10 @@ for IPX_ind = 1:N
         D_m_particular = D_m(waves_and_wind_ind);
 
         Lambda_C_theta_particular = squeeze(Lambda_c_theta_02(inds_retain,:,IPX_ind))*180/pi;
-        Lambda_C_theta_plot = smoothdata2(Lambda_C_theta_particular,'movmedian',{5,15});      
+        Lambda_C_theta_plot = smoothdata2(Lambda_C_theta_particular,'movmedian',{5,15});
         sum_Lambda_c_theta = sum(Lambda_C_theta_particular.*c_phase(:).*dc_vec(:),'all','omitnan');
 
-        Lambda_C_theta_particular = smoothdata2(Lambda_C_theta_particular,'movmedian',{5,5});        
+        Lambda_C_theta_particular = smoothdata2(Lambda_C_theta_particular,'movmedian',{5,5});
 
         Lambda_C_theta_particular = Lambda_C_theta_particular*sum_Lambda_c_theta/sum(Lambda_C_theta_particular.*c_phase(:).*dc_vec(:),'all','omitnan');
         Lambda_C_theta_plot = Lambda_C_theta_plot*sum_Lambda_c_theta/sum(Lambda_C_theta_plot.*c_phase(:).*dc_vec(:),'all','omitnan');
@@ -308,7 +308,7 @@ switch option
 end
 box on
 ylim(-[1.3e-2 0])
-xlim([-1 1]*180)
+xlim([-1 1]*90)
 xlabel('$\mathrm{\theta-\theta_{br}\ [^\circ]}$','Interpreter','LaTeX')
 ylabel('$\mathrm{\tau_{br}(\theta)\ [N\ m^{-2}rad^{-1}]}$','Interpreter','LaTeX')
 ax_struc(1).ax = gca;
@@ -341,7 +341,7 @@ for i = 1:length(wave_age_centers)
 
     tau_br_quantile_angles(3,i) = theta_downwind(i_m);
 
-        i_s = find(tau_br_cumu_int_norm(:,i)>0.25,1,'first');
+    i_s = find(tau_br_cumu_int_norm(:,i)>0.25,1,'first');
     i_f = find(tau_br_cumu_int_norm(:,i)>0.75,1,'first');
 
     x = [[theta_downwind(i_s) theta_downwind(i_f)] fliplr([theta_downwind(i_s) theta_downwind(i_f)])];
@@ -356,7 +356,7 @@ end
 hold off
 box on
 ylim([-1.2 0])
-xlim([-1 1]*180)
+xlim([-1 1]*90)
 xlabel('$\mathrm{\theta-\theta_{br}\ [^\circ]}$','Interpreter','LaTeX')
 ylabel('$\tau_{\mathrm{br}}(\theta)$, norm.','Interpreter','latex')
 ax_struc(2).ax = gca;

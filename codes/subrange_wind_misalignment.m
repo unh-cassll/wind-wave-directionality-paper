@@ -1,22 +1,23 @@
-% Mean propagation direction of each spectral subrange and its misalignment with
-% the wind, per run. Extracted from wind_wave_subrange_directions.m so the same
-% directions feed both the figure and the residual-scatter analysis.
+% Mean propagation direction of each spectral subrange, and its misalignment
+% with the wind, per run
 %
 % Subrange directions are energy-weighted circular means of the directional
-% spectrum over each band: equilibrium and saturation from the combined
-% frequency/wavenumber spectra, short gravity between k_sat_end and 117 rad/m,
-% gravity-capillary over 117-371 rad/m within +/-90 deg of the short-gravity
-% direction. Runs with the wind blowing over the platform from behind are
-% dropped, as are breaking crests propagating offshore.
+% spectrum over each band:
+% * equilibrium and saturation, from the combined frequency/wavenumber spectra
+% * short gravity, between k_sat_end and 117 rad/m
+% * gravity-capillary, over 117-371 rad/m and within +/-90 deg of the short
+%   gravity direction
 %
-% Returns (all per run, degrees):
-% *theta_m/eq/sat/sg/gc   - subrange mean directions [deg true, going to]
-% *wind_dir_deg_going_to  - wind direction
-%   dtheta_*               - subrange direction minus wind direction
-% *wave_age               - c_p/u_*
-% *breakers, current      - matching pairs for the two non-spectral panels
+% Runs with the wind blowing over the platform from behind are dropped
 %
-% N. Laxague 2026
+% Returns (all per run, in degrees):
+% * theta_m/eq/sat/sg/gc  - subrange mean directions [deg true, going to]
+% * wind_dir_deg_going_to - wind direction
+% * dtheta_*              - subrange direction minus wind direction
+% * wave_age              - c_p/u_*
+% * breakers, current     - matching pairs for the two non-spectral panels
+%
+% Nathan Laxague 2026
 %
 function m = subrange_wind_misalignment()
 
@@ -179,12 +180,12 @@ integrated_wave_breaking_quantities.wdir_deg = ...
     oncoming_wind_mask(mod(integrated_wave_breaking_quantities.wdir_deg+180,360), ...
     gset.ASIT_COARE_wind_gate_deg).*integrated_wave_breaking_quantities.wdir_deg;
 
-% Remove runs for which breaking crests are moving offshore (+/-90 degrees)
-integrated_wave_breaking_quantities.theta_br(integrated_wave_breaking_quantities.theta_br<270 & integrated_wave_breaking_quantities.theta_br > 90) = NaN;
+% Offshore-propagating crest gate (+/-90 degrees), currently disabled
+% integrated_wave_breaking_quantities.theta_br(integrated_wave_breaking_quantities.theta_br<270 & integrated_wave_breaking_quantities.theta_br > 90) = NaN;
 
 % Contiguous acquisition blocks, for tests that must tolerate the hour-to-hour
-% correlation between runs. Breaking crests are on their own acquisition list
-% (camera 02, 212 records), not the 190-run production grid.
+% correlation between runs. Breaking crests sit on their own acquisition list
+% (camera 02, 212 records), not the 190-run production grid
 t_run = ncread(supporting_nc_name,'time');
 L = load('data/ASIT2019_Lambda_c_theta_all.mat','DTime_02');
 t_br = 86400*datenum(L.DTime_02);
