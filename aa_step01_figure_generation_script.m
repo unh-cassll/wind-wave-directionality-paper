@@ -3,7 +3,7 @@
 % "The directionality of wind waves
 % from equilibrium to gravity-capillary scales"
 %
-% N. Laxague and co-authors, 2026
+% Nathan Laxague and co-authors, 2026
 %
 % First argument: figure number(s) to generate [default: 1:num_figs]
 % Second argument: print flag [true or false]
@@ -61,7 +61,7 @@ nu_high = 4;
 U_low = 1;
 U_high = 13;
 dU = 2;
-wave_age_lims = [10 90];
+wave_age_lims = [10 100];
 wave_age_bin_spacing = 'log';  % 'quantile' (equal count), 'log' (wave age ~ 1/U10, skewed), or 'linear'
 n_wave_age_bins = 5;                % quantile and log spacing
 d_wave_age = 15;                    % linear spacing only
@@ -87,9 +87,11 @@ if ~isempty(wave_age_spacing_override)
 end
 save('data/global_figure_settings.mat','example_run_ind','breaking_example_run_ind','k_high','k_low','f_high','nu_high','U_low','U_high','dU','wave_age_lims','d_wave_age','wave_age_bin_spacing','n_wave_age_bins','wind_source_choice','equilibrium_slope_cut','diving_board_heading_deg','ASIT_EC_wind_gate_deg','ASIT_COARE_wind_gate_deg','ustar_cut','recompute_derived_products')
 
-% Example-case values consumed by the manuscript via \input fragments
+% Example-case values consumed by the manuscript via \input fragments. Wind is
+% read ungated: the example acquisitions are chosen for spectral quality, and
+% run 109 does not pass the oncoming-wind gate
 pk = load('data/ASIT2019_peak_wave_phase_speed.mat');
-wind = wind_forcing();
+wind = wind_forcing([],false);
 U10_coare = wind.U10;
 us_ec = wind.ustar;
 write_tex_macros('figs/tex/values_example_cases.tex', ...
@@ -221,126 +223,12 @@ for fignum = fig_list
 
             end
 
-            %% Figure 07 - directional spectra comparison: f, k
+            %% Figure 07 - scaled wavenumber spectra and transition wavenumbers
 
         case 7
 
             figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 1 0.75])
-
-            directional_spectra_spreading_delta(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'directional_spectra_spreading_delta.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'directional_spectra_spreading_delta.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure 08 - breaking crest length distribution and S_ds
-
-        case 8
-
-            figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 0.5 1])
-
-            lambda_S_ds_example(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'lambda_S_ds_example.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'lambda_S_ds_example.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure 09 - short wave spectrum with S_ds contours and wavenumber-integrated quantities (e.g., saturation-range spreading function and S_ds)
-
-        case 9
-
-            figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 0.5 1.33])
-
-            spectra_S_ds_contours_example(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'spectra_S_ds_contours_example.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'spectra_S_ds_contours_example.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure 10 - S_ds(theta), binned by wave age
-
-        case 10
-
-            figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 0.5 1])
-
-            S_ds_theta_all(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'S_ds_theta_all.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'S_ds_theta_all.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure 11 - wave breaking momentum flux and breaking direction
-
-        case 11
-
-            figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 0.5 1])
-
-            breaking_wave_momentum_and_energy_flux(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'breaking_direction_rel_wind_by_wave_age.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'breaking_direction_rel_wind_by_wave_age.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure 12 - wave-relative wind direction with wind speed
-
-        case 12
-
-            figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 1 1.1])
-
-            wind_wave_subrange_directions(fignum,fsize)
-
-            if print_flag
-
-                figure(fignum)
-                pause(0.5)
-                print([fig_folder 'wind_wave_subrange_directions.svg'],'-dsvg')
-                pause(0.5)
-                print([fig_folder 'wind_wave_subrange_directions.png'],'-dpng',raster_dpi_string)
-
-            end
-
-            %% Figure 13 - scaled wavenumber spectra and transition wavenumbers
-
-        case 13
-
-            figure(fignum);clf
-            set(fignum,'Position',full_pos.*[1 1 0.55 1])
 
             scaled_spectra_and_transition_wavenumbers(fignum,fsize)
 
@@ -354,9 +242,9 @@ for fignum = fig_list
 
             end
 
-            %% Figure 14 - normalized transition wavenumber
+            %% Figure 08 - normalized transition wavenumber
 
-        case 14
+        case 8
 
             figure(fignum);clf
             set(fignum,'Position',full_pos.*[1 1 1 0.55])
@@ -373,7 +261,121 @@ for fignum = fig_list
 
             end
 
-            %% Figure 15-16 - directional spreading, binned by wave age and plotted against normalized wavenumber
+            %% Figure 09 - directional spectra comparison: f, k
+
+        case 9
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 1 0.75])
+
+            directional_spectra_spreading_delta(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'directional_spectra_spreading_delta.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'directional_spectra_spreading_delta.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 10 - breaking crest length distribution and S_ds
+
+        case 10
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 0.5 1])
+
+            lambda_S_ds_example(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'lambda_S_ds_example.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'lambda_S_ds_example.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 11 - short wave spectrum with S_ds contours and wavenumber-integrated quantities (e.g., saturation-range spreading function and S_ds)
+
+        case 11
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 0.5 1.33])
+
+            spectra_S_ds_contours_example(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'spectra_S_ds_contours_example.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'spectra_S_ds_contours_example.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 12 - S_ds(theta), binned by wave age
+
+        case 12
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 0.5 1])
+
+            S_ds_theta_all(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'S_ds_theta_all.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'S_ds_theta_all.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 13 - wave breaking momentum flux and breaking direction
+
+        case 13
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 0.5 1])
+
+            breaking_direction_by_fetch(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'breaking_direction_rel_wind_by_fetch.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'breaking_direction_rel_wind_by_fetch.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 14 - wave-relative wind direction with wind speed
+
+        case 14
+
+            figure(fignum);clf
+            set(fignum,'Position',full_pos.*[1 1 1 1.1])
+
+            wind_wave_subrange_directions_by_fetch(fignum,fsize)
+
+            if print_flag
+
+                figure(fignum)
+                pause(0.5)
+                print([fig_folder 'wind_wave_subrange_directions_by_fetch.svg'],'-dsvg')
+                pause(0.5)
+                print([fig_folder 'wind_wave_subrange_directions_by_fetch.png'],'-dpng',raster_dpi_string)
+
+            end
+
+            %% Figure 15 - directional spreading, binned by wave age and plotted against normalized wavenumber
 
         case 15
 
@@ -382,17 +384,21 @@ for fignum = fig_list
 
             wave_age_binned_directional_spreading(fignum,fsize)
 
-            if print_flag
-
-                % explicit handle: the generator also creates figure fignum+1,
-                % and pause() lets the newer figure steal gcf in batch mode
-                h_fig = figure(fignum);
-                pause(0.5)
-                print(h_fig,[fig_folder 'frequency_wavenumber_directional_spreading_binned.svg'],'-dsvg')
-                pause(0.5)
-                print(h_fig,[fig_folder 'frequency_wavenumber_directional_spreading_binned.png'],'-dpng',raster_dpi_string)
-
-            end
+            % Unnormalized companion, cut from the manuscript at revision: still
+            % drawn for inspection, no longer printed. Case 16 draws the
+            % normalized version that the manuscript retains
+            %
+            % if print_flag
+            %
+            %     % explicit handle: the generator also creates figure fignum+1,
+            %     % and pause() lets the newer figure steal gcf in batch mode
+            %     h_fig = figure(fignum);
+            %     pause(0.5)
+            %     print(h_fig,[fig_folder 'frequency_wavenumber_directional_spreading_binned.svg'],'-dsvg')
+            %     pause(0.5)
+            %     print(h_fig,[fig_folder 'frequency_wavenumber_directional_spreading_binned.png'],'-dpng',raster_dpi_string)
+            %
+            % end
 
         case 16
 
