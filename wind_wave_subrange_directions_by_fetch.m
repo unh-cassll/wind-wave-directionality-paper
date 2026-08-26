@@ -212,8 +212,9 @@ disp(count_table)
 % Per-regime, per-category summary statistics: circular median and dispersion
 % of the misalignment, plus an LSQ regression of dtheta_particular on dtheta_m
 % within each category, with a 95% CI from the wild bootstrap over acquisition
-% blocks. Categories holding fewer than min_fit_n runs are tabulated without a
-% slope. The wave-age t-tests print to screen only, documenting that the
+% blocks. Categories holding fewer than min_fit_n runs are tabulated with the
+% case count alone: too few cases to support a slope, a median, or a percentile
+% span. The wave-age t-tests print to screen only, documenting that the
 % categories sample the same forcing regime
 row_names = {'Equilibrium','Saturation','Short Gravity','Gravity-Capillary','Breaking','Current'};
 min_fit_n = 5;
@@ -265,7 +266,8 @@ for n = 1:6
         end
 
         % Within-category regression of the particular misalignment on the
-        % mean-sea misalignment
+        % mean-sea misalignment. The same case-count gate suppresses the
+        % tabulated median and dispersion statistics
         inds_reg = isfinite(ref_c(:)) & isfinite(dth_c(:));
 
         if sum(inds_reg) >= min_fit_n
@@ -276,12 +278,22 @@ for n = 1:6
             slope_val = cr.slope;
             ci_val = cr.CI_wild(:)';
 
+            med_str = sprintf('%.1f',med_c);
+            iqr_str = sprintf('%.1f',iqr_c);
+            idr_str = sprintf('%.1f',idr_c);
+
         else
 
+            % Too few cases to support a slope, a median or a percentile span,
+            % so the row carries the count alone
             slope_str = '--';
             ci_str = '--';
             slope_val = NaN;
             ci_val = [NaN NaN];
+
+            med_str = '--';
+            iqr_str = '--';
+            idr_str = '--';
 
         end
 
@@ -298,8 +310,8 @@ for n = 1:6
             line_end = ' \\ \hline';
         end
 
-        fprintf(fid,'%s & %s & %d & %.1f & %.1f & %.1f & %s & %s%s\n', ...
-            row_head,cat_labels{cat_num},sum(inds_reg),med_c,iqr_c,idr_c,slope_str,ci_str,line_end);
+        fprintf(fid,'%s & %s & %d & %s & %s & %s & %s & %s%s\n', ...
+            row_head,cat_labels{cat_num},sum(inds_reg),med_str,iqr_str,idr_str,slope_str,ci_str,line_end);
 
         stats_rows(end+1,:) = {sprintf('%s, %s',row_names{n},cat_labels{cat_num}), ...
             med_c,iqr_c,idr_c,slope_val,ci_val(1),ci_val(2),sum(inds_reg)}; %#ok<AGROW>
